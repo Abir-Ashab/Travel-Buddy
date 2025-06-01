@@ -1,4 +1,4 @@
-import { USER_Role, USER_STATUS } from "../modules/user/user.constants.ts";
+import { USER_Role, USER_STATUS } from "../src/interfaces/auth.interface.ts";
 
 export const up = async (knex) => {
   return knex.schema.createTable('users', (table) => {

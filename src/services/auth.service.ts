@@ -1,12 +1,12 @@
-import { isPasswordMatched } from "./auth.util";
+import { isPasswordMatched } from "../utils/auth.util";
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { USER_Role } from "../user/user.constants";
-import { TUser } from "../user/user.interface";
-import { TLoginUser } from "./auth.interface";
+import { USER_Role } from "../interfaces/user.interface";
+import { TUser } from "../interfaces/user.interface";
+import { TLoginUser } from "../interfaces/auth.interface";
 import jwt from "jsonwebtoken";
-import config from "../../src/config";
-import KnexConnection from '../../src/database/implementations/knex/KnexConnection';
-import { createUserModel } from "../user/user.model";
+import config from "../config";
+import KnexConnection from '../database/implementations/knex/KnexConnection';
+import { createUserModel } from "../models/user.model";
 import { log } from "console";
 const knexConnection = new KnexConnection();
 await knexConnection.connect();
@@ -69,7 +69,7 @@ const login = async (payload: TLoginUser) => {
   const refreshToken = jwt.sign(jwtPayload, config.jwt_refresh_secret as string, {
       expiresIn: config.jwt_refresh_expires_in,
   });
-  
+
   return {
     accessToken,
     refreshToken,

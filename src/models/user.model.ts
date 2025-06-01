@@ -1,7 +1,7 @@
 // models/user.model.js
 import bcryptjs from "bcryptjs";
-import config from "../../src/config/";
-import { USER_STATUS } from "./user.constants.js";
+import config from "../config";
+import { USER_STATUS } from "../interfaces/user.interface";
 
 class User {
   constructor(knex) {

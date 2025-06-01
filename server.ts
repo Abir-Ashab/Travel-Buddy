@@ -3,8 +3,8 @@ import { config } from 'dotenv';
 import express, { Request, Response } from "express";
 // import globalErrorHandler from "./middlewares/globalErrorHandler";
 // import notFound from "./middlewares/notFound";
-import { UserRoutes } from "./modules/user/user.route";
-import { AuthRoutes } from "./modules/auth/auth.route";
+import { UserRoutes } from "./src/routes/user.route";
+import { AuthRoutes } from "./src/routes/auth.route";
 config(); // Load environment variables from .env file
 const app = express();
 app.use(express.json());

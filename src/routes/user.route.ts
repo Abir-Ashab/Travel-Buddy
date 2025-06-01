@@ -5,11 +5,11 @@
 //
 
 import express from "express";
-import { auth } from "../../middlewares/auth";
-import validateRequest from "../../middlewares/validateRequest";
-import { USER_Role } from "./user.constants";
-import { userControllers } from "./user.controller";
-import { UserValidations } from "./user.validation";
+import { auth } from "../middlewares/auth";
+import validateRequest from "../middlewares/validateRequest";
+import { USER_Role } from "../interfaces/user.interface";
+import { userControllers } from "../controllers/user.controller";
+import { UserValidations } from "../validations/user.validation";
 
 const router = express.Router();
 

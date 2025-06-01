@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { USER_Role, USER_STATUS } from "./user.constants";
+import { USER_Role, USER_STATUS } from "../interfaces/user.interface";
 
 const createAdminValidations = z.object({
   body: z.object({

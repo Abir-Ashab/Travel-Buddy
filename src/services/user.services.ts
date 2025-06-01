@@ -1,7 +1,7 @@
 import { TUser } from "./user.interface";
-import { User } from "./user.model";
-import KnexConnection from '../../src/database/implementations/knex/KnexConnection';
-import { createUserModel } from "./user.model";
+import { User } from "../models/user.model";
+import KnexConnection from '../database/implementations/knex/KnexConnection';
+import { createUserModel } from "../models/user.model";
 const knexConnection = new KnexConnection();
 await knexConnection.connect();
 

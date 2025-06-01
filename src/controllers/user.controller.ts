@@ -1,5 +1,5 @@
-import { catchAsync } from "../../utils/catchAsync";
-import { UserServices } from "./user.services";
+import { catchAsync } from "../utils/catchAsync";
+import { UserServices } from "../services/user.services";
 
 const createAdmin = catchAsync(async (req, res) => {
   const result = await UserServices.createAdminIntoDB(req.body);

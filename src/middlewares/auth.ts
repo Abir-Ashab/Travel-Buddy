@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import config from "../src/config";
+import config from "../config";
 import AppError from "../errors/AppError";
-import { USER_Role, USER_STATUS } from "../modules/user/user.constants";
+import { USER_Role, USER_STATUS } from "../interfaces/user.interface";
 import { catchAsync } from "../utils/catchAsync";
-import { createUserModel } from "../modules/user/user.model";
-import KnexConnection from '../src/database/implementations/knex/KnexConnection';
+import { createUserModel } from "../models/user.model";
+import KnexConnection from '..//database/implementations/knex/KnexConnection';
 const knexConnection = new KnexConnection();
 await knexConnection.connect();
 

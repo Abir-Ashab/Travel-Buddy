@@ -1,6 +1,6 @@
-import config from "../../src/config";
-import { catchAsync } from "../../utils/catchAsync";
-import { AuthServices } from "./auth.service";
+import config from "../config";
+import { catchAsync } from "../utils/catchAsync";
+import { AuthServices } from "../services/auth.service";
 
 const register = catchAsync(async (req, res) => {
   const result = await AuthServices.register(req.body);
