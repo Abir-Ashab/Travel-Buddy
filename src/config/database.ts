@@ -1,10 +1,13 @@
-require('dotenv').config();
-module.exports = {
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const config = {
   orm: process.env.DB_ORM || 'knex',
-  
+
   // Database Type
-  type: process.env.DB_TYPE || 'postgresql', 
-  
+  type: process.env.DB_TYPE || 'postgresql',
+
   // Database Configurations
   postgresql: {
     host: process.env.PG_HOST || 'localhost',
@@ -14,7 +17,7 @@ module.exports = {
     password: process.env.PG_PASSWORD || '312889',
     ssl: process.env.PG_SSL === 'true' ? { rejectUnauthorized: false } : false,
   },
-  
+
   mysql: {
     host: process.env.MYSQL_HOST || 'localhost',
     port: parseInt(process.env.MYSQL_PORT || '3306'),
@@ -22,11 +25,11 @@ module.exports = {
     user: process.env.MYSQL_USER || 'root',
     password: process.env.MYSQL_PASSWORD || 'password',
   },
-  
+
   sqlite: {
     filename: process.env.SQLITE_PATH || './database.sqlite',
   },
-  
+
   mongodb: {
     uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/myapp',
     options: {
@@ -34,7 +37,7 @@ module.exports = {
       useUnifiedTopology: true,
     }
   },
-  
+
   // Connection Pool Settings
   pool: {
     min: parseInt(process.env.DB_POOL_MIN || '2'),
@@ -45,3 +48,5 @@ module.exports = {
     idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT || '30000'),
   }
 };
+
+export default config;

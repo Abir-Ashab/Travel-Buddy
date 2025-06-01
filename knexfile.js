@@ -1,8 +1,13 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+// Load environment variables from .env file
+dotenv.config();
 
-const path = require('path');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-module.exports = {
+export default {
   development: {
     client: getClient(),
     connection: getConnection(),
@@ -15,7 +20,7 @@ module.exports = {
     },
     useNullAsDefault: process.env.DB_TYPE === 'sqlite'
   }
-}
+};
 
 function getClient() {
   switch (process.env.DB_TYPE) {
@@ -26,7 +31,7 @@ function getClient() {
     case 'sqlite':
       return 'sqlite3';
     default:
-      return 'sqlite3'; // Default fallback
+      return 'sqlite3';
   }
 }
 
@@ -41,7 +46,6 @@ function getConnection() {
         password: process.env.PG_PASSWORD || '312889',
         ssl: process.env.PG_SSL === 'true' ? { rejectUnauthorized: false } : false
       };
-
     case 'mysql':
       return {
         host: process.env.MYSQL_HOST || 'localhost',
@@ -50,7 +54,6 @@ function getConnection() {
         user: process.env.MYSQL_USER || 'root',
         password: process.env.MYSQL_PASSWORD || 'password'
       };
-
     case 'sqlite':
     default:
       return {

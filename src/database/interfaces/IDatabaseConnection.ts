@@ -32,4 +32,4 @@ class IDatabaseConnection {
   }
 }
 
-module.exports = IDatabaseConnection;
+export default IDatabaseConnection;

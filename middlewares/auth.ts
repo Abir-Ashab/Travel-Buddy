@@ -3,8 +3,14 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../src/config";
 import AppError from "../errors/AppError";
 import { USER_Role, USER_STATUS } from "../modules/user/user.constants";
-import { User } from "../modules/user/user.model";
 import { catchAsync } from "../utils/catchAsync";
+import { createUserModel } from "../modules/user/user.model";
+import KnexConnection from '../src/database/implementations/knex/KnexConnection';
+const knexConnection = new KnexConnection();
+await knexConnection.connect();
+
+const knexInstance = knexConnection.getClient(); // This returns this.client
+const userModel = createUserModel(knexInstance);
 
 export const auth = (...requiredRoles: (keyof typeof USER_Role)[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -19,10 +25,12 @@ export const auth = (...requiredRoles: (keyof typeof USER_Role)[]) => {
       config.jwt_access_secret as string
     );
 
+    console.log("verfiedToken", verfiedToken);
+    
     const { role, email } = verfiedToken as JwtPayload;
-
-    const user = await User.findOne({ email });
-
+    console.log(email, role);
+    const user = await userModel.findByEmail(email);
+    console.log("user", user);
     if (!user) {
       throw new AppError(401, "User not found");
     }
@@ -34,7 +42,6 @@ export const auth = (...requiredRoles: (keyof typeof USER_Role)[]) => {
     if (!requiredRoles.includes(role)) {
       throw new AppError(401, "You are not authorized to access this route");
     }
-
     next();
   });
 };

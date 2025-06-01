@@ -1,7 +1,5 @@
-const dbConfig = require('../../config/database');
-
-// ORMs
-const KnexConnection = require('../implementations/knex/KnexConnection');
+import dbConfig from '../../config/database';
+import KnexConnection from '../implementations/knex/KnexConnection';
 // const PrismaConnection = require('../implementations/prisma/PrismaConnection');
 // const TypeORMConnection = require('../implementations/typeorm/TypeORMConnection');
 // const MongooseConnection = require('../implementations/mongoose/MongooseConnection');
@@ -143,4 +141,4 @@ class DatabaseFactory {
   }
 }
 
-module.exports = DatabaseFactory;
+export default DatabaseFactory;

@@ -1,4 +1,4 @@
-const dbConfig = require('../../../config/database');
+import dbConfig from '../../../config/database';
 
 const getKnexConfig = () => {
   const baseConfig = {
@@ -55,4 +55,4 @@ const getKnexConfig = () => {
   }
 };
 
-module.exports = getKnexConfig;
+export default getKnexConfig;

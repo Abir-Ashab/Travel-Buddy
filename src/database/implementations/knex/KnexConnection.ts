@@ -1,9 +1,13 @@
-const knex = require('knex');
-const IDatabaseConnection = require('../../interfaces/IDatabaseConnection');
-const getKnexConfig = require('./knexConfig');
-const dbConfig = require('../../../config/database');
+import knex from 'knex';
+import IDatabaseConnection from '../../interfaces/IDatabaseConnection';
+import getKnexConfig from './knexConfig';
+import dbConfig from '../../../config/database';
 
 class KnexConnection extends IDatabaseConnection {
+  client: any;
+  connected: boolean;
+  config: any;
+
   constructor() {
     super();
     this.client = null;
@@ -61,7 +65,7 @@ class KnexConnection extends IDatabaseConnection {
     return this.connected && this.client !== null;
   }
 
-  async testConnection() {
+  async testConnection(): Promise<void> {
     try {
       if (!this.client) {
         throw new Error('Knex client not initialized');
@@ -81,8 +85,6 @@ class KnexConnection extends IDatabaseConnection {
         default:
           throw new Error(`Unsupported database type: ${dbConfig.type}`);
       }
-      
-      return true;
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Knex connection failed: ${error.message}`);
@@ -159,4 +161,4 @@ class KnexConnection extends IDatabaseConnection {
   }
 }
 
-module.exports = KnexConnection;
+export default KnexConnection;

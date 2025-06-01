@@ -1,13 +1,11 @@
-const DatabaseFactory = require('./factories/DatabaseFactory');
+import DatabaseFactory from './factories/DatabaseFactory';
 
-module.exports = {
-  DatabaseFactory,
-  initialize: () => DatabaseFactory.initialize(),
-  getConnection: () => DatabaseFactory.getConnection(),
-  disconnect: () => DatabaseFactory.disconnect(),
-  testConnection: () => DatabaseFactory.testConnection(),
-  runMigrations: () => DatabaseFactory.runMigrations(),
-  rollbackMigrations: () => DatabaseFactory.rollbackMigrations(),
-  getConnectionInfo: () => DatabaseFactory.getConnectionInfo()
-};
+export { DatabaseFactory };
+export const initialize = () => DatabaseFactory.initialize();
+export const getConnection = () => DatabaseFactory.getConnection();
+export const disconnect = () => DatabaseFactory.disconnect();
+export const testConnection = () => DatabaseFactory.testConnection();
+export const runMigrations = () => DatabaseFactory.runMigrations();
+export const rollbackMigrations = () => DatabaseFactory.rollbackMigrations();
+export const getConnectionInfo = () => DatabaseFactory.getConnectionInfo();
 

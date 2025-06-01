@@ -1,69 +1,125 @@
-import bcryptjs from 'bcryptjs';
-import config from '../../src/config';
-import { TUser } from './user.interface';
-import { USER_Role, USER_STATUS } from './user.constants';
-import KnexConnection from '../../src/database/implementations/knex/KnexConnection';
+// models/user.model.js
+import bcryptjs from "bcryptjs";
+import config from "../../src/config/";
+import { USER_STATUS } from "./user.constants.js";
 
-const knexConnection = new KnexConnection();
-
-const ensureConnected = async () => {
-  if (!knexConnection.isConnected()) {
-    await knexConnection.connect();
+class User {
+  constructor(knex) {
+    this.knex = knex;
+    this.tableName = 'users';
   }
-};
 
-export const User = {
-  async create(user: TUser): Promise<Omit<TUser, 'password'>> {
-    await ensureConnected();
-    const knex = knexConnection.getClient();
+  // pre-save er equivalent: create a new user
+  async create(userData) {
+    // Hash password before saving (pre-save equivalent)
+    const hashedPassword = await bcryptjs.hash(userData.password, Number(config.salt_round));
+    
+    const userToInsert = {
+      ...userData,
+      password: hashedPassword,
+      status: userData.status || USER_STATUS.ACTIVE
+    };
 
-    if (!Object.keys(USER_Role).includes(user.role)) {
-      throw new Error('Invalid role');
+    const [insertedUser] = await this.knex(this.tableName)
+      .insert(userToInsert)
+      .returning('*');
+
+    const { password, ...userWithoutPassword } = insertedUser;
+    return userWithoutPassword;
+  }
+
+  async findById(id, includePassword = false) {
+    const query = this.knex(this.tableName).where({ id });
+    
+    if (!includePassword) {
+      query.select('*').select(this.knex.raw('NULL as password'));
+    }
+    
+    return query.first();
+  }
+
+  // without password
+  async findByEmail(email, includePassword = false) {
+    const query = this.knex(this.tableName).where({ email });
+    
+    if (!includePassword) {
+      query.select('*').select(this.knex.raw('NULL as password'));
+    }
+    
+    return query.first();
+  }
+
+  async findByEmailWithPassword(email) {
+    return this.knex(this.tableName)
+      .where({ email })
+      .first();
+  }
+
+  async updateById(id, updateData) {
+    // If password is being updated, hash it
+    if (updateData.password) {
+      updateData.password = await bcryptjs.hash(updateData.password, Number(config.salt_round));
+      updateData.passwordChangedAt = new Date();
     }
 
-    if (!Object.keys(USER_STATUS).includes(user.status || USER_STATUS.ACTIVE)) {
-      throw new Error('Invalid status');
-    }
-
-    const hashedPassword = await bcryptjs.hash(user.password, Number(config.salt_round));
-
-    const [createdUser] = await knex('users')
-      .insert({
-        name: user.name,
-        role: user.role,
-        email: user.email,
-        password: hashedPassword,
-        status: user.status || USER_STATUS.ACTIVE,
-        passwordChangedAt: user.passwordChangedAt || null,
-      })
-      .returning(['id', 'name', 'email', 'role', 'status', 'passwordChangedAt']);
-
-    return createdUser;
-  },
-
-  async findByEmail(email: string): Promise<TUser | null> {
-    await ensureConnected();
-    const knex = knexConnection.getClient();
-    const user = await knex('users').where({ email }).first();
-    return user || null;
-  },
-
-  async findById(id: number): Promise<TUser | null> {
-    await ensureConnected();
-    const knex = knexConnection.getClient();
-    const user = await knex('users').where({ id }).first();
-    return user || null;
-  },
-
-  async updatePassword(id: number, newPassword: string): Promise<void> {
-    await ensureConnected();
-    const knex = knexConnection.getClient();
-    const hashedPassword = await bcryptjs.hash(newPassword, Number(config.salt_round));
-    await knex('users')
+    const [updatedUser] = await this.knex(this.tableName)
       .where({ id })
       .update({
-        password: hashedPassword,
-        passwordChangedAt: new Date(),
-      });
+        ...updateData,
+        updated_at: new Date()
+      })
+      .returning('*');
+
+    // Remove password from returned object
+    if (updatedUser) {
+      const { password, ...userWithoutPassword } = updatedUser;
+      return userWithoutPassword;
+    }
+    
+    return null;
   }
-};
+
+  // Update password and set passwordChangedAt
+  async updatePassword(id, newPassword) {
+    const hashedPassword = await bcryptjs.hash(newPassword, Number(config.salt_round));
+    
+    return this.updateById(id, {
+      password: hashedPassword,
+      password_changed_at: new Date()
+    });
+  }
+
+  // Find all users (without passwords)
+  async findAll(filters = {}) {
+    return this.knex(this.tableName)
+      .select('id', 'name', 'role', 'email', 'status', 'password_changed_at', 'created_at', 'updated_at')
+      .where(filters);
+  }
+
+  // Delete user
+  async deleteById(id) {
+    return this.knex(this.tableName)
+      .where({ id })
+      .del();
+  }
+
+  // Check if password was changed after a certain date (useful for JWT validation)
+  async wasPasswordChangedAfter(userId, timestamp) {
+    const user = await this.knex(this.tableName)
+      .select('password_changed_at')
+      .where({ id: userId })
+      .first();
+
+    if (!user || !user.password_changed_at) {
+      return false;
+    }
+
+    return new Date(user.password_changed_at) > new Date(timestamp);
+  }
+}
+
+// Create and export a factory function
+export const createUserModel = (knex) => new User(knex);
+
+// Or export the class if you prefer
+export { User };
