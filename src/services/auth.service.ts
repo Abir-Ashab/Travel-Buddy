@@ -60,7 +60,7 @@ const login = async (payload: TLoginUser) => {
     role: user.role,
   };
 
-  console.log("jwtPayload", jwtPayload);
+  // console.log("jwtPayload", jwtPayload);
   
   const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
     expiresIn: config.jwt_access_expires_in,

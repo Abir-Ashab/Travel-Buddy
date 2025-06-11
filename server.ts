@@ -1,15 +1,13 @@
 import { initialize } from './src/database';
 import { config } from 'dotenv';
 import express, { Request, Response } from "express";
-// import globalErrorHandler from "./middlewares/globalErrorHandler";
-// import notFound from "./middlewares/notFound";
+// import globalErrorHandler from "./src/middlewares/globalErrorHandler";
+// import notFound from "./src/middlewares/notFound";
 import { UserRoutes } from "./src/routes/user.route";
 import { AuthRoutes } from "./src/routes/auth.route";
 config(); // Load environment variables from .env file
 const app = express();
 app.use(express.json());
-
-
 
 const PORT = process.env.PORT || 3000;
 const startServer = async () => {
