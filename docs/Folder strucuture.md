@@ -66,27 +66,17 @@ travel-backend/
 
 ---
 
-## 1. **AUTH ROUTES** (`/api/auth`) - 4 APIs  DONE
+## 1. **AUTH ROUTES** (`/api/auth`) - 2 APIs 
 - `POST /register` - User registration
 - `POST /login` - User login
-- `POST /logout` - User logout
-- `POST /refresh` - Refresh token
 
 ---
 
-## 2. **USER ROUTES** (`/api/users`) - 8 APIs
-
-### Profile Management (5 APIs)
+## 2. **USER ROUTES** (`/api/users`) - 4 APIs
 - `GET /profile` - Get current user profile
-- `PUT /profile` - Update user profile
-- `POST /profile/avatar` - Upload profile picture
-- `PUT /upgrade-to-traveler` - Upgrade from Explorer to Traveler
+- `POST /create-admin` - create admin
+- `PUT /upgrade` - Upgrade from Explorer to Traveler
 - `DELETE /account` - Delete user account
-
-### User Discovery (3 APIs)
-- `GET /travelers` - Get list of travelers for matchmaking
-- `GET /travelers/:id` - Get specific traveler profile
-- `POST /travelers/:id/connect` - Send connection request
 
 ---
 
