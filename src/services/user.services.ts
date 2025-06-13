@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 import { TUser } from "../interfaces/user.interface";
 import { User } from "../models/user.model";
 import KnexConnection from '../database/implementations/knex/KnexConnection';
 import { createUserModel } from "../models/user.model";
 import { USER_Role } from "../interfaces/user.interface";
+=======
+import { TUser } from "./user.interface";
+import { User } from "../models/user.model";
+import KnexConnection from '../database/implementations/knex/KnexConnection';
+import { createUserModel } from "../models/user.model";
+>>>>>>> b19da4c5f0fa77853257d8697e886f75cbf191af
 const knexConnection = new KnexConnection();
 await knexConnection.connect();
 
@@ -14,6 +21,7 @@ const createAdminIntoDB = async (payload: TUser) => {
   return admin;
 };
 const updateUser = async (_id: string, payload: TUser) => {
+<<<<<<< HEAD
   const user = await userModel.updateById({ _id }, payload);
   return user;
 };
@@ -38,12 +46,19 @@ const upgradeToTraveler = async (userId: string) => {
   user.role = USER_Role.TRAVELER;
   await userModel.updateById({ _id: userId }, user);
   return user;
+=======
+  const admin = await userModel.updateById({ _id }, payload);
+  return admin;
+>>>>>>> b19da4c5f0fa77853257d8697e886f75cbf191af
 };
 
 export const UserServices = {
   createAdminIntoDB,
   updateUser,
+<<<<<<< HEAD
   getUserProfile,
   deleteUser,
   upgradeToTraveler,
+=======
+>>>>>>> b19da4c5f0fa77853257d8697e886f75cbf191af
 };

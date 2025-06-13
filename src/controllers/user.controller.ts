@@ -22,6 +22,7 @@ const updateUser = catchAsync(async (req, res) => {
   });
 });
 
+<<<<<<< HEAD
 // user profile
 const getUserProfile = catchAsync(async (req, res) => {
   const { userId } = req.params;
@@ -63,4 +64,9 @@ export const userControllers = {
   getUserProfile,
   deleteUser,
   upgradeToTraveler,
+=======
+export const userControllers = {
+  createAdmin,
+  updateUser,
+>>>>>>> b19da4c5f0fa77853257d8697e886f75cbf191af
 };

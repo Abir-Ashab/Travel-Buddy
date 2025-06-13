@@ -3,8 +3,13 @@ import { catchAsync } from "../utils/catchAsync";
 import { AuthServices } from "../services/auth.service";
 
 const register = catchAsync(async (req, res) => {
+<<<<<<< HEAD
   console.log("body", req.body);
   const result = await AuthServices.register(req.body);
+=======
+  const result = await AuthServices.register(req.body);
+
+>>>>>>> b19da4c5f0fa77853257d8697e886f75cbf191af
   res.status(200).json({
     success: true,
     message: "User registered successfully!",
