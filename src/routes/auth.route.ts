@@ -1,16 +1,12 @@
-//  /create-admin, superAdmin,admin post
-// /:authid- admin, superadmin put
-// /:authid-  get
-// /me - auth own data. put
-//
-
 import express from "express";
 import { authControllers } from "../controllers/auth.controller";
+import { authMiddleware } from "../middlewares/auth.middleware";
+import { USER_Role } from "../interfaces/user.interface";
 
 const router = express.Router();
 
 router.post("/register", authControllers.register);
-router.post("/login", authControllers.login);
+router.post("/login", authMiddleware(USER_Role.EXPLORER, USER_Role.TRAVELER), authControllers.login);
 
 export const AuthRoutes = router;
 

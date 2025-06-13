@@ -36,7 +36,7 @@ const getUserProfile = catchAsync(async (req, res) => {
 
 // delete account
 const deleteUser = catchAsync(async (req, res) => {
-  const { userId } = req.params;
+  const { userId } = req.body;
   await UserServices.deleteUser(userId);
 
   res.status(204).json({
@@ -47,8 +47,8 @@ const deleteUser = catchAsync(async (req, res) => {
 
 // upgrade to traveler
 const upgradeToTraveler = catchAsync(async (req, res) => {
-  const { userId } = req.params;
-  const result = await UserServices.upgradeToTraveler(userId);
+  const { id } = req.body;
+  const result = await UserServices.upgradeToTraveler(id);
 
   res.status(200).json({
     success: true,

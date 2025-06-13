@@ -37,15 +37,15 @@ const getPost = catchAsync(async (req: Request, res: Response) => {
 
 const updatePost = catchAsync(async (req: Request, res: Response) => {
     const validatedData = updatePostSchema.parse(req.body);
-    const postId = req.params.id;
-    const userId = req.params.userId;
+    const postId = req.body.post_id;
+    const userId = req.body.user_id;
     const post = await postService.updatePost(postId, userId, validatedData);
     res.json({ data: post });
 });
 
 const toggleLike = catchAsync(async (req: Request, res: Response) => {
-    const postId = req.params.id;
-    const userId = req.params.userId;
+    const postId = req.body.post_id;
+    const userId = req.body.user_id || req.params.user_id; // Use params if available
     const result = await postService.toggleLike(userId, postId);
     res.json({ data: result });
 });
@@ -57,14 +57,15 @@ const getPostLikes = catchAsync(async (req: Request, res: Response) => {
 });
 
 const toggleSave = catchAsync(async (req: Request, res: Response) => {
-    const postId = req.params.id;
-    const userId = req.params.userId;
+    const postId = req.body.post_id;
+    const userId = req.body.user_id;
     const result = await postService.toggleSave(userId, postId);
     res.json({ data: result });
 });
 
 const getSavedPosts = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.params.userId;
+    const userId = req.params.id;
+    console.log("userId", userId);
     const posts = await postService.getSavedPosts(userId);
     res.json({ data: posts });
 });
@@ -72,8 +73,8 @@ const getSavedPosts = catchAsync(async (req: Request, res: Response) => {
 
 const reportPost = catchAsync(async (req: Request, res: Response) => {
     const validatedData = reportPostSchema.parse(req.body);
-    const postId = req.params.id;
-    const userId = req.params.userId;
+    const postId = req.body.post_id;
+    const userId = req.body.user_id;
     const report = await postService.reportPost(
       userId,
       postId,
@@ -94,7 +95,7 @@ const getTrendingPosts = catchAsync(async (req: Request, res: Response) => {
 });
 
 const sharePost = catchAsync(async (req: Request, res: Response) => {
-    const postId = req.params.id;
+    const postId = req.body.post_id;
     const result = await postService.sharePost(postId);
     res.json({ data: result });
 });

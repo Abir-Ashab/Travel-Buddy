@@ -138,13 +138,13 @@ class PostModel {
     }
   }
 
-  async getLikes(postId : string): Promise<Like[]> {
+  async getLikes(postId: string): Promise<Like[]> {
     return this.knex(this.likesTable)
       .where({ post_id: postId })
       .orderBy('created_at', 'desc');
   }
 
-  async isLikedByUser(userId: string, postId : string): Promise<boolean> {
+  async isLikedByUser(userId: string, postId: string): Promise<boolean> {
     const like = await this.knex(this.likesTable)
       .where({ user_id: userId, post_id: postId })
       .first();
@@ -152,7 +152,7 @@ class PostModel {
   }
 
   // Save operations
-  async toggleSave(userId: string, postId : string): Promise<boolean> {
+  async toggleSave(userId: string, postId: string): Promise<boolean> {
     const existing = await this.knex(this.savedPostsTable)
       .where({ user_id: userId, post_id: postId })
       .first();
@@ -185,7 +185,7 @@ class PostModel {
     return posts.map(this.formatPost);
   }
 
-  async isSavedByUser(userId: string, postId : string): Promise<boolean> {
+  async isSavedByUser(userId: string, postId: string): Promise<boolean> {
     const saved = await this.knex(this.savedPostsTable)
       .where({ user_id: userId, post_id: postId })
       .first();
@@ -228,8 +228,5 @@ class PostModel {
   }
 }
 
-// Create and export a factory function
 export const createPostModel = (knex: any) => new PostModel(knex);
-
-// Or export the class if you prefer
 export { PostModel };

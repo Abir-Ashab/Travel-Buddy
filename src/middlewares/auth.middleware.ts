@@ -5,7 +5,7 @@ import AppError from "../errors/AppError";
 import { USER_Role, USER_STATUS } from "../interfaces/user.interface";
 import { catchAsync } from "../utils/catchAsync";
 import { createUserModel } from "../models/user.model";
-import KnexConnection from '..//database/implementations/knex/KnexConnection';
+import KnexConnection from '../database/implementations/knex/KnexConnection';
 const knexConnection = new KnexConnection();
 await knexConnection.connect();
 
@@ -24,6 +24,7 @@ export const authMiddleware = (...requiredRoles: (keyof typeof USER_Role)[]) => 
       accessToken as string,
       config.jwt_access_secret as string
     );
+    
 
     console.log("verfiedToken", verfiedToken);
     

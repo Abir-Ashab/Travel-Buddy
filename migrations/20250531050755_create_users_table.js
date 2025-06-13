@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import { USER_Role, USER_STATUS } from "../src/interfaces/user.interface.ts";
-=======
-import { USER_Role, USER_STATUS } from "../src/interfaces/auth.interface.ts";
->>>>>>> b19da4c5f0fa77853257d8697e886f75cbf191af
 
 export const up = async (knex) => {
   return knex.schema.createTable('users', (table) => {

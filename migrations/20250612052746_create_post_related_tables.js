@@ -1,7 +1,7 @@
 export const up = async (knex) => {
   // Create posts table
   await knex.schema.createTable('posts', (table) => {
-    table.increments('id').primary();
+    table.increments('id').primary(); // using id UUID PRIMARY KEY DEFAULT gen_random_uuid(),I can get hashed value like "a3f57e34-9e91-4cd9-92e3-7e7a5bbdb19a", but now I will get integer value like 1,2,3...
     table.integer('user_id').unsigned().notNullable();
     table.string('title').notNullable();
     table.text('description').notNullable();

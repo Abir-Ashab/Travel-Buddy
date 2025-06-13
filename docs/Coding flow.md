@@ -43,6 +43,8 @@ This bare-bones approach lets me establish the endpoint quickly and then enhance
 
 ### **Step 4: Implement Thin Controllers**
 
+**Controller Works on to send the data which it gets from req.body, req.params or somewhere. So when you are doing API testing, check there and match the field name.**
+
 The controller remains as **thin as possible**. Its only job is to orchestrate the request flow—extracting data from the request, calling the appropriate service, and formatting the response. No business logic lives here.
 
 export const createAdmin \= async (req: Request, res: Response) \=\> {  
@@ -67,6 +69,8 @@ const createAdmin \= async (payload: ICreateAdminRequest) \=\> {
 };
 
 ### **Step 6: Data Access with Models**
+
+**The main job of this field is to making database query, so here the request field names should be same as db fields name or the name in your schema/migration files.**
 
 Finally, I create the actual **model** that handles database interactions. This includes all the standard CRUD operations like `findById`, `findByEmail`, `create`, and any custom database queries specific to this feature.
 

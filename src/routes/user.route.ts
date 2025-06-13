@@ -1,5 +1,5 @@
 import express from "express";
-import { authMiddleware } from "../middlewares/auth";
+import { authMiddleware } from "../middlewares/auth.middleware";
 import validateRequest from "../middlewares/validateRequest";
 import { USER_Role } from "../interfaces/user.interface";
 import { userControllers } from "../controllers/user.controller";

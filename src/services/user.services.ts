@@ -29,15 +29,20 @@ const deleteUser = async (userId: string) => {
 };
 
 // upgrade to traveler
-const upgradeToTraveler = async (userId: string) => {
+const upgradeToTraveler = async (userId: number) => {
   const user = await userModel.findById(userId);
   if (!user) {
     throw new Error("User not found");
   }
 
-  user.role = USER_Role.TRAVELER;
-  await userModel.updateById({ _id: userId }, user);
-  return user;
+  await userModel.updateById(userId, {
+    role: USER_Role.TRAVELER,
+  });
+
+  return {
+    ...user,
+    role: USER_Role.TRAVELER,
+  };
 };
 
 export const UserServices = {
