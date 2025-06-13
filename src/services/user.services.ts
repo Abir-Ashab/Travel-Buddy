@@ -1,4 +1,4 @@
-import { TUser } from "./user.interface";
+import { TUser } from "../interfaces/user.interface";
 import { User } from "../models/user.model";
 import KnexConnection from '../database/implementations/knex/KnexConnection';
 import { createUserModel } from "../models/user.model";
