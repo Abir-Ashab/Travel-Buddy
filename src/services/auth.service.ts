@@ -16,26 +16,18 @@ const userModel = createUserModel(knexInstance);
 
 const register = async (payload: TUser): Promise<any> => {
   //user existence check
-<<<<<<< HEAD
 
   console.log("payload", payload);
   const email = payload.email;
   console.log("email", email);
 
-=======
-  const email = payload.email;
->>>>>>> b19da4c5f0fa77853257d8697e886f75cbf191af
   const user = await userModel.findByEmail(email);
   if (user) {
     throw new Error("User already exists");
   }
 
   //set user role
-<<<<<<< HEAD
   payload.role = USER_Role.EXPLORER; // Default role for registration
-=======
-  payload.role = USER_Role.USER;
->>>>>>> b19da4c5f0fa77853257d8697e886f75cbf191af
 
   //create user
   const newUser = await userModel.create(payload);
@@ -87,10 +79,6 @@ const login = async (payload: TLoginUser) => {
     refreshToken,
   };
 };
-<<<<<<< HEAD
-
-=======
->>>>>>> b19da4c5f0fa77853257d8697e886f75cbf191af
 export const AuthServices = {
   register,
   login,
