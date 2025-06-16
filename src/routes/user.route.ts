@@ -21,21 +21,12 @@ router.put(
   userControllers.updateUser
 );
 
-// get user profile
-// router.get(
-//   "/me",
-//   auth(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER),
-//   userControllers.getUserProfile
-// );
-
-// delete account
 router.delete(
   "/account",
   authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER),
   userControllers.deleteUser
 );
 
-// upgrade to traveler
 router.put(
   "/upgrade",
   authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER),

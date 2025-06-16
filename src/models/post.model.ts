@@ -226,6 +226,24 @@ class PostModel {
         : []
     };
   }
+
+  // Get reported posts
+  async getReportedPosts(): Promise<Report[]> {
+    return this.knex(this.reportsTable)
+      .join(this.tableName, `${this.reportsTable}.post_id`, `${this.tableName}.id`)
+      .select(`${this.reportsTable}.*`, `${this.tableName}.title`, `${this.tableName}.user_id`)
+      .orderBy(`${this.reportsTable}.created_at`, 'desc');
+  }
+
+  // Update report status
+  async updateReportStatus(reportId: string, status: 'resolved' | 'unresolved'): Promise<Report> {
+    const [report] = await this.knex(this.reportsTable)
+      .where({ id: reportId })
+      .update({ status, updated_at: new Date() })
+      .returning('*');
+    
+    return report;
+  }
 }
 
 export const createPostModel = (knex: any) => new PostModel(knex);

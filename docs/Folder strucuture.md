@@ -66,7 +66,6 @@ travel-backend/
 
 ---
 
-<<<<<<< HEAD
 ## 1. **AUTH ROUTES**  - 4 APIs  DONE
 
 In (`/api/auth`):
@@ -90,19 +89,6 @@ In (`/api/users`):
 - `GET /travelers` - Get list of travelers for matchmaking
 - `GET /travelers/:id` - Get specific traveler profile
 - `POST /travelers/:id/connect` - Send connection request
-=======
-## 1. **AUTH ROUTES** (`/api/auth`) - 2 APIs 
-- `POST /register` - User registration
-- `POST /login` - User login
-
----
-
-## 2. **USER ROUTES** (`/api/users`) - 4 APIs
-- `GET /profile` - Get current user profile
-- `POST /create-admin` - create admin
-- `PUT /upgrade` - Upgrade from Explorer to Traveler
-- `DELETE /account` - Delete user account
->>>>>>> b19da4c5f0fa77853257d8697e886f75cbf191af
 
 ---
 

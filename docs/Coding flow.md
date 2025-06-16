@@ -29,10 +29,6 @@ This approach forces you to think about your data structures upfront, reducing t
 
 Next comes the **model schema and migration files**. This step establishes your data persistence layer before you start implementing business logic. It's tempting to skip this and "figure it out later," but having your database structure defined early prevents architectural headaches down the road.
 
-## **The Core Implementation: Routes, Controllers, and Services**
-
-With the foundation in place, I move to the core implementation following a clean architecture pattern.
-
 ### **Step 3: Create the Basic Route**
 
 I start with the simplest possible route implementation:

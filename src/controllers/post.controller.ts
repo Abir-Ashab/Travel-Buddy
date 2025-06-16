@@ -100,6 +100,25 @@ const sharePost = catchAsync(async (req: Request, res: Response) => {
     res.json({ data: result });
 });
 
+const deletePost = catchAsync(async (req: Request, res: Response) => {
+    const postId = req.params.id;
+    const userId = req.body.user_id;
+    await postService.deletePost(postId, userId);
+    res.status(204).send();
+});
+
+const getReportedPosts = catchAsync(async (req: Request, res: Response) => {
+    console.log("Fetching reported posts");
+    const reports = await postService.getReportedPosts();
+    res.json({ data: reports });
+});
+
+const updateReportStatus = catchAsync(async (req: Request, res: Response) => {
+    const reportId = req.params.id;
+    const status = req.body.status;
+    const updatedReport = await postService.updateReportStatus(reportId, status);
+    res.json({ data: updatedReport });
+});
 
 export const postController = {
     createPost,
@@ -113,5 +132,8 @@ export const postController = {
     reportPost,
     getFeaturedPosts,
     getTrendingPosts,
-    sharePost
+    sharePost,
+    deletePost,
+    getReportedPosts,
+    updateReportStatus
 };
