@@ -6,6 +6,10 @@ import express, { Request, Response } from "express";
 import { UserRoutes } from "./src/routes/user.route";
 import { AuthRoutes } from "./src/routes/auth.route";
 import { createPostRoutes } from "./src/routes/post.route";
+import {transportRoutes} from "./src/routes/transport.route"
+import {accommodationRoutes} from "./src/routes/accomodation.route"
+import {diningRoutes} from "./src/routes/dining.route"
+import {attractionRoutes} from "./src/routes/attraction.route"
 
 config(); // Load environment variables from .env file
 const app = express();
@@ -19,6 +23,10 @@ const startServer = async () => {
     app.use("/api/auth", AuthRoutes);
     app.use("/api/users", UserRoutes);
     app.use("/api/posts", createPostRoutes);
+    app.use("/api/transports", transportRoutes);
+    app.use("/api/accomodations", accommodationRoutes);
+    app.use("/api/dinings", diningRoutes);
+    app.use("/api/attractions", attractionRoutes);
 
   } catch (error) {
     console.error('Application initialization failed:', error.message);

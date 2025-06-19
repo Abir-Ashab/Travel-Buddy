@@ -1,5 +1,4 @@
 import { isPasswordMatched } from "../utils/auth.util";
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { USER_Role } from "../interfaces/user.interface";
 import { TUser } from "../interfaces/user.interface";
 import { TLoginUser } from "../interfaces/auth.interface";
@@ -7,7 +6,6 @@ import jwt from "jsonwebtoken";
 import config from "../config";
 import KnexConnection from '../database/implementations/knex/KnexConnection';
 import { createUserModel } from "../models/user.model";
-import { log } from "console";
 const knexConnection = new KnexConnection();
 await knexConnection.connect();
 
@@ -15,18 +13,11 @@ const knexInstance = knexConnection.getClient(); // This returns this.client
 const userModel = createUserModel(knexInstance);
 
 const register = async (payload: TUser): Promise<any> => {
-  //user existence check
-
-  console.log("payload", payload);
   const email = payload.email;
-  console.log("email", email);
-
   const user = await userModel.findByEmail(email);
   if (user) {
     throw new Error("User already exists");
   }
-
-  //set user role
   payload.role = USER_Role.EXPLORER; // Default role for registration
 
   //create user
@@ -36,12 +27,8 @@ const register = async (payload: TUser): Promise<any> => {
 };
 
 const login = async (payload: TLoginUser) => {
-  console.log("payload", payload);
   const email = payload.email;
-  console.log("email", email);
-
   const user = await userModel.findByEmailWithPassword(email);
-  console.log("user", user);
   if (!user) {
     throw new Error("User not found");
   }
@@ -79,7 +66,28 @@ const login = async (payload: TLoginUser) => {
     refreshToken,
   };
 };
+
+const refreshToken = async (token: string): Promise<{ accessToken: string }> => {
+  if (!token) {
+    throw new Error("No refresh token provided");
+  }
+
+  try {
+    const decoded = jwt.verify(token, config.jwt_refresh_secret as string);
+    const { email, role } = decoded as { email: string; role: string };
+
+    const newAccessToken = jwt.sign({ email, role }, config.jwt_access_secret as string, {
+      expiresIn: config.jwt_access_expires_in,
+    });
+
+    return { accessToken: newAccessToken };
+  } catch (error) {
+    throw new Error("Invalid refresh token");
+  }
+};
+
 export const AuthServices = {
   register,
   login,
+  refreshToken,
 };

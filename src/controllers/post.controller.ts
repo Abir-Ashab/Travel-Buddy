@@ -1,139 +1,303 @@
-// src/controllers/post.controller.ts
 import { Request, Response } from 'express';
-import { postService } from '../services/post.service';
-
-import { 
-  createPostSchema, 
-  updatePostSchema, 
-  postFiltersSchema, 
-  reportPostSchema 
-} from '../validations/post.validation';
+import { PostService } from '../services/post.service';
+import { CreatePostRequest, UpdatePostRequest, PostFilters } from '../interfaces/post.interface';
 import { catchAsync } from '../utils/catchAsync';
 
+const getPosts = catchAsync(async (req: Request, res: Response) => {
+    const filters: PostFilters = req.query;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
 
-const createPost = catchAsync(async (req: Request, res: Response) => {
-  const validatedData = req.body;
-  const { user_id } = req.body;
-  console.log("userId", user_id);
-  const post = await postService.createPost(user_id, validatedData);
-  res.status(201).json({ data: post });
-});
+    const result = await PostService.getPosts(filters, page, limit);
 
-const getAllPosts = catchAsync(async (req: Request, res: Response) => {
-    const validatedQuery = postFiltersSchema.parse(req.query);
-    const posts = await postService.getAllPosts(validatedQuery);
-    res.json({ data: posts });
-});
-
-
-const getPost = catchAsync(async (req: Request, res: Response) => {
-    const postId = req.params.id;
-    const post = await postService.getPostById(postId);
-    if (!post) return res.status(404).json({ error: 'Post not found' });
-
-    res.json({ data: post });
-});
-
-
-const updatePost = catchAsync(async (req: Request, res: Response) => {
-    const validatedData = updatePostSchema.parse(req.body);
-    const postId = req.body.post_id;
-    const userId = req.body.user_id;
-    const post = await postService.updatePost(postId, userId, validatedData);
-    res.json({ data: post });
-});
-
-const toggleLike = catchAsync(async (req: Request, res: Response) => {
-    const postId = req.body.post_id;
-    const userId = req.body.user_id || req.params.user_id; // Use params if available
-    const result = await postService.toggleLike(userId, postId);
-    res.json({ data: result });
-});
-
-const getPostLikes = catchAsync(async (req: Request, res: Response) => {
-    const postId = req.params.id;
-    const likes = await postService.getPostLikes(postId);
-    res.json({ data: likes });
-});
-
-const toggleSave = catchAsync(async (req: Request, res: Response) => {
-    const postId = req.body.post_id;
-    const userId = req.body.user_id;
-    const result = await postService.toggleSave(userId, postId);
-    res.json({ data: result });
-});
-
-const getSavedPosts = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.params.id;
-    console.log("userId", userId);
-    const posts = await postService.getSavedPosts(userId);
-    res.json({ data: posts });
-});
-
-
-const reportPost = catchAsync(async (req: Request, res: Response) => {
-    const validatedData = reportPostSchema.parse(req.body);
-    const postId = req.body.post_id;
-    const userId = req.body.user_id;
-    const report = await postService.reportPost(
-      userId,
-      postId,
-      validatedData.reason,
-      validatedData.description
-    );
-    res.status(201).json({ data: report });
+    res.status(200).json({
+        success: true,
+        data: result
+    });
 });
 
 const getFeaturedPosts = catchAsync(async (req: Request, res: Response) => {
-    const posts = await postService.getFeaturedPosts();
-    res.json({ data: posts });
+    const limit = parseInt(req.query.limit as string) || 10;
+    const posts = await PostService.getFeaturedPosts(limit);
+
+    res.status(200).json({
+        success: true,
+        data: posts
+    });
 });
 
-const getTrendingPosts = catchAsync(async (req: Request, res: Response) => {
-    const posts = await postService.getTrendingPosts();
-    res.json({ data: posts });
+const getPostById = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const post = await PostService.getPostById(id);
+
+    if (!post) {
+        return res.status(404).json({
+            success: false,
+            message: 'Post not found'
+        });
+    }
+
+    res.status(200).json({
+        success: true,
+        data: post
+    });
 });
 
-const sharePost = catchAsync(async (req: Request, res: Response) => {
-    const postId = req.body.post_id;
-    const result = await postService.sharePost(postId);
-    res.json({ data: result });
+const getPostWithDetails = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const post = await PostService.getPostWithDetails(id);
+
+    if (!post) {
+        return res.status(404).json({
+            success: false,
+            message: 'Post not found'
+        });
+    }
+
+    res.status(200).json({
+        success: true,
+        data: post
+    });
+});
+
+const createPost = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.body.user_id;
+    const postData: CreatePostRequest = req.body;
+    console.log(postData);
+    
+    const post = await PostService.createPost(userId, postData);
+
+    res.status(201).json({
+        success: true,
+        message: 'Post created successfully',
+        data: post
+    });
+});
+
+const updatePost = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const userId = req.body.user_id;
+    const updateData: UpdatePostRequest = req.body;
+
+    const post = await PostService.updatePost(id, userId, updateData);
+
+    if (!post) {
+        return res.status(404).json({
+            success: false,
+            message: 'Post not found or unauthorized'
+        });
+    }
+
+    res.status(200).json({
+        success: true,
+        message: 'Post updated successfully',
+        data: post
+    });
 });
 
 const deletePost = catchAsync(async (req: Request, res: Response) => {
-    const postId = req.params.id;
+    const { id } = req.params;
     const userId = req.body.user_id;
-    await postService.deletePost(postId, userId);
-    res.status(204).send();
+
+    const deleted = await PostService.deletePost(id, userId);
+
+    if (!deleted) {
+        return res.status(404).json({
+            success: false,
+            message: 'Post not found or unauthorized'
+        });
+    }
+
+    res.status(200).json({
+        success: true,
+        message: 'Post deleted successfully'
+    });
 });
 
-const getReportedPosts = catchAsync(async (req: Request, res: Response) => {
-    console.log("Fetching reported posts");
-    const reports = await postService.getReportedPosts();
-    res.json({ data: reports });
+const likePost = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const userId = req.body.user_id;
+
+    const result = await PostService.likePost(id, userId);
+
+    res.status(200).json({
+        success: true,
+        message: result.message,
+        data: { likes_count: result.likes_count }
+    });
 });
 
-const updateReportStatus = catchAsync(async (req: Request, res: Response) => {
-    const reportId = req.params.id;
-    const status = req.body.status;
-    const updatedReport = await postService.updateReportStatus(reportId, status);
-    res.json({ data: updatedReport });
+const unlikePost = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const userId = req.body.user_id;
+
+    const result = await PostService.unlikePost(id, userId);
+
+    res.status(200).json({
+        success: true,
+        message: result.message,
+        data: { likes_count: result.likes_count }
+    });
 });
 
-export const postController = {
-    createPost,
-    getAllPosts,
-    getPost,
-    updatePost,
-    toggleLike,
-    getPostLikes,
-    toggleSave,
-    getSavedPosts,
-    reportPost,
+const savePost = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const userId = req.body.user_id;
+
+    const result = await PostService.savePost(id, userId);
+
+    res.status(200).json({
+        success: true,
+        message: result.message,
+        data: { saves_count: result.saves_count }
+    });
+});
+
+const unsavePost = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const userId = req.body.user_id;
+
+    const result = await PostService.unsavePost(id, userId);
+
+    res.status(200).json({
+        success: true,
+        message: result.message,
+        data: { saves_count: result.saves_count }
+    });
+});
+
+const sharePost = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const userId = req.body.user_id;
+    const { platform } = req.body;
+
+    const result = await PostService.sharePost(id, userId, platform);
+
+    res.status(200).json({
+        success: true,
+        message: 'Post shared successfully',
+        data: { shares_count: result.shares_count }
+    });
+});
+
+const getUserPosts = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.body.user_id;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const result = await PostService.getUserPosts(userId, page, limit);
+
+    res.status(200).json({
+        success: true,
+        data: result
+    });
+});
+
+const getUserLikedPosts = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.body.user_id;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const result = await PostService.getUserLikedPosts(userId, page, limit);
+
+    res.status(200).json({
+        success: true,
+        data: result
+    });
+});
+
+const getUserSavedPosts = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.body.user_id;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const result = await PostService.getUserSavedPosts(userId, page, limit);
+
+    res.status(200).json({
+        success: true,
+        data: result
+    });
+});
+
+const reportPost = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const userId = req.body.user_id;
+    const { reason, description } = req.body;
+
+    const report = await PostService.reportPost(id, userId, reason, description);
+
+    res.status(201).json({
+        success: true,
+        message: 'Report submitted successfully',
+        data: report
+    });
+});
+
+const toggleFeaturePost = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const post = await PostService.toggleFeaturePost(id);
+
+    if (!post) {
+        return res.status(404).json({
+            success: false,
+            message: 'Post not found'
+        });
+    }
+
+    res.status(200).json({
+        success: true,
+        message: `Post ${post.is_featured ? 'featured' : 'unfeatured'} successfully`,
+        data: post
+    });
+});
+
+const getReports = catchAsync(async (req: Request, res: Response) => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const status = req.query.status as string;
+    const result = await PostService.getReports(page, limit, status);
+    res.status(200).json({
+        success: true,
+        data: result
+    });
+});
+
+const resolveReport = catchAsync(async (req: Request, res: Response) => {
+    const { reportId } = req.params;
+    const report = await PostService.resolveReport(reportId);
+
+    if (!report) {
+        return res.status(404).json({
+            success: false,
+            message: 'Report not found'
+        });
+    }
+    res.status(200).json({
+        success: true,
+        message: 'Report resolved successfully',
+        data: report
+    });
+});
+
+export const PostController = {
+    getPosts,
     getFeaturedPosts,
-    getTrendingPosts,
-    sharePost,
+    getPostById,
+    getPostWithDetails,
+    createPost,
+    updatePost,
     deletePost,
-    getReportedPosts,
-    updateReportStatus
+    likePost,
+    unlikePost,
+    savePost,
+    unsavePost,
+    sharePost,
+    getUserPosts,
+    getUserLikedPosts,
+    getUserSavedPosts,
+    reportPost,
+    toggleFeaturePost,
+    getReports,
+    resolveReport
 };

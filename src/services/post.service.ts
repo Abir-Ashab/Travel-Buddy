@@ -1,104 +1,261 @@
-// src/services/post.service.ts
 import { createPostModel } from '../models/post.model';
-import { Post, PostFilters, Report } from '../interfaces/post.interface';
+import {
+  Post,
+  CreatePostRequest,
+  UpdatePostRequest,
+  PostFilters,
+  PostsResponse,
+  ReportReason,
+  ReportStatus
+} from '../interfaces/post.interface';
 import KnexConnection from '../database/implementations/knex/KnexConnection';
 const knexConnection = new KnexConnection();
 await knexConnection.connect();
 
-const knexInstance = knexConnection.getClient(); // This returns client
+const knexInstance = knexConnection.getClient(); // This returns this.client
 const postModel = createPostModel(knexInstance);
 
-const createPost = async (user_id: string, postData: Partial<Post>): Promise<Post> => {
-    return postModel.create({ ...postData, user_id: user_id });
-}
+const getPosts = async (filters: PostFilters, page: number, limit: number): Promise<PostsResponse> => {
+  const offset = (page - 1) * limit;
+  const { posts, total } = await postModel.findPostsWithFilters(filters, limit, offset);
+  return {
+    posts,
+    total,
+    page,
+    limit,
+    has_next: offset + limit < total
+  };
+};
 
-const getAllPosts = async (filters: PostFilters): Promise<Post[]> => {
-  return postModel.findAll(filters);
-}
+const getFeaturedPosts = async (limit: number): Promise<Post[]> => {
+  return await postModel.findFeaturedPosts(limit);
+};
 
-const getPostById = async (id: string): Promise<Post | null> => {
-  return postModel.findById(id);
-}
-
-const updatePost = async (id: string, userId: string, data: Partial<Post>): Promise<Post> => {
-  const post = await postModel.findById(id);
-  if (!post || post.user_id !== userId) {
-    throw new Error('Post not found or unauthorized');
+const getPostById = async (postId: string): Promise<Post | null> => {
+  const post = await postModel.findById(postId);
+  if (!post) {
+    throw new Error('Post not found');
   }
-  return postModel.update(id, data);
-}
+  return post;
+};
 
-const deletePost = async (id : string, userId: string): Promise<void> => {
-  const post = await postModel.findById(id);
-  if (!post || post.user_id !== userId) {
-    throw new Error('Post not found or unauthorized');
-  }
-  await postModel.delete(id);
-}
+const getPostWithDetails = async (postId: string): Promise<any> => {
+  return await postModel.findByIdWithDetails(postId);
+};
 
-const toggleLike = async (userId: string, postId: string): Promise<{ liked: boolean }> => {
-  const liked = await postModel.toggleLike(userId, postId);
-  return { liked };
-}
-
-const getPostLikes = async (postId: string): Promise<number> => {
-  const likes = await postModel.getLikes(postId);
-  return Array.isArray(likes) ? likes.length : 0;
-}
-
-const toggleSave = async (userId: string, postId: string): Promise<{ saved: boolean }> => {
-  const saved = await postModel.toggleSave(userId, postId);
-  return { saved };
-}
-
-const getSavedPosts = async (userId: string): Promise<Post[]> => {
-  return postModel.getSavedPosts(userId);
-}
-
-const getFeaturedPosts = async (): Promise<Post[]> => {
-  return postModel.getFeatured();
-}
-
-const getTrendingPosts = async (): Promise<Post[]> => {
-  return postModel.getTrending();
-}
-
-const reportPost = async (reporterId: string, postId: string, reason: string, description?: string): Promise<Report> => {
-  return postModel.createReport({
-    reporter_id: reporterId,
-    post_id: postId,
-    reason: reason as any,
-    description
+const createPost = async (userId: string, postData: CreatePostRequest): Promise<Post> => {
+  const postId = await postModel.create({
+    user_id: userId,
+    ...postData
   });
-}
+  if (postData.media_urls && postData.media_urls.length > 0) {
+    await postModel.createMediaRecords(postId, postData.media_urls);
+  }
+  const createdPost = await postModel.findById(postId);
+  if (!createdPost) {
+    throw new Error('Post not found after creation');
+  }
+  return createdPost;
+};
 
-const sharePost = async (postId: string): Promise<{ message: string }> => {
-  return { message: 'Post shared successfully' };
-}
+const updatePost = async (postId: string, userId: string, updateData: UpdatePostRequest): Promise<Post | null> => {
+  const post = await postModel.findById(postId);
+  if (!post || String(post.user_id) !== String(userId)) {
+    return null;
+  }
+  await postModel.update(postId, updateData);
+  return await postModel.findById(postId);
+};
 
-// getReportedPosts
-const getReportedPosts = async (): Promise<Report[]> => {
-  return postModel.getReportedPosts();
-}
-// updateReportStatus
-const updateReportStatus = async (reportId: string, status: 'resolved' | 'unresolved'): Promise<Report> => {
-  return postModel.updateReportStatus(reportId, status);
-}
+const deletePost = async (postId: string, userId: string): Promise<boolean> => {
+  const post = await postModel.findById(postId);
+  if (!post || String(post.user_id) !== String(userId)) {
+    return false;
+  }
+  return await postModel.delete(postId);
+};
 
-export const postService = {
-  createPost,
-  getAllPosts,
+const likePost = async (postId: string, userId: string): Promise<{ message: string; likes_count: number }> => {
+  const post = await postModel.findById(postId);
+  if (!post) {
+    throw new Error('Post not found');
+  }
+  const existingLike = await postModel.findLike(postId, userId);
+  if (existingLike) {
+    return {
+      message: 'Post already liked',
+      likes_count: post.likes_count
+    };
+  }
+  await postModel.createLike(postId, userId);
+  const updatedPost = await postModel.incrementLikesCount(postId);
+  return {
+    message: 'Post liked successfully',
+    likes_count: updatedPost.likes_count
+  };
+};
+
+const unlikePost = async (postId: string, userId: string): Promise<{ message: string; likes_count: number }> => {
+  const post = await postModel.findById(postId);
+  if (!post) {
+    throw new Error('Post not found');
+  }
+  const existingLike = await postModel.findLike(postId, userId);
+  if (!existingLike) {
+    return {
+      message: 'Post not liked',
+      likes_count: post.likes_count
+    };
+  }
+  await postModel.deleteLike(postId, userId);
+  const updatedPost = await postModel.decrementLikesCount(postId);
+  return {
+    message: 'Post unliked successfully',
+    likes_count: updatedPost.likes_count
+  };
+};
+
+const savePost = async (postId: string, userId: string): Promise<{ message: string; saves_count: number }> => {
+  const post = await postModel.findById(postId);
+  if (!post) {
+    throw new Error('Post not found');
+  }
+  const existingSave = await postModel.findSave(postId, userId);
+  if (existingSave) {
+    return {
+      message: 'Post already saved',
+      saves_count: post.saves_count
+    };
+  }
+  await postModel.createSave(postId, userId);
+  const updatedPost = await postModel.incrementSavesCount(postId);
+  return {
+    message: 'Post saved successfully',
+    saves_count: updatedPost.saves_count
+  };
+};
+
+const unsavePost = async (postId: string, userId: string): Promise<{ message: string; saves_count: number }> => {
+  const post = await postModel.findById(postId);
+  if (!post) {
+    throw new Error('Post not found');
+  }
+  const existingSave = await postModel.findSave(postId, userId);
+  if (!existingSave) {
+    return {
+      message: 'Post not saved',
+      saves_count: post.saves_count
+    };
+  }
+  await postModel.deleteSave(postId, userId);
+  const updatedPost = await postModel.decrementSavesCount(postId);
+  return {
+    message: 'Post unsaved successfully',
+    saves_count: updatedPost.saves_count
+  };
+};
+
+const sharePost = async (postId: string, userId: string, platform?: string): Promise<{ shares_count: number }> => {
+  const post = await postModel.findById(postId);
+  if (!post) {
+    throw new Error('Post not found');
+  }
+  await postModel.createShare(postId, userId, platform);
+  const updatedPost = await postModel.incrementSharesCount(postId);
+  return {
+    shares_count: updatedPost.shares_count
+  };
+};
+
+const getUserPosts = async (userId: string, page: number, limit: number): Promise<PostsResponse> => {
+  const offset = (page - 1) * limit;
+  const { posts, total } = await postModel.findUserPosts(userId, limit, offset);
+  return {
+    posts,
+    total,
+    page,
+    limit,
+    has_next: offset + limit < total
+  };
+};
+
+const getUserLikedPosts = async (userId: string, page: number, limit: number): Promise<PostsResponse> => {
+  const offset = (page - 1) * limit;
+  const { posts, total } = await postModel.findUserLikedPosts(userId, limit, offset);
+  return {
+    posts,
+    total,
+    page,
+    limit,
+    has_next: offset + limit < total
+  };
+};
+
+const getUserSavedPosts = async (userId: string, page: number, limit: number): Promise<PostsResponse> => {
+  const offset = (page - 1) * limit;
+  const { posts, total } = await postModel.findUserSavedPosts(userId, limit, offset);
+  return {
+    posts,
+    total,
+    page,
+    limit,
+    has_next: offset + limit < total
+  };
+};
+
+const reportPost = async (
+  postId: string,
+  reporterId: string,
+  reason: ReportReason,
+  description?: string
+): Promise<any> => {
+  const post = await postModel.findById(postId);
+  if (!post) {
+    throw new Error('Post not found');
+  }
+  const existingReport = await postModel.findUserReport(postId, reporterId);
+  if (existingReport) {
+    throw new Error('You have already reported this post');
+  }
+  return await postModel.createReport(postId, reporterId, reason, description);
+};
+
+const toggleFeaturePost = async (postId: string): Promise<Post | null> => {
+  const post = await postModel.findById(postId);
+  if (!post) {
+    return null;
+  }
+  await postModel.update(postId, { is_featured: !post.is_featured });
+  return await postModel.findById(postId);
+};
+
+const getReports = async (page: number, limit: number, status?: string): Promise<any> => {
+  const offset = (page - 1) * limit;
+  return await postModel.findReports(limit, offset, status as ReportStatus);
+};
+
+const resolveReport = async (reportId: string): Promise<any> => {
+  return await postModel.updateReport(reportId, { status: ReportStatus.RESOLVED });
+};
+
+export const PostService = {
+  getPosts,
+  getFeaturedPosts,
   getPostById,
+  getPostWithDetails,
+  createPost,
   updatePost,
   deletePost,
-  toggleLike,
-  getPostLikes,
-  toggleSave,
-  getSavedPosts,
-  getFeaturedPosts,
-  getTrendingPosts,
-  reportPost,
+  likePost,
+  unlikePost,
+  savePost,
+  unsavePost,
   sharePost,
-  getReportedPosts,
-  updateReportStatus
+  getUserPosts,
+  getUserLikedPosts,
+  getUserSavedPosts,
+  reportPost,
+  toggleFeaturePost,
+  getReports,
+  resolveReport
 };

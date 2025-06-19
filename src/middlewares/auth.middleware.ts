@@ -12,7 +12,7 @@ await knexConnection.connect();
 const knexInstance = knexConnection.getClient(); // This returns this.client
 const userModel = createUserModel(knexInstance);
 
-export const authMiddleware = (...requiredRoles: (keyof typeof USER_Role)[]) => {
+export const authMiddleware = (...requiredRoles: (typeof USER_Role)[keyof typeof USER_Role][]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const accessToken = req.headers.authorization;
 

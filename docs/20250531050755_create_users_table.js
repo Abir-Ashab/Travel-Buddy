@@ -1,5 +1,3 @@
-import { USER_Role, USER_STATUS } from "../src/interfaces/user.interface.ts";
-
 export const up = async (knex) => {
   return knex.schema.createTable('users', (table) => {
     table.increments('id').primary();

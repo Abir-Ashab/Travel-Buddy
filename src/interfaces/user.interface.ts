@@ -1,13 +1,13 @@
 export const USER_Role = {
-  SUPER_ADMIN: "SUPER_ADMIN",
-  ADMIN: "ADMIN",
-  EXPLORER: "EXPLORER",
-  TRAVELER: "TRAVELER",
+  SUPER_ADMIN: "super_admin",
+  ADMIN: "admin",
+  EXPLORER: "explorer",
+  TRAVELER: "traveler",
 } as const;
 
 export const USER_STATUS = {
-  ACTIVE: "ACTIVE",
-  BLOCKED: "BLOCKED",
+  ACTIVE: "active",
+  BLOCKED: "blocked",
 } as const;
 
 export type TUser = {
