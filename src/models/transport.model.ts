@@ -9,7 +9,7 @@ class TransportModel {
   async findByPostId(postId: string): Promise<Transport[]> {
     return await this.knex(this.tableName)
       .where('post_id', postId)
-      .orderBy('created_at', 'asc');
+      // .orderBy('created_at', 'asc');
   }
 
   async findById(id: string): Promise<Transport | null> {

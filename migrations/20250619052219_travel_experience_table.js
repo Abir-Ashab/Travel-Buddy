@@ -7,8 +7,7 @@ export async function up(knex) {
     table.decimal('cost', 10, 2).notNullable();
     table.text('notes').nullable();
   });
-  // sample json body
-
+  
   await knex.schema.createTable('accommodation', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
     table.uuid('post_id').references('id').inTable('posts').onDelete('CASCADE');
