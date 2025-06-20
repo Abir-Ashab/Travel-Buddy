@@ -25,7 +25,7 @@ const createTransport = async (
   postId: string,
   transportData: CreateTransportRequest
 ): Promise<Transport> => {
-  // Verify user owns the post
+  
   const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(postId);
 
@@ -44,10 +44,9 @@ const createTransport = async (
 
 const updateTransport = async (
   transportId: string,
-  userId: string,
+  // userId: string,
   updateData: UpdateTransportRequest
 ): Promise<Transport | null> => {
-  // Verify user owns the post that this transport belongs to
   const transport = await transportModel.findById(transportId);
   if (!transport) {
     return null;
@@ -56,16 +55,15 @@ const updateTransport = async (
   const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(transport.post_id);
   
-  if (!post || String(post.user_id) !== String(userId)) {
-    return null;
-  }
+  // if (!post || String(post.user_id) !== String(userId)) {
+  //   return null;
+  // }
 
   await transportModel.update(transportId, updateData);
   return await transportModel.findById(transportId);
 };
 
-const deleteTransport = async (transportId: string, userId: string): Promise<boolean> => {
-  // Verify user owns the post that this transport belongs to
+const deleteTransport = async (transportId: string): Promise<boolean> => {
   const transport = await transportModel.findById(transportId);
   if (!transport) {
     return false;
@@ -74,9 +72,9 @@ const deleteTransport = async (transportId: string, userId: string): Promise<boo
   const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(transport.post_id);
   
-  if (!post || String(post.user_id) !== String(userId)) {
-    return false;
-  }
+  // if (!post || String(post.user_id) !== String(userId)) {
+  //   return false;
+  // }
 
   return await transportModel.delete(transportId);
 };

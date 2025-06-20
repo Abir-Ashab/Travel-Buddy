@@ -26,7 +26,7 @@ const createAccommodation = async (
 //   userId: string,
   accommodationData: CreateAccommodationRequest
 ): Promise<Accommodation> => {
-  // Verify user owns the post
+
 //   const postModel = createPostModel(knexInstance);
 //   const post = await postModel.findById(postId);
   
@@ -62,7 +62,7 @@ const createAccommodation = async (
 
 const updateAccommodation = async (
   accommodationId: string,
-  userId: string,
+  // userId: string,
   updateData: UpdateAccommodationRequest
 ): Promise<Accommodation | null> => {
   // Verify user owns the post that this accommodation belongs to
@@ -74,16 +74,14 @@ const updateAccommodation = async (
   const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(accommodation.post_id);
   
-  if (!post || String(post.user_id) !== String(userId)) {
-    return null;
-  }
+  // if (!post || String(post.user_id) !== String(userId)) {
+  //   return null;
+  // }
 
-  // Validate rating if provided
   if (updateData.rating && (updateData.rating < 1 || updateData.rating > 5)) {
     throw new Error('Rating must be between 1 and 5');
   }
 
-  // Validate dates if provided
   if (updateData.check_in_date && updateData.check_out_date) {
     const checkIn = new Date(updateData.check_in_date);
     const checkOut = new Date(updateData.check_out_date);
@@ -97,8 +95,7 @@ const updateAccommodation = async (
   return await accommodationModel.findById(accommodationId);
 };
 
-const deleteAccommodation = async (accommodationId: string, userId: string): Promise<boolean> => {
-  // Verify user owns the post that this accommodation belongs to
+const deleteAccommodation = async (accommodationId: string): Promise<boolean> => {
   const accommodation = await accommodationModel.findById(accommodationId);
   if (!accommodation) {
     return false;
@@ -107,9 +104,9 @@ const deleteAccommodation = async (accommodationId: string, userId: string): Pro
   const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(accommodation.post_id);
   
-  if (!post || String(post.user_id) !== String(userId)) {
-    return false;
-  }
+  // if (!post || String(post.user_id) !== String(userId)) {
+  //   return false;
+  // }
 
   return await accommodationModel.delete(accommodationId);
 };

@@ -23,7 +23,7 @@ const getDiningById = async (diningId: string): Promise<Dining | null> => {
 
 const createDining = async (
   postId: string,
-  userId: string,
+  // userId: string,
   diningData: CreateDiningRequest
 ): Promise<Dining> => {
 
@@ -54,7 +54,7 @@ const createDining = async (
 
 const updateDining = async (
   diningId: string,
-  userId: string,
+  // userId: string,
   updateData: UpdateDiningRequest
 ): Promise<Dining | null> => {
   const dining = await diningModel.findById(diningId);
@@ -77,7 +77,7 @@ const updateDining = async (
   return await diningModel.findById(diningId);
 };
 
-const deleteDining = async (diningId: string, userId: string): Promise<boolean> => {
+const deleteDining = async (diningId: string): Promise<boolean> => {
   // Verify user owns the post that this dining belongs to
   const dining = await diningModel.findById(diningId);
   if (!dining) {
