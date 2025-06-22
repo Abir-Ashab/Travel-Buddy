@@ -1,4 +1,3 @@
-// accommodation.interface.ts
 export interface Accommodation {
   id: string;
   post_id: string;

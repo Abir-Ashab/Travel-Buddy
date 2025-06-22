@@ -192,23 +192,73 @@ async findPostsWithFilters(
   // add 
 
   async create(postData: any): Promise<string> {
-    const [post] = await this.knex(this.tableName)
-      .insert({
-        ...postData,
-        status: postData.status || PostStatus.DRAFT
-      })
-      .returning('id');
+    return await this.knex.transaction(async (trx) => {
+      let locationId = postData.location_id;
 
-    return post.id;
+      // If location data is included as an object (not just an ID), insert it first
+      if (postData.location && typeof postData.location === 'object') {
+        const locationData = postData.location;
+        delete postData.location; // Remove it so it doesn't interfere
+
+        const [location] = await trx('locations')
+          .insert(locationData)
+          .returning('id');
+
+        locationId = location.id;
+      }
+
+      // Insert post with the linked locationId (either passed or newly created)
+      const [post] = await trx(this.tableName)
+        .insert({
+          ...postData,
+          location_id: locationId,
+          status: postData.status || PostStatus.DRAFT,
+        })
+        .returning('id');
+
+      return post.id;
+    });
   }
 
+
   async update(id: string, updateData: any): Promise<void> {
-    await this.knex(this.tableName)
-      .where('id', id)
-      .update({
-        ...updateData,
-        updated_at: this.knex.fn.now()
-      });
+    await this.knex.transaction(async (trx) => {
+      // Fetch current post to get location_id
+      const post = await trx(this.tableName).where('id', id).first();
+
+      if (!post) throw new Error(`Post with id ${id} not found`);
+
+      // Check if location data is provided as object
+      if (updateData.location && typeof updateData.location === 'object') {
+        const locationData = updateData.location;
+        delete updateData.location; // Remove from updateData so it doesn't interfere
+
+        if (post.location_id) {
+          // Update existing location record
+          await trx('locations')
+            .where('id', post.location_id)
+            .update({
+              ...locationData,
+              updated_at: trx.fn.now()
+            });
+        } else {
+          // Insert new location and update post with location_id
+          const [newLocation] = await trx('locations')
+            .insert(locationData)
+            .returning('id');
+
+          updateData.location_id = newLocation.id;
+        }
+      }
+
+      // Finally update the post
+      await trx(this.tableName)
+        .where('id', id)
+        .update({
+          ...updateData,
+          updated_at: trx.fn.now(),
+        });
+    });
   }
 
   async delete(id: string): Promise<boolean> {

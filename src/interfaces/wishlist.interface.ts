@@ -1,6 +1,6 @@
 export interface Wishlist {
-  id: number;
-  user_id: number;
+  id: string;
+  user_id: string;
   name: string;
   description?: string;
   grouping_type: 'region' | 'theme' | 'budget' | 'season';
@@ -10,9 +10,9 @@ export interface Wishlist {
 }
 
 export interface WishlistItem {
-  id: number;
-  wishlist_id: number;
-  location_id: number;
+  id: string;
+  wishlist_id: string;
+  location_id: string;
   notes?: string;
   estimated_budget?: number;
   priority_level: number;
@@ -20,10 +20,28 @@ export interface WishlistItem {
   preferred_end_date?: Date;
   created_at: Date;
   updated_at: Date;
-  
-  // Relations
-  location?: Location;
 }
+
+export interface WishlistWithItems extends Wishlist {
+  items: WishlistItemWithLocation[];
+}
+
+export interface WishlistItemWithLocation extends WishlistItem {
+  location: {
+    id: string;
+    name: string;
+    country: string;
+    region: string;
+    latitude: number;
+    longitude: number;
+    timezone: string;
+    // Optional future fields:
+    geom?: string;
+    // address?: string;
+    // postal_code?: string;
+  };
+}
+
 
 export interface CreateWishlistRequest {
   name: string;
@@ -39,26 +57,47 @@ export interface UpdateWishlistRequest {
   is_public?: boolean;
 }
 
-export interface AddWishlistItemRequest {
-  location_id: number;
+export interface CreateWishlistItemRequest {
+  location_id: string; // Now optional
+  location?: {
+    name: string;
+    country: string;
+    region: string;
+    latitude: number;
+    longitude: number;
+    timezone?: string;
+  };
   notes?: string;
   estimated_budget?: number;
   priority_level: number;
-  preferred_start_date?: Date;
-  preferred_end_date?: Date;
+  preferred_start_date?: string;
+  preferred_end_date?: string;
 }
 
 export interface UpdateWishlistItemRequest {
   notes?: string;
   estimated_budget?: number;
   priority_level?: number;
-  preferred_start_date?: Date;
-  preferred_end_date?: Date;
+  preferred_start_date?: string;
+  preferred_end_date?: string;
 }
 
 export interface WishlistFilters {
-  user_id?: number;
   grouping_type?: 'region' | 'theme' | 'budget' | 'season';
   is_public?: boolean;
   search?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface WishlistShareResponse {
+  share_url: string;
+  wishlist: WishlistWithItems;
+}
+
+export interface WishlistResponse {
+  success: boolean;
+  data?: Wishlist | WishlistWithItems | Wishlist[] | WishlistShareResponse;
+  message?: string;
+  error?: string;
 }

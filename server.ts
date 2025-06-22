@@ -10,6 +10,9 @@ import {transportRoutes} from "./src/routes/transport.route"
 import {accommodationRoutes} from "./src/routes/accomodation.route"
 import {diningRoutes} from "./src/routes/dining.route"
 import {attractionRoutes} from "./src/routes/attraction.route"
+import {wishlistRoutes} from "./src/routes/wishlist.route"
+import {locationRoutes} from "./src/routes/location.route"
+import {proximityRoutes} from "./src/routes/proximity.route"
 
 config(); // Load environment variables from .env file
 const app = express();
@@ -27,6 +30,9 @@ const startServer = async () => {
     app.use("/api/accomodations", accommodationRoutes);
     app.use("/api/dinings", diningRoutes);
     app.use("/api/attractions", attractionRoutes);
+    app.use("/api/wishlists", wishlistRoutes);
+    app.use("/api/locations", locationRoutes);
+    app.use("/api/proximity", proximityRoutes);
 
   } catch (error) {
     console.error('Application initialization failed:', error.message);
