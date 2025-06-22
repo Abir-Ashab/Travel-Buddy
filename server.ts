@@ -13,8 +13,9 @@ import {attractionRoutes} from "./src/routes/attraction.route"
 import {wishlistRoutes} from "./src/routes/wishlist.route"
 import {locationRoutes} from "./src/routes/location.route"
 import {proximityRoutes} from "./src/routes/proximity.route"
+import {notificationRoutes} from "./src/routes/notification.route"
 
-config(); // Load environment variables from .env file
+config(); 
 const app = express();
 app.use(express.json());
 
@@ -33,6 +34,7 @@ const startServer = async () => {
     app.use("/api/wishlists", wishlistRoutes);
     app.use("/api/locations", locationRoutes);
     app.use("/api/proximity", proximityRoutes);
+    app.use("/api/notifications", notificationRoutes);
 
   } catch (error) {
     console.error('Application initialization failed:', error.message);
