@@ -56,28 +56,30 @@ class User {
   }
 
   async updateById(id, updateData) {
-    // If password is being updated, hash it
-    if (updateData.password) {
-      updateData.password = await bcryptjs.hash(updateData.password, Number(config.salt_round));
-      updateData.passwordChangedAt = new Date();
-    }
+  const userId = typeof id === 'object' && '_id' in id ? id._id : id;
 
-    const [updatedUser] = await this.knex(this.tableName)
-      .where({ id })
-      .update({
-        ...updateData,
-        updated_at: new Date()
-      })
-      .returning('*');
-
-    // Remove password from returned object
-    if (updatedUser) {
-      const { password, ...userWithoutPassword } = updatedUser;
-      return userWithoutPassword;
-    }
-    
-    return null;
+  // If password is being updated, hash it
+  if (updateData.password) {
+    updateData.password = await bcryptjs.hash(updateData.password, Number(config.salt_round));
+    updateData.passwordChangedAt = new Date();
   }
+
+  const [updatedUser] = await this.knex(this.tableName)
+    .where({ id: userId })
+    .update({
+      ...updateData,
+      updated_at: new Date()
+    })
+    .returning('*');
+
+  // Remove password from returned object
+  if (updatedUser) {
+    const { password, ...userWithoutPassword } = updatedUser;
+    return userWithoutPassword;
+  }
+
+  return null;
+}
 
   // Update password and set passwordChangedAt
   async updatePassword(id, newPassword) {

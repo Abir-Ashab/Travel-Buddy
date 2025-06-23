@@ -22,7 +22,6 @@ const updateUser = catchAsync(async (req, res) => {
   });
 });
 
-// user profile
 const getUserProfile = catchAsync(async (req, res) => {
   const { userId } = req.params;
   const result = await UserServices.getUserProfile(userId);
@@ -47,8 +46,8 @@ const deleteUser = catchAsync(async (req, res) => {
 
 // upgrade to traveler
 const upgradeToTraveler = catchAsync(async (req, res) => {
-  const { id } = req.body;
-  const result = await UserServices.upgradeToTraveler(id);
+  const { user_id } = req.body;
+  const result = await UserServices.upgradeToTraveler(user_id);
 
   res.status(200).json({
     success: true,

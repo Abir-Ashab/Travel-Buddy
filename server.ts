@@ -14,6 +14,7 @@ import {wishlistRoutes} from "./src/routes/wishlist.route"
 import {locationRoutes} from "./src/routes/location.route"
 import {proximityRoutes} from "./src/routes/proximity.route"
 import {notificationRoutes} from "./src/routes/notification.route"
+// import {tripRoutes} from "./src/routes/trip.route"
 
 config(); 
 const app = express();
@@ -35,6 +36,7 @@ const startServer = async () => {
     app.use("/api/locations", locationRoutes);
     app.use("/api/proximity", proximityRoutes);
     app.use("/api/notifications", notificationRoutes);
+    // app.use("/api/trips", tripRoutes);
 
   } catch (error) {
     console.error('Application initialization failed:', error.message);

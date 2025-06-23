@@ -4,6 +4,7 @@ import validateRequest from "../middlewares/validateRequest";
 import { USER_Role } from "../interfaces/user.interface";
 import { userControllers } from "../controllers/user.controller";
 import { UserValidations } from "../validations/user.validation";
+import { PostController } from '../controllers/post.controller';
 
 const router = express.Router();
 
@@ -14,12 +15,6 @@ router.post(
   userControllers.createAdmin
 );
 
-router.put(
-  "/me",
-  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER),
-  validateRequest(UserValidations.updateUserValidations),
-  userControllers.updateUser
-);
 
 router.delete(
   "/account",
@@ -31,6 +26,15 @@ router.put(
   "/upgrade",
   authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER),
   userControllers.upgradeToTraveler
+);
+
+router.get('/reports', authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN), PostController.getReports);
+router.put('/reports/:reportId', PostController.resolveReport);
+router.delete('/reports/:reportId', PostController.deleteReportedPost);
+router.put(
+  "/:userId",
+  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN),
+  userControllers.updateUser
 );
 
 export const UserRoutes = router;

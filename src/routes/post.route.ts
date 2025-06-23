@@ -26,7 +26,5 @@ router.get('/user/saved-posts', PostController.getUserSavedPosts);
 router.post('/:id/report', PostController.reportPost);
 
 router.patch('/:id/feature', PostController.toggleFeaturePost);
-router.get('/admin/reports', PostController.getReports);
-router.patch('/admin/reports/:reportId/resolve', PostController.resolveReport);
 
 export const createPostRoutes = router;

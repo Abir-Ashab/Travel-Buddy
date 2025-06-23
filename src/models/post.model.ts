@@ -499,7 +499,12 @@ async findPostsWithFilters(
       query = query.where('reports.status', status);
     }
 
-    const [{ count }] = await query.clone().count('reports.id as count');
+    const [{ count }] = await this.knex(this.reportsTableName)
+      .modify((qb) => {
+        if (status) qb.where('reports.status', status);
+      })
+      .count('reports.id as count');
+
     const total = parseInt(count);
 
     const reports = await query
@@ -517,6 +522,19 @@ async findPostsWithFilters(
       .returning('*');
 
     return report;
+  }
+
+  async findReportById(reportId: string): Promise<any> {
+    return await this.knex(this.reportsTableName)
+      .where('id', reportId)
+      .first();
+  }
+
+  async deleteReport(reportId: string): Promise<boolean> {
+    const deletedRows = await this.knex(this.reportsTableName)
+      .where('id', reportId)
+      .del();
+    return deletedRows > 0;
   }
 }
 

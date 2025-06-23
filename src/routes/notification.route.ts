@@ -6,7 +6,7 @@ const router = Router();
 router.get('/user/:userId', NotificationController.getNotificationsByUser);
 router.get('/:id', NotificationController.getNotificationById);
 router.post('/', NotificationController.createNotification);
-router.put('/:id', NotificationController.updateNotification);git
+router.put('/:id', NotificationController.updateNotification);
 router.delete('/:id', NotificationController.deleteNotification);
 router.patch('/:id/read', NotificationController.markAsRead);
 router.patch('/user/:userId/read-all', NotificationController.markAllAsRead);

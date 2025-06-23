@@ -238,6 +238,19 @@ const resolveReport = async (reportId: string): Promise<any> => {
   return await postModel.updateReport(reportId, { status: ReportStatus.RESOLVED });
 };
 
+const deleteReportedPost = async (reportId: string): Promise<boolean> => {
+  const report = await postModel.findReportById(reportId);
+  if (!report) {
+    throw new Error('Report not found');
+  }
+  const postId = report.post_id;
+  const deleted = await postModel.delete(postId);
+  if (deleted) {
+    await postModel.updateReport(reportId, { status: ReportStatus.RESOLVED });
+    return true;
+  }
+  return false;
+};
 export const PostService = {
   getPosts,
   getFeaturedPosts,
@@ -257,5 +270,6 @@ export const PostService = {
   reportPost,
   toggleFeaturePost,
   getReports,
-  resolveReport
+  resolveReport,
+  deleteReportedPost
 };

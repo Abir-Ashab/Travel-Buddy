@@ -280,6 +280,23 @@ const resolveReport = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const deleteReportedPost = catchAsync(async (req: Request, res: Response) => {
+    const { reportId } = req.params;
+    const deleted = await PostService.deleteReportedPost(reportId);
+
+    if (!deleted) {
+        return res.status(404).json({
+            success: false,
+            message: 'Reported post not found or already deleted'
+        });
+    }
+
+    res.status(200).json({
+        success: true,
+        message: 'Reported post deleted successfully'
+    });
+});
+
 export const PostController = {
     getPosts,
     getFeaturedPosts,
@@ -299,5 +316,6 @@ export const PostController = {
     reportPost,
     toggleFeaturePost,
     getReports,
-    resolveReport
+    resolveReport,
+    deleteReportedPost
 };
