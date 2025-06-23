@@ -32,9 +32,27 @@ router.get('/reports', authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN), P
 router.put('/reports/:reportId', PostController.resolveReport);
 router.delete('/reports/:reportId', PostController.deleteReportedPost);
 router.put(
-  "/:userId",
+  "/status",
   authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN),
+  userControllers.updateUserStatus
+);
+
+router.put(
+  "/profile",
+  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
   userControllers.updateUser
+);
+
+router.get(
+  "/profile",
+  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+  userControllers.getUserProfile
+);
+
+router.delete(
+  "/profile",
+  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+  userControllers.deleteUser
 );
 
 export const UserRoutes = router;

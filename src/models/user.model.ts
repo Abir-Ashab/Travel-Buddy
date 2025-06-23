@@ -28,12 +28,8 @@ class User {
     return userWithoutPassword;
   }
 
-  async findById(id, includePassword = false) {
+  async findById(id) {
     const query = this.knex(this.tableName).where({ id });
-    
-    if (!includePassword) {
-      query.select('*').select(this.knex.raw('NULL as password'));
-    }
     
     return query.first();
   }

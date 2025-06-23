@@ -13,22 +13,33 @@ const createAdminIntoDB = async (payload: TUser) => {
   const admin = await userModel.create(payload);
   return admin;
 };
-const updateUser = async (_id: string, payload: TUser) => {
+const updateUserStatus = async (_id: string, payload: TUser) => {
   const user = await userModel.updateById({ _id }, payload);
   return user;
 };
-// user profile
+
+const updateUser = async (_id: string, payload: TUser) => {
+  const user = await userModel.findById(_id);
+  if (!user) {
+    throw new Error("User not found");
+  }
+  if (user.role === USER_Role.EXPLORER || user.role === USER_Role.TRAVELER) {
+    const { status, ...rest } = payload;
+    payload = rest as TUser;
+  }
+  const updatedUser = await userModel.updateById({ _id }, payload);
+  return updatedUser;
+};
+
 const getUserProfile = async (userId: string) => {
   const user = await userModel.findById(userId);
   return user;
 };
 
-// delete account
 const deleteUser = async (userId: string) => {
   await userModel.deleteById(userId);
 };
 
-// upgrade to traveler
 const upgradeToTraveler = async (userId: number) => {
   const user = await userModel.findById(userId);
   if (!user) {
@@ -51,4 +62,5 @@ export const UserServices = {
   getUserProfile,
   deleteUser,
   upgradeToTraveler,
+  updateUserStatus
 };

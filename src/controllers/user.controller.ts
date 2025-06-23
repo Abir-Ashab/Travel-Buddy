@@ -11,9 +11,24 @@ const createAdmin = catchAsync(async (req, res) => {
   });
 });
 
+const updateUserStatus = catchAsync(async (req, res) => {
+  const { user_id, ...rest } = req.body;
+  console.log(rest)
+  console.log(user_id)
+  const result = await UserServices.updateUserStatus(user_id, rest);
+
+  res.status(200).json({
+    success: true,
+    message: "User updated successfully!",
+    data: result,
+  });
+});
+
 const updateUser = catchAsync(async (req, res) => {
-  const { userId } = req.params;
-  const result = await UserServices.updateUser(userId, req.body);
+  const { user_id, ...rest } = req.body;
+  console.log(rest)
+  console.log(user_id)
+  const result = await UserServices.updateUser(user_id, rest);
 
   res.status(200).json({
     success: true,
@@ -23,8 +38,8 @@ const updateUser = catchAsync(async (req, res) => {
 });
 
 const getUserProfile = catchAsync(async (req, res) => {
-  const { userId } = req.params;
-  const result = await UserServices.getUserProfile(userId);
+  const user_id  = String(req.query.user_id);
+  const result = await UserServices.getUserProfile(user_id);
 
   res.status(200).json({
     success: true,
@@ -35,8 +50,8 @@ const getUserProfile = catchAsync(async (req, res) => {
 
 // delete account
 const deleteUser = catchAsync(async (req, res) => {
-  const { userId } = req.body;
-  await UserServices.deleteUser(userId);
+  const { user_id } = req.body;
+  await UserServices.deleteUser(user_id);
 
   res.status(204).json({
     success: true,
@@ -62,4 +77,5 @@ export const userControllers = {
   getUserProfile,
   deleteUser,
   upgradeToTraveler,
+  updateUserStatus
 };

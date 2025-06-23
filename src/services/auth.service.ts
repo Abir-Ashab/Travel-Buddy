@@ -33,7 +33,7 @@ const login = async (payload: TLoginUser) => {
     throw new Error("User not found");
   }
 
-  if (user.status === "BLOCKED") {
+  if (user.status === "blocked") {
     throw new Error("User is blocked");
   }
 
