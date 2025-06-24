@@ -31,6 +31,7 @@ router.put(
 router.get('/reports', authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN), PostController.getReports);
 router.put('/reports/:reportId', PostController.resolveReport);
 router.delete('/reports/:reportId', PostController.deleteReportedPost);
+
 router.put(
   "/status",
   authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN),
@@ -51,7 +52,7 @@ router.get(
 
 router.delete(
   "/profile",
-  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN),
   userControllers.deleteUser
 );
 

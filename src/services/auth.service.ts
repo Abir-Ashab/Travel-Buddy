@@ -20,7 +20,6 @@ const register = async (payload: TUser): Promise<any> => {
   }
   payload.role = USER_Role.EXPLORER; // Default role for registration
 
-  //create user
   const newUser = await userModel.create(payload);
 
   return newUser;

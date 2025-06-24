@@ -2,6 +2,7 @@
 import bcryptjs from "bcryptjs";
 import config from "../config";
 import { USER_STATUS } from "../interfaces/user.interface";
+import { log } from "console";
 
 class User {
   constructor(knex) {
@@ -52,30 +53,30 @@ class User {
   }
 
   async updateById(id, updateData) {
-  const userId = typeof id === 'object' && '_id' in id ? id._id : id;
+    const userId = typeof id === 'object' && '_id' in id ? id._id : id;
 
-  // If password is being updated, hash it
-  if (updateData.password) {
-    updateData.password = await bcryptjs.hash(updateData.password, Number(config.salt_round));
-    updateData.passwordChangedAt = new Date();
+    // If password is being updated, hash it
+    if (updateData.password) {
+      updateData.password = await bcryptjs.hash(updateData.password, Number(config.salt_round));
+      updateData.passwordChangedAt = new Date();
+    }
+
+    const [updatedUser] = await this.knex(this.tableName)
+      .where({ id: userId })
+      .update({
+        ...updateData,
+        updated_at: new Date()
+      })
+      .returning('*');
+
+    // Remove password from returned object
+    if (updatedUser) {
+      const { password, ...userWithoutPassword } = updatedUser;
+      return userWithoutPassword;
+    }
+
+    return null;
   }
-
-  const [updatedUser] = await this.knex(this.tableName)
-    .where({ id: userId })
-    .update({
-      ...updateData,
-      updated_at: new Date()
-    })
-    .returning('*');
-
-  // Remove password from returned object
-  if (updatedUser) {
-    const { password, ...userWithoutPassword } = updatedUser;
-    return userWithoutPassword;
-  }
-
-  return null;
-}
 
   // Update password and set passwordChangedAt
   async updatePassword(id, newPassword) {
@@ -96,6 +97,7 @@ class User {
 
   // Delete user
   async deleteById(id) {
+    console.log("Deleting user with ID:", id);
     return this.knex(this.tableName)
       .where({ id })
       .del();
