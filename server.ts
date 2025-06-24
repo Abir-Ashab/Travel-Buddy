@@ -7,7 +7,7 @@ import { UserRoutes } from "./src/routes/user.route";
 import { AuthRoutes } from "./src/routes/auth.route";
 import { createPostRoutes } from "./src/routes/post.route";
 import {transportRoutes} from "./src/routes/transport.route"
-import {accommodationRoutes} from "./src/routes/accomodation.route"
+import {accommodationRoutes} from "./src/routes/accommodation.route"
 import {diningRoutes} from "./src/routes/dining.route"
 import {attractionRoutes} from "./src/routes/attraction.route"
 import {wishlistRoutes} from "./src/routes/wishlist.route"

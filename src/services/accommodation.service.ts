@@ -1,10 +1,10 @@
-import { createAccommodationModel } from "../models/accomodation.model"
+import { createAccommodationModel } from "../models/accommodation.model"
 import { createPostModel } from '../models/post.model';
 import {
   Accommodation,
   CreateAccommodationRequest,
   UpdateAccommodationRequest
-} from "../interfaces/accomodation.interface"
+} from "../interfaces/accommodation.interface"
 import KnexConnection from '../database/implementations/knex/KnexConnection';
 
 const knexConnection = new KnexConnection();

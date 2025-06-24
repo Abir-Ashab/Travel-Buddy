@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { AccommodationService } from "../services/accomodation.service";
-import { CreateAccommodationRequest, UpdateAccommodationRequest } from "../interfaces/accomodation.interface";
+import { AccommodationService } from "../services/accommodation.service";
+import { CreateAccommodationRequest, UpdateAccommodationRequest } from "../interfaces/accommodation.interface";
 import { catchAsync } from "../utils/catchAsync";
 
 const getAccommodationsByPost = catchAsync(async (req: Request, res: Response) => {

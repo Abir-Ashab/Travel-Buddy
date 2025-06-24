@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { AccommodationController } from "../controllers/accomodation.controller";
+import { AccommodationController } from "../controllers/accommodation.controller";
 // import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = Router();

@@ -12,10 +12,10 @@ export const USER_STATUS = {
 
 export type TUser = {
   name: string;
-  role: keyof typeof USER_Role;
+  role: typeof USER_Role[keyof typeof USER_Role];
   email: string;
   password: string;
-  status: keyof typeof USER_STATUS;
+  status: typeof USER_STATUS[keyof typeof USER_STATUS];
   passwordChangedAt?: Date;
 };
 
