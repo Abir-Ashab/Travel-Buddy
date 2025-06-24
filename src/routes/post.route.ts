@@ -1,30 +1,114 @@
 import { Router } from 'express';
 import { PostController } from '../controllers/post.controller';
-import { authMiddleware } from '../middlewares/auth.middleware';
+import { authMiddleware } from "../middlewares/auth.middleware";
+import { USER_Role } from "../interfaces/user.interface";   
+import { LocationValidations } from "../validations/location.validation";
+import validateRequest from "../middlewares/validateRequest";
 
 const router = Router();
 
-router.get('/',  PostController.getPosts);
-router.get('/featured', PostController.getFeaturedPosts);
-router.get('/:id', PostController.getPostById);
-router.get('/:id/details', PostController.getPostWithDetails);
+router.get(
+    '/',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.getPosts
+);
 
-router.post('/',  PostController.createPost);
-router.put('/:id',  PostController.updatePost);
-router.delete('/:id', PostController.deletePost);
+router.get(
+    '/featured',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.getFeaturedPosts
+);
 
-router.post('/:id/like', PostController.likePost);
-router.delete('/:id/like', PostController.unlikePost);
-router.post('/:id/save', PostController.savePost);
-router.delete('/:id/save', PostController.unsavePost);
-router.post('/:id/share', PostController.sharePost);
+router.get(
+    '/:id',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.getPostById
+);
 
-router.get('/user/my-posts', PostController.getUserPosts);
-router.get('/user/liked-posts', PostController.getUserLikedPosts);
-router.get('/user/saved-posts', PostController.getUserSavedPosts);
+router.get(
+    '/:id/details',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.getPostWithDetails
+);
 
-router.post('/:id/report', PostController.reportPost);
+router.post(
+    '/',
+    validateRequest(LocationValidations.createLocationValidation),
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.createPost
+);
 
-router.patch('/:id/feature', PostController.toggleFeaturePost);
+router.put(
+    '/:id',
+    validateRequest(LocationValidations.updateLocationValidation),
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.updatePost
+);
+
+router.delete(
+    '/:id',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.deletePost
+);
+
+router.post(
+    '/:id/like',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.likePost
+);
+
+router.delete(
+    '/:id/like',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.unlikePost
+);
+
+router.post(
+    '/:id/save',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.savePost
+);
+
+router.delete(
+    '/:id/save',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.unsavePost
+);
+
+router.post(
+    '/:id/share',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.sharePost
+);
+
+router.get(
+    '/user/my-posts',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.getUserPosts
+);
+
+router.get(
+    '/user/liked-posts',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.getUserLikedPosts
+);
+
+router.get(
+    '/user/saved-posts',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.getUserSavedPosts
+);
+
+router.post(
+    '/:id/report',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.reportPost
+);
+
+router.patch(
+    '/:id/feature',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    PostController.toggleFeaturePost
+);
 
 export const createPostRoutes = router;

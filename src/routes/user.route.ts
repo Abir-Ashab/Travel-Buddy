@@ -40,6 +40,7 @@ router.put(
 
 router.put(
   "/profile",
+  validateRequest(UserValidations.updateUserProfileValidation),
   authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
   userControllers.updateUser
 );
