@@ -26,7 +26,7 @@ const createWishlist = catchAsync(async (req: Request, res: Response) => {
 
 const getWishlistById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.body.user_id;
+  const userId = String(req.query.user_id);
   const wishlist = await WishlistService.getWishlistById(id, userId);
 
   if (!wishlist) {
@@ -37,7 +37,7 @@ const getWishlistById = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getUserWishlists = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.body.user_id;
+  const userId = String(req.query.user_id);
   if (!userId) {
     return res.status(401).json({ success: false, message: 'Authentication required' });
   }

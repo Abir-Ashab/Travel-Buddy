@@ -57,7 +57,7 @@ router.get(
 
 router.post(
     '/:wishlistId/items',
-    validateRequest(WishlistValidations.addWishlistItemValidation),
+    validateRequest(WishlistValidations.createWishlistItemValidation),
     authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
     WishlistController.addWishlistItem
 );

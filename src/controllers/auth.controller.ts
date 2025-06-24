@@ -33,6 +33,7 @@ const login = catchAsync(async (req, res) => {
 const refreshToken = catchAsync(async (req, res) => {
   const { cookie } = req.headers;
   const refreshToken = cookie?.split("refreshToken=")[1];
+  console.log("refreshToken", refreshToken);
   if (!refreshToken) {
     return res.status(401).json({
       success: false,

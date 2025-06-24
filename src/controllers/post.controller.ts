@@ -221,10 +221,10 @@ const getUserSavedPosts = catchAsync(async (req: Request, res: Response) => {
 
 const reportPost = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = req.body.user_id;
-    const { reason, description } = req.body;
-
-    const report = await PostService.reportPost(id, userId, reason, description);
+    console.log(req.body);
+    const { reason, description, user_id } = req.body;
+    console.log('Reporting post:', id, 'by user:', user_id, 'for reason:', reason, 'with description:', description);
+    const report = await PostService.reportPost(id, user_id, reason, description);
 
     res.status(201).json({
         success: true,
@@ -235,9 +235,7 @@ const reportPost = catchAsync(async (req: Request, res: Response) => {
 
 const toggleFeaturePost = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-
     const post = await PostService.toggleFeaturePost(id);
-
     if (!post) {
         return res.status(404).json({
             success: false,

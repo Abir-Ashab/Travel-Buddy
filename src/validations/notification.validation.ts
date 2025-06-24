@@ -13,6 +13,7 @@ const createNotificationValidation = z.object({
 
 const updateNotificationValidation = z.object({
   body: z.object({
+    user_id: z.string().min(1, "User ID is required").optional(),
     title: z.string().min(1, "Title is required").optional(),
     message: z.string().min(1, "Message is required").optional(),
     type: notificationTypes.optional(),

@@ -213,6 +213,7 @@ const reportPost = async (
   if (!post) {
     throw new Error('Post not found');
   }
+  
   const existingReport = await postModel.findUserReport(postId, reporterId);
   if (existingReport) {
     throw new Error('You have already reported this post');

@@ -21,7 +21,6 @@ class KnexConnection extends IDatabaseConnection {
       
       this.client = knex(this.config);
       
-      // Test the connection
       await this.testConnection();
       
       this.connected = true;

@@ -31,90 +31,102 @@ class PostModel {
   }
 
 async findPostsWithFilters(
-    filters: PostFilters,
-    limit: number,
-    offset: number
-  ): Promise<{ posts: Post[]; total: number }> {
-    let baseQuery = this.knex(this.tableName)
-      .where('posts.status', PostStatus.PUBLISHED);
+  filters: PostFilters,
+  limit: number,
+  offset: number
+): Promise<{ posts: Post[]; total: number }> {
+  let baseQuery = this.knex(this.tableName)
+    .where('posts.status', PostStatus.PUBLISHED);
 
-    if (filters.location_id) {
-      baseQuery = baseQuery.where('posts.location_id', filters.location_id);
+  let joinedLocations = false;
+
+  if (filters.location_id) {
+    baseQuery = baseQuery.where('posts.location_id', filters.location_id);
+  }
+
+  if (filters.country) {
+    if (!joinedLocations) {
+      baseQuery = baseQuery.leftJoin('locations', 'posts.location_id', 'locations.id');
+      joinedLocations = true;
+    }
+    baseQuery = baseQuery.where('locations.country', 'ilike', `%${filters.country}%`);
+  }
+
+  if (filters.region) {
+    if (!joinedLocations) {
+      baseQuery = baseQuery.leftJoin('locations', 'posts.location_id', 'locations.id');
+      joinedLocations = true;
+    }
+    baseQuery = baseQuery.where('locations.region', 'ilike', `%${filters.region}%`);
+  }
+
+  if (filters.min_cost !== undefined) {
+    baseQuery = baseQuery.where('posts.total_cost', '>=', filters.min_cost);
+  }
+
+  if (filters.max_cost !== undefined) {
+    baseQuery = baseQuery.where('posts.total_cost', '<=', filters.max_cost);
+  }
+
+  if (filters.min_duration !== undefined) {
+    baseQuery = baseQuery.where('posts.duration_days', '>=', filters.min_duration);
+  }
+
+  if (filters.max_duration !== undefined) {
+    baseQuery = baseQuery.where('posts.duration_days', '<=', filters.max_duration);
+  }
+
+  if (filters.effort_level !== undefined) {
+    baseQuery = baseQuery.where('posts.effort_level', filters.effort_level);
+  }
+
+  if (filters.is_featured !== undefined) {
+    baseQuery = baseQuery.where('posts.is_featured', filters.is_featured);
+  }
+
+  if (filters.user_id) {
+    baseQuery = baseQuery.where('posts.user_id', filters.user_id);
+  }
+
+  if (filters.search) {
+    if (!joinedLocations) {
+      baseQuery = baseQuery.leftJoin('locations', 'posts.location_id', 'locations.id');
+      joinedLocations = true;
     }
 
-    if (filters.country) {
-      baseQuery = baseQuery
-        .leftJoin('locations', 'posts.location_id', 'locations.id')
-        .where('locations.country', 'ilike', `%${filters.country}%`);
-    }
+    baseQuery = baseQuery.where(function () {
+      this.where('posts.title', 'ilike', `%${filters.search}%`)
+        .orWhere('posts.description', 'ilike', `%${filters.search}%`)
+        .orWhere('locations.name', 'ilike', `%${filters.search}%`);
+    });
+  }
 
-    if (filters.region) {
-      if (!filters.country) {
-        baseQuery = baseQuery.leftJoin('locations', 'posts.location_id', 'locations.id');
-      }
-      baseQuery = baseQuery.where('locations.region', 'ilike', `%${filters.region}%`);
-    }
+  const countQuery = baseQuery.clone().clearSelect().clearOrder().countDistinct('posts.id as count');
 
-    if (filters.min_cost !== undefined) {
-      baseQuery = baseQuery.where('posts.total_cost', '>=', filters.min_cost);
-    }
+  const [{ count }] = await countQuery;
+  const total = parseInt(count);
 
-    if (filters.max_cost !== undefined) {
-      baseQuery = baseQuery.where('posts.total_cost', '<=', filters.max_cost);
-    }
+  if (!joinedLocations) {
+    baseQuery = baseQuery.leftJoin('locations', 'posts.location_id', 'locations.id');
+  }
 
-    if (filters.min_duration !== undefined) {
-      baseQuery = baseQuery.where('posts.duration_days', '>=', filters.min_duration);
-    }
+  const posts = await baseQuery
+    .select([
+      'posts.*',
+      'users.name as user_name',
+      'users.profile_picture as user_profile_picture',
+      'locations.name as location_name',
+      'locations.country as location_country',
+      'locations.region as location_region'
+    ])
+    .leftJoin('users', 'posts.user_id', 'users.id')
+    .orderBy('posts.created_at', 'desc')
+    .limit(limit)
+    .offset(offset);
 
-    if (filters.max_duration !== undefined) {
-      baseQuery = baseQuery.where('posts.duration_days', '<=', filters.max_duration);
-    }
-
-    if (filters.effort_level !== undefined) {
-      baseQuery = baseQuery.where('posts.effort_level', filters.effort_level);
-    }
-
-    if (filters.is_featured !== undefined) {
-      baseQuery = baseQuery.where('posts.is_featured', filters.is_featured);
-    }
-
-    if (filters.user_id) {
-      baseQuery = baseQuery.where('posts.user_id', filters.user_id);
-    }
-
-    if (filters.search) {
-      baseQuery = baseQuery.where(function () {
-        this.where('posts.title', 'ilike', `%${filters.search}%`)
-          .orWhere('posts.description', 'ilike', `%${filters.search}%`);
-        if (!filters.country && !filters.region) {
-          this.orWhere('locations.name', 'ilike', `%${filters.search}%`);
-        }
-      });
-    }
-
-    const countQuery = baseQuery.clone().clearSelect().clearOrder().countDistinct('posts.id as count');
-
-    const [{ count }] = await countQuery;
-    const total = parseInt(count);
-
-    const posts = await baseQuery
-      .select([
-        'posts.*',
-        'users.name as user_name',
-        'users.profile_picture as user_profile_picture',
-        'locations.name as location_name',
-        'locations.country as location_country',
-        'locations.region as location_region'
-      ])
-      .leftJoin('users', 'posts.user_id', 'users.id')
-      .leftJoin('locations', 'posts.location_id', 'locations.id')
-      .orderBy('posts.created_at', 'desc')
-      .limit(limit)
-      .offset(offset);
-
-    return { posts, total };
+  return { posts, total };
 }
+
 
 
   async findFeaturedPosts(limit: number): Promise<Post[]> {

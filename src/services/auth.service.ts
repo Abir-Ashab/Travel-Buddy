@@ -49,13 +49,15 @@ const login = async (payload: TLoginUser) => {
     email: user.email,
     role: user.role,
   };
+
+  // console.log("jwtPayload", jwtPayload);
   
   const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
-    expiresIn: parseInt(config.jwt_access_expires_in || "3600")
+    expiresIn: config.jwt_access_expires_in,
   });
 
   const refreshToken = jwt.sign(jwtPayload, config.jwt_refresh_secret as string, {
-      expiresIn: parseInt(config.jwt_refresh_expires_in || "36000")
+      expiresIn: config.jwt_refresh_expires_in,
   });
 
   return {
@@ -74,8 +76,9 @@ const refreshToken = async (token: string): Promise<{ accessToken: string }> => 
     const { email, role } = decoded as { email: string; role: string };
 
     const newAccessToken = jwt.sign({ email, role }, config.jwt_access_secret as string, {
-      expiresIn: parseInt(config.jwt_access_expires_in || "3600"),
+      expiresIn: config.jwt_access_expires_in,
     });
+
     return { accessToken: newAccessToken };
   } catch (error) {
     throw new Error("Invalid refresh token");

@@ -101,4 +101,4 @@ class AccommodationModel {
 }
 
 export const createAccommodationModel = (knex) => new AccommodationModel(knex);
-export { AccommodationModel };
+// export { AccommodationModel };

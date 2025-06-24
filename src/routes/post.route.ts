@@ -2,13 +2,14 @@ import { Router } from 'express';
 import { PostController } from '../controllers/post.controller';
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { USER_Role } from "../interfaces/user.interface";   
-import { LocationValidations } from "../validations/location.validation";
+import { PostValidations } from "../validations/post.validation";
 import validateRequest from "../middlewares/validateRequest";
 
 const router = Router();
 
 router.get(
     '/',
+    validateRequest(PostValidations.postFiltersValidation),
     authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
     PostController.getPosts
 );
@@ -33,21 +34,21 @@ router.get(
 
 router.post(
     '/',
-    validateRequest(LocationValidations.createLocationValidation),
-    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    validateRequest(PostValidations.createPostValidation),
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN,  USER_Role.TRAVELER),
     PostController.createPost
 );
 
 router.put(
     '/:id',
-    validateRequest(LocationValidations.updateLocationValidation),
-    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    validateRequest(PostValidations.updatePostValidation),
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN,  USER_Role.TRAVELER),
     PostController.updatePost
 );
 
 router.delete(
     '/:id',
-    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN,  USER_Role.TRAVELER),
     PostController.deletePost
 );
 
@@ -101,13 +102,14 @@ router.get(
 
 router.post(
     '/:id/report',
-    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    validateRequest(PostValidations.reportPostValidation),
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.TRAVELER),
     PostController.reportPost
 );
 
 router.patch(
     '/:id/feature',
-    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN,  USER_Role.TRAVELER),
     PostController.toggleFeaturePost
 );
 
