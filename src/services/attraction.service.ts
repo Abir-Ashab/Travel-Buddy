@@ -1,17 +1,10 @@
-import { createAttractionModel } from '../models/attraction.model';
-import { createPostModel } from '../models/post.model';
+import { attractionModel } from '../models/attraction.model';
+import { postModel } from '../models/post.model';
 import {
   Attraction,
   CreateAttractionRequest,
   UpdateAttractionRequest
 } from '../interfaces/attraction.interface';
-import KnexConnection from '../database/implementations/knex/KnexConnection';
-
-const knexConnection = new KnexConnection();
-await knexConnection.connect();
-
-const knexInstance = knexConnection.getClient();
-const attractionModel = createAttractionModel(knexInstance);
 
 const getAttractionsByPost = async (postId: string): Promise<Attraction[]> => {
   return await attractionModel.findByPostId(postId);
@@ -27,9 +20,8 @@ const createAttraction = async (
   attractionData: CreateAttractionRequest
 ): Promise<Attraction> => {
   // Verify user owns the post
-  const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(postId);
-  
+
 //   if (!post || String(post.user_id) !== String(userId)) {
 //     throw new Error('Post not found or unauthorized');
 //   }
@@ -66,7 +58,6 @@ const updateAttraction = async (
     return null;
   }
 
-  const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(attraction.post_id);
   
   // if (!post || String(post.user_id) !== String(userId)) {
@@ -91,7 +82,6 @@ const deleteAttraction = async (attractionId: string): Promise<boolean> => {
     return false;
   }
 
-  const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(attraction.post_id);
   
   // if (!post || String(post.user_id) !== String(userId)) {

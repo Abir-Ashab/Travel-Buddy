@@ -75,6 +75,13 @@ export interface GetProximityAlertsRequest {
   offset?: number;
 }
 
+export interface ProximityLogEntry {
+  id: string;
+  user_id: string;
+  location_id: string;
+  created_at: Date;
+}
+
 export interface NearbyItem {
   id: string;
   name: string;

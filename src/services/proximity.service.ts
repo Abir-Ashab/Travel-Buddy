@@ -1,6 +1,5 @@
-// proximity.service.ts
-import { createProximityModel } from "../models/proximity.model";
-import { createNotificationModel } from "../models/notification.model";
+import { proximityModel } from "../models/proximity.model";
+import { notificationModel } from "../models/notification.model";
 import {
   ProximitySettings,
   ProximityAlert,
@@ -12,14 +11,7 @@ import {
   GetProximityAlertsRequest,
   ProximityNotificationPayload
 } from "../interfaces/proximity.interface";
-import KnexConnection from '../database/implementations/knex/KnexConnection';
 
-const knexConnection = new KnexConnection();
-await knexConnection.connect();
-
-const knexInstance = knexConnection.getClient();
-const proximityModel = createProximityModel(knexInstance);
-const notificationModel = createNotificationModel(knexInstance);
 
 const getProximitySettings = async (userId: string): Promise<ProximitySettings | null> => {
   let settings = await proximityModel.findSettingsByUserId(userId);

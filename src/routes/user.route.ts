@@ -18,7 +18,7 @@ router.post(
 
 router.delete(
   "/account",
-  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER),
+  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN),
   userControllers.deleteUser
 );
 

@@ -1,5 +1,5 @@
 // trip.service.ts
-import { createTripModel } from "../models/trip.model";
+import { tripModel } from "../models/trip.model";
 import {
   TravelPlan,
   TravelParticipant,
@@ -12,19 +12,11 @@ import {
   TripDetailsResponse,
   InviteResponse
 } from "../interfaces/trip.interface";
-import KnexConnection from '../database/implementations/knex/KnexConnection';
-
-const knexConnection = new KnexConnection();
-await knexConnection.connect();
-
-const knexInstance = knexConnection.getClient();
-const tripModel = createTripModel(knexInstance);
 
 const createTrip = async (
   userId: string,
   tripData: CreateTripRequest
 ): Promise<TravelPlan> => {
-  // Validate dates
   const startDate = new Date(tripData.start_date);
   const endDate = new Date(tripData.end_date);
   const today = new Date();
@@ -45,7 +37,6 @@ const createTrip = async (
     throw new Error('Maximum participants must be at least 1');
   }
 
-  // Get planning status
   const planningStatus = await tripModel.getStatusByName('planning');
   if (!planningStatus) {
     throw new Error('Planning status not found');
@@ -62,17 +53,9 @@ const createTrip = async (
     max_participants: tripData.max_participants
   });
 
-  // Add creator as participant
   await tripModel.addParticipants(tripId, [userId]);
   await tripModel.updateParticipantStatus(tripId, userId, 'joined');
-
-  // Update creator role
-  await knexInstance('travel_participants')
-    .where({
-      trip_plan_id: tripId,
-      user_id: userId
-    })
-    .update({ role: 'creator' });
+  await tripModel.updateParticipantRole(tripId, userId, 'creator');
 
   const createdTrip = await tripModel.findById(tripId);
   if (!createdTrip) {
@@ -106,7 +89,6 @@ const getTripById = async (
     return null;
   }
 
-  // Check if user has access to this trip
   const isParticipant = await tripModel.isUserParticipant(tripId, userId);
   if (!isParticipant) {
     throw new Error('Unauthorized access to trip');
@@ -127,7 +109,7 @@ const updateTrip = async (
   userId: string,
   updateData: UpdateTripRequest
 ): Promise<TravelPlan | null> => {
-  // Check if user is creator
+
   const isCreator = await tripModel.isUserCreator(tripId, userId);
   if (!isCreator) {
     throw new Error('Only trip creator can update trip details');
@@ -138,7 +120,6 @@ const updateTrip = async (
     return null;
   }
 
-  // Validate dates if provided
   if (updateData.start_date || updateData.end_date) {
     const startDate = updateData.start_date ? new Date(updateData.start_date) : trip.start_date;
     const endDate = updateData.end_date ? new Date(updateData.end_date) : trip.end_date;
@@ -155,8 +136,6 @@ const updateTrip = async (
   if (updateData.max_participants && updateData.max_participants < 1) {
     throw new Error('Maximum participants must be at least 1');
   }
-
-  // Check if reducing max_participants below current count
   if (updateData.max_participants) {
     const currentCount = await tripModel.getParticipantCount(tripId);
     if (updateData.max_participants < currentCount) {
@@ -169,7 +148,6 @@ const updateTrip = async (
 };
 
 const deleteTrip = async (tripId: string, userId: string): Promise<boolean> => {
-  // Check if user is creator
   const isCreator = await tripModel.isUserCreator(tripId, userId);
   if (!isCreator) {
     throw new Error('Only trip creator can delete the trip');
@@ -183,7 +161,6 @@ const inviteParticipants = async (
   userId: string,
   inviteData: InviteParticipantsRequest
 ): Promise<void> => {
-  // Check if user is creator
   const isCreator = await tripModel.isUserCreator(tripId, userId);
   if (!isCreator) {
     throw new Error('Only trip creator can invite participants');
@@ -194,7 +171,6 @@ const inviteParticipants = async (
     throw new Error('Trip not found');
   }
 
-  // Check max participants limit
   const currentCount = await tripModel.getParticipantCount(tripId);
   const newTotalCount = currentCount + inviteData.user_ids.length;
   
@@ -202,7 +178,6 @@ const inviteParticipants = async (
     throw new Error(`Cannot invite ${inviteData.user_ids.length} users. Would exceed maximum participants limit.`);
   }
 
-  // Filter out users who are already participants
   const existingParticipants = await tripModel.getParticipants(tripId);
   const existingUserIds = existingParticipants.map(p => p.user_id);
   const newUserIds = inviteData.user_ids.filter(id => !existingUserIds.includes(id));
@@ -219,7 +194,6 @@ const updateParticipantStatus = async (
   userId: string,
   status: 'joined' | 'declined'
 ): Promise<boolean> => {
-  // Check if user is invited to this trip
   const isParticipant = await tripModel.isUserParticipant(tripId, userId);
   if (!isParticipant) {
     throw new Error('User is not invited to this trip');
@@ -229,7 +203,6 @@ const updateParticipantStatus = async (
 };
 
 const leaveTrip = async (tripId: string, userId: string): Promise<boolean> => {
-  // Check if user is creator
   const isCreator = await tripModel.isUserCreator(tripId, userId);
   if (isCreator) {
     throw new Error('Trip creator cannot leave the trip. Transfer ownership or delete the trip instead.');
@@ -243,13 +216,10 @@ const removeParticipant = async (
   creatorId: string,
   participantId: string
 ): Promise<boolean> => {
-  // Check if user is creator
   const isCreator = await tripModel.isUserCreator(tripId, creatorId);
   if (!isCreator) {
     throw new Error('Only trip creator can remove participants');
   }
-
-  // Cannot remove creator
   const isParticipantCreator = await tripModel.isUserCreator(tripId, participantId);
   if (isParticipantCreator) {
     throw new Error('Cannot remove trip creator');
@@ -263,7 +233,6 @@ const sendMessage = async (
   userId: string,
   messageData: SendMessageRequest
 ): Promise<Message> => {
-  // Check if user is participant
   const isParticipant = await tripModel.isUserParticipant(tripId, userId);
   if (!isParticipant) {
     throw new Error('Only trip participants can send messages');
@@ -290,7 +259,6 @@ const getTripMessages = async (
   page: number = 1,
   limit: number = 50
 ): Promise<Message[]> => {
-  // Check if user is participant
   const isParticipant = await tripModel.isUserParticipant(tripId, userId);
   if (!isParticipant) {
     throw new Error('Only trip participants can view messages');
@@ -307,7 +275,6 @@ const getTripParticipants = async (
   tripId: string,
   userId: string
 ): Promise<TravelParticipant[]> => {
-  // Check if user is participant
   const isParticipant = await tripModel.isUserParticipant(tripId, userId);
   if (!isParticipant) {
     throw new Error('Only trip participants can view participant list');

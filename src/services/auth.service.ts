@@ -4,13 +4,7 @@ import { TUser } from "../interfaces/user.interface";
 import { TLoginUser } from "../interfaces/auth.interface";
 import jwt from "jsonwebtoken";
 import config from "../config";
-import KnexConnection from '../database/implementations/knex/KnexConnection';
-import { createUserModel } from "../models/user.model";
-const knexConnection = new KnexConnection();
-await knexConnection.connect();
-
-const knexInstance = knexConnection.getClient(); // This returns this.client
-const userModel = createUserModel(knexInstance);
+import { userModel } from "../models/user.model";
 
 const register = async (payload: TUser): Promise<any> => {
   const email = payload.email;
@@ -53,11 +47,11 @@ const login = async (payload: TLoginUser) => {
   // console.log("jwtPayload", jwtPayload);
   
   const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
-    expiresIn: config.jwt_access_expires_in,
+    expiresIn: parseInt(config.jwt_access_expires_in as string),
   });
 
   const refreshToken = jwt.sign(jwtPayload, config.jwt_refresh_secret as string, {
-      expiresIn: config.jwt_refresh_expires_in,
+    expiresIn: parseInt(config.jwt_refresh_expires_in as string),
   });
 
   return {
@@ -76,7 +70,7 @@ const refreshToken = async (token: string): Promise<{ accessToken: string }> => 
     const { email, role } = decoded as { email: string; role: string };
 
     const newAccessToken = jwt.sign({ email, role }, config.jwt_access_secret as string, {
-      expiresIn: config.jwt_access_expires_in,
+      expiresIn: parseInt(config.jwt_access_expires_in as string),
     });
 
     return { accessToken: newAccessToken };

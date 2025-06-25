@@ -1,17 +1,10 @@
-import { createDiningModel } from '../models/dining.model';
-import { createPostModel } from '../models/post.model';
+import { diningModel } from '../models/dining.model';
+import { postModel } from '../models/post.model';
 import {
   Dining,
   CreateDiningRequest,
   UpdateDiningRequest
 } from '../interfaces/dining.interface';
-import KnexConnection from '../database/implementations/knex/KnexConnection';
-
-const knexConnection = new KnexConnection();
-await knexConnection.connect();
-
-const knexInstance = knexConnection.getClient();
-const diningModel = createDiningModel(knexInstance);
 
 const getDiningsByPost = async (postId: string): Promise<Dining[]> => {
   return await diningModel.findByPostId(postId);
@@ -27,7 +20,6 @@ const createDining = async (
   diningData: CreateDiningRequest
 ): Promise<Dining> => {
 
-  const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(postId);
   
 //   if (!post || String(post.user_id) !== String(userId)) {
@@ -62,7 +54,6 @@ const updateDining = async (
     return null;
   }
 
-  const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(dining.post_id);
   
 //   if (!post || String(post.user_id) !== String(userId)) {
@@ -84,7 +75,6 @@ const deleteDining = async (diningId: string): Promise<boolean> => {
     return false;
   }
 
-  const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(dining.post_id);
 //   if (!post || String(post.user_id) !== String(userId)) {
 //     return false;

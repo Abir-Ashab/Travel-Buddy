@@ -1,5 +1,6 @@
-// wishlist.service.ts
-import { createWishlistModel } from "../models/wishlist.model";
+import { wishlistModel } from "../models/wishlist.model";
+import { locationModel } from "../models/location.model";
+
 import {
   Wishlist,
   WishlistItem,
@@ -11,13 +12,6 @@ import {
   WishlistFilters,
   WishlistShareResponse
 } from '../interfaces/wishlist.interface';
-import KnexConnection from '../database/implementations/knex/KnexConnection';
-
-const knexConnection = new KnexConnection();
-await knexConnection.connect();
-
-const knexInstance = knexConnection.getClient();
-const wishlistModel = createWishlistModel(knexInstance);
 
 const createWishlist = async (userId: string, data: CreateWishlistRequest): Promise<Wishlist> => {
   const wishlistId = await wishlistModel.create(userId, data);
@@ -58,35 +52,39 @@ const deleteWishlist = async (id: string, userId: string): Promise<boolean> => {
   return await wishlistModel.delete(id);
 };
 
-const addWishlistItem = async (wishlistId: string, userId: string, data: CreateWishlistItemRequest): Promise<WishlistItem | null> => {
+const addWishlistItem = async (
+  wishlistId: string,
+  userId: string,
+  data: CreateWishlistItemRequest
+): Promise<WishlistItem | null> => {
   const hasOwnership = await wishlistModel.checkOwnership(wishlistId, userId);
   if (!hasOwnership) return null;
-
   let locationId = data.location_id;
 
   if (!locationId && data.location) {
     const locationData = {
       name: data.location.name,
-      country: data.location.country,
-      region: data.location.region,
+      country: data.location.country || null,
+      region: data.location.region || null,
       latitude: data.location.latitude,
       longitude: data.location.longitude,
-      timezone: data.location.timezone || null,
+      timezone: data.location.timezone || 'UTC',
     };
-    const [newLocation] = await knexInstance('locations')
-      .insert(locationData)
-      .returning(['id']);
 
-    locationId = newLocation.id;
+    try {
+      locationId = await locationModel.create(locationData);
 
-    await knexInstance.raw(`
-      UPDATE locations
-      SET geom = ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)
-      WHERE id = ?
-    `, [locationId]);
+      if (locationModel.update) {
+        await locationModel.update(locationId, locationData);
+      }
+    } catch (error) {
+      console.error("Failed to create location:", error);
+      return null;
+    }
   }
 
   if (!locationId) return null;
+
   const locationExists = await wishlistModel.checkLocationExists(locationId);
   if (!locationExists) return null;
 
@@ -94,8 +92,10 @@ const addWishlistItem = async (wishlistId: string, userId: string, data: CreateW
   if (isDuplicate) return null;
 
   const itemId = await wishlistModel.createItem(wishlistId, { ...data, location_id: locationId });
+
   const createdItem = await wishlistModel.findItemById(itemId);
-  if (!createdItem) throw new Error('Wishlist item not found after creation');
+  if (!createdItem) throw new Error("Wishlist item not found after creation");
+
   return createdItem;
 };
 
@@ -153,3 +153,5 @@ export const WishlistService = {
   shareWishlist,
   getSharedWishlist
 };
+
+

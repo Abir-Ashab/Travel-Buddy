@@ -1,3 +1,4 @@
+import { getConnection } from "../database";
 import { 
   ProximitySettings,
   ProximityAlert,
@@ -9,25 +10,23 @@ import {
 } from "../interfaces/proximity.interface";
 
 class ProximityModel {
-  constructor(knex) {
-    this.knex = knex;
-    this.proximitySettingsTable = 'proximity_settings';
-    this.proximityLogTable = 'user_proximity_log';
-    this.usersTable = 'users';
-    this.locationsTable = 'locations';
-    this.wishlistsTable = 'wishlists';
-    this.wishlistItemsTable = 'wishlist_items';
-    this.postsTable = 'posts';
-    this.attractionsTable = 'attractions';
-    this.accommodationTable = 'accommodation';
-    this.diningTable = 'dining';
+  private proximitySettingsTable = 'proximity_settings';
+  private proximityLogTable = 'user_proximity_log';
+  private usersTable = 'users';
+  private locationsTable = 'locations';
+  private wishlistsTable = 'wishlists';
+  private wishlistItemsTable = 'wishlist_items';
+  private postsTable = 'posts';
+  private attractionsTable = 'attractions';
+  private accommodationTable = 'accommodation';
+  private diningTable = 'dining';
+
+  private get knex() {
+    const connection = getConnection();
+    return connection.getClient();
   }
 
-  /**
-   * Normalize radius to ensure proper decimal handling
-   * @param {number|string} radiusKm - Radius in kilometers
-   * @returns {number} - Normalized radius as float
-   */
+
   private normalizeRadius(radiusKm: number | string): number {
     const radius = typeof radiusKm === 'string' ? parseFloat(radiusKm) : radiusKm;
     
@@ -35,20 +34,13 @@ class ProximityModel {
       throw new Error('Invalid radius: must be a positive number');
     }
     
-    // Ensure we have proper precision for decimal values
     return Math.round(radius * 1000) / 1000; // Round to 3 decimal places
   }
 
-  /**
-   * Convert radius to meters with proper precision
-   * @param {number} radiusKm - Radius in kilometers
-   * @returns {number} - Radius in meters
-   */
   private radiusToMeters(radiusKm: number): number {
     return Math.round(this.normalizeRadius(radiusKm) * 1000);
   }
 
-  // Proximity Settings Methods
   async findSettingsByUserId(userId: string): Promise<ProximitySettings | null> {
     const settings = await this.knex(this.proximitySettingsTable)
       .where('user_id', userId)
@@ -82,7 +74,6 @@ class ProximityModel {
       });
   }
 
-  // User Location Methods
   async updateUserLocation(userId: string, locationData: any): Promise<void> {
     const latitude = parseFloat(locationData.latitude);
     const longitude = parseFloat(locationData.longitude);
@@ -456,7 +447,6 @@ class ProximityModel {
     }));
   }
 
-  // Generic method to find nearby items with flexible radius
   async findNearbyItems(
     userId: string, 
     radiusKm: number | string, 
@@ -480,9 +470,7 @@ class ProximityModel {
     }
   }
 
-  // Proximity Log Methods
   async logProximityEvent(logData: any): Promise<string> {
-    // Ensure distance_km is properly formatted
     console.log(logData);
     if (logData.distance_km) {
       logData.distance_km = this.normalizeRadius(logData.distance_km);
@@ -522,7 +510,6 @@ class ProximityModel {
     return radius >= minRadius && radius <= maxRadius;
   }
 
-  // Method to get distance between two points
   async calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): Promise<number> {
     const query = `
       SELECT ROUND(
@@ -540,5 +527,4 @@ class ProximityModel {
   }
 }
 
-export const createProximityModel = (knex) => new ProximityModel(knex);
-export { ProximityModel };
+export const proximityModel = new ProximityModel();

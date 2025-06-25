@@ -9,14 +9,14 @@ import {
   UpdateWishlistItemRequest,
   WishlistFilters
 } from '../interfaces/wishlist.interface';
+import { getConnection } from '../database';
 
 class WishlistModel {
-  private knex: any;
-  private tableName: string;
-
-  constructor(knex: any) {
-    this.knex = knex;
-    this.tableName = 'wishlists';
+  private tableName = 'wishlists';
+  
+  private get knex() {
+    const connection = getConnection();
+    return connection.getClient();
   }
 
   async create(userId: string, data: CreateWishlistRequest): Promise<string> {
@@ -238,6 +238,5 @@ class WishlistModel {
   }
 }
 
-export const createWishlistModel = (knex: any) => new WishlistModel(knex);
-export { WishlistModel };
+export const wishlistModel = new WishlistModel();
 

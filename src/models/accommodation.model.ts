@@ -1,11 +1,14 @@
 import { Accommodation } from "../interfaces/accommodation.interface";
+import { getConnection } from '../database';
 
 class AccommodationModel {
-  constructor(private knex) {
-    this.tableName = 'accommodation';
+  private tableName = 'accommodation';
+  
+  private get knex() {
+    const connection = getConnection();
+    return connection.getClient();
   }
 
-  // Find or create location by lat/lng and return location_id (UUID)
   private async findOrCreateLocation(locationData: {
     name: string;
     country?: string;
@@ -19,7 +22,6 @@ class AccommodationModel {
       .andWhere('longitude', locationData.longitude)
       .first();
 
-      
     if (existingLocation) {
       return existingLocation.id;
     }
@@ -33,7 +35,7 @@ class AccommodationModel {
         latitude: locationData.latitude,
         longitude: locationData.longitude,
         timezone: locationData.timezone || 'UTC',
-        created_at: this.knex.fn.now(),
+        created_at: this.knex.fn.now() ,
       })
       .returning('*');
 
@@ -54,20 +56,19 @@ class AccommodationModel {
     return accommodation || null;
   }
 
-  // accommodationData now must include location info
   async create(accommodationData: any & { location?: any }): Promise<string> {
     let locationId = null;
     if (accommodationData.location) {
       locationId = await this.findOrCreateLocation(accommodationData.location);
     }
 
-    // Remove location info from accommodationData to avoid inserting extra columns
     const { location, ...accomFields } = accommodationData;
 
     const [accommodation] = await this.knex(this.tableName)
       .insert({
         ...accomFields,
         location_id: locationId,
+        // created_at: this.knex.fn.now(),
       })
       .returning('id');
 
@@ -100,5 +101,4 @@ class AccommodationModel {
   }
 }
 
-export const createAccommodationModel = (knex) => new AccommodationModel(knex);
-// export { AccommodationModel };
+export const accommodationModel = new AccommodationModel();

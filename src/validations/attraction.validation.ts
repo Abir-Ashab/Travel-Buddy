@@ -2,6 +2,20 @@ import { z } from 'zod';
 const attractionTypes = z.enum(['museum', 'monument', 'park', 'beach', 'temple', 'market', 'viewpoint', 'adventure']);
 const bestTimeToVisit = z.enum(['morning', 'afternoon', 'evening', 'night']);
 
+const dateString = z.string().refine(
+  (val) => !isNaN(Date.parse(val)),
+  { message: "Invalid date format (expected ISO or YYYY-MM-DD)" }
+);
+
+const locationSchema = z.object({
+  name: z.string().min(1, "Location name is required"),
+  country: z.string().optional(),
+  region: z.string().optional(),
+  latitude: z.number(),
+  longitude: z.number(),
+  timezone: z.string().optional(),
+});
+
 const createAttractionValidation = z.object({
   body: z.object({
     attraction_name: z.string().min(1, "Attraction name is required"),
@@ -14,7 +28,8 @@ const createAttractionValidation = z.object({
     recommended: z.boolean().optional().default(false),
     tips: z.string().optional(),
     notes: z.string().optional(),
-    visit_date: z.string().datetime("Invalid visit date format"),
+    visit_date: dateString,
+    location: locationSchema.optional(), 
   }),
 });
 
@@ -30,7 +45,8 @@ const updateAttractionValidation = z.object({
     recommended: z.boolean().optional(),
     tips: z.string().optional(),
     notes: z.string().optional(),
-    visit_date: z.string().datetime("Invalid visit date format").optional(),
+    location: locationSchema.optional(),
+    visit_date: dateString.optional(),
   }),
 });
 

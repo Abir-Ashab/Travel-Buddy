@@ -1,12 +1,15 @@
 import { TravelPlan, TravelParticipant, Message, TripStatus } from "../interfaces/trip.interface";
+import { getConnection } from "../database";
 
 class TripModel {
-  constructor(knex) {
-    this.knex = knex;
-    this.tableName = 'travel_plan';
-    this.participantsTable = 'travel_participants';
-    this.messagesTable = 'messages';
-    this.statusTable = 'trip_status';
+  private tableName = 'travel_plan';
+  private participantsTable = 'travel_participants';
+  private messagesTable = 'messages';
+  private statusTable = 'trip_status';
+
+  private get knex() {
+    const connection = getConnection();
+    return connection.getClient();
   }
 
   // Trip CRUD operations
@@ -99,7 +102,6 @@ async findByUserId(userId: string, page: number = 1, limit: number = 10): Promis
     return deletedRows > 0;
   }
 
-  // Participant operations
   async addParticipants(tripId: string, userIds: string[]): Promise<void> {
     const participants = userIds.map(userId => ({
       trip_plan_id: tripId,
@@ -148,14 +150,13 @@ async findByUserId(userId: string, page: number = 1, limit: number = 10): Promis
       .where({
         trip_plan_id: tripId,
         user_id: userId,
-        role: 'participant' // Can't remove creator
+        role: 'participant' 
       })
       .del();
 
     return deletedRows > 0;
   }
 
-  // Message operations
   async createMessage(messageData: any): Promise<string> {
     const [message] = await this.knex(this.messagesTable)
       .insert(messageData)
@@ -179,7 +180,6 @@ async findByUserId(userId: string, page: number = 1, limit: number = 10): Promis
       .offset(offset);
   }
 
-  // Invite operations
   async getUserInvites(userId: string): Promise<any[]> {
     return await this.knex(this.participantsTable)
       .select(
@@ -202,7 +202,6 @@ async findByUserId(userId: string, page: number = 1, limit: number = 10): Promis
       .orderBy('travel_participants.created_at', 'desc');
   }
 
-  // Status operations
   async getAllStatuses(): Promise<TripStatus[]> {
     return await this.knex(this.statusTable)
       .select('*')
@@ -216,7 +215,6 @@ async findByUserId(userId: string, page: number = 1, limit: number = 10): Promis
     return status || null;
   }
 
-  // Utility methods
   async isUserParticipant(tripId: string, userId: string): Promise<boolean> {
     const participant = await this.knex(this.participantsTable)
       .where({
@@ -247,7 +245,17 @@ async findByUserId(userId: string, page: number = 1, limit: number = 10): Promis
 
     return parseInt(result.count.toString());
   }
+
+  async updateParticipantRole(tripId: string, userId: string, role: string): Promise<boolean> {
+    const updatedRows = await this.knex(this.participantsTable)
+      .where({
+        trip_plan_id: tripId,
+        user_id: userId
+      })
+      .update({ role });
+
+    return updatedRows > 0;
+  }
 }
 
-export const createTripModel = (knex) => new TripModel(knex);
-export { TripModel };
+export const tripModel = new TripModel();

@@ -1,8 +1,8 @@
 import { initialize } from './src/database';
 import { config } from 'dotenv';
-import express, { Request, Response } from "express";
-// import globalErrorHandler from "./src/middlewares/globalErrorHandler";
-// import notFound from "./src/middlewares/notFound";
+import express from "express";
+import globalErrorHandler from "./src/middlewares/globalErrorHandler";
+import notFound from "./src/middlewares/notFound";
 import { UserRoutes } from "./src/routes/user.route";
 import { AuthRoutes } from "./src/routes/auth.route";
 import { createPostRoutes } from "./src/routes/post.route";
@@ -37,18 +37,19 @@ const startServer = async () => {
     app.use("/api/proximity", proximityRoutes);
     app.use("/api/notifications", notificationRoutes);
     app.use("/api/trips", tripRoutes);
-
+    app.get('/api/test-error', (req, res) => {
+      throw new Error("This is a test error from /test-error route");
+    });
   } catch (error) {
     console.error('Application initialization failed:', error.message);
     process.exit(1);
   }
-  
+  app.use(notFound);
+  app.use(globalErrorHandler);
+
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
 };
 
-startServer().catch((error) => {
-  console.error('Failed to start server:', error);
-  process.exit(1);
-});
+startServer();

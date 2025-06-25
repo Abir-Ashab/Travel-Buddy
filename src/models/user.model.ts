@@ -1,18 +1,17 @@
-// models/user.model.js
 import bcryptjs from "bcryptjs";
 import config from "../config";
 import { USER_STATUS } from "../interfaces/user.interface";
-import { log } from "console";
+import { getConnection } from "../database";
 
 class User {
-  constructor(knex) {
-    this.knex = knex;
-    this.tableName = 'users';
+  private tableName = 'users';
+  
+  private get knex() {
+    const connection = getConnection();
+    return connection.getClient();
   }
 
-  // pre-save er equivalent: create a new user
-  async create(userData) {
-    // Hash password before saving (pre-save equivalent)
+  async create(userData: any) {
     const hashedPassword = await bcryptjs.hash(userData.password, Number(config.salt_round));
     
     const userToInsert = {
@@ -29,14 +28,13 @@ class User {
     return userWithoutPassword;
   }
 
-  async findById(id) {
+  async findById(id : string ) {
     const query = this.knex(this.tableName).where({ id });
     
     return query.first();
   }
 
-  // without password
-  async findByEmail(email, includePassword = false) {
+  async findByEmail(email: string, includePassword = false) {
     const query = this.knex(this.tableName).where({ email });
     
     if (!includePassword) {
@@ -46,16 +44,14 @@ class User {
     return query.first();
   }
 
-  async findByEmailWithPassword(email) {
+  async findByEmailWithPassword(email: string) {
     return this.knex(this.tableName)
       .where({ email })
       .first();
   }
 
-  async updateById(id, updateData) {
-    const userId = typeof id === 'object' && '_id' in id ? id._id : id;
-
-    // If password is being updated, hash it
+  async updateById(id: string, updateData: Record<string, any>) {
+    const userId = (typeof id === 'object' && id !== null && '_id' in id) ? (id as { _id: string })._id : id;
     if (updateData.password) {
       updateData.password = await bcryptjs.hash(updateData.password, Number(config.salt_round));
       updateData.passwordChangedAt = new Date();
@@ -68,8 +64,6 @@ class User {
         updated_at: new Date()
       })
       .returning('*');
-
-    // Remove password from returned object
     if (updatedUser) {
       const { password, ...userWithoutPassword } = updatedUser;
       return userWithoutPassword;
@@ -78,8 +72,7 @@ class User {
     return null;
   }
 
-  // Update password and set passwordChangedAt
-  async updatePassword(id, newPassword) {
+  async updatePassword(id: string , newPassword: string) {
     const hashedPassword = await bcryptjs.hash(newPassword, Number(config.salt_round));
     
     return this.updateById(id, {
@@ -88,23 +81,20 @@ class User {
     });
   }
 
-  // Find all users (without passwords)
   async findAll(filters = {}) {
     return this.knex(this.tableName)
       .select('id', 'name', 'role', 'email', 'status', 'password_changed_at', 'created_at', 'updated_at')
       .where(filters);
   }
 
-  // Delete user
-  async deleteById(id) {
+  async deleteById(id : string) {
     console.log("Deleting user with ID:", id);
     return this.knex(this.tableName)
       .where({ id })
       .del();
   }
 
-  // Check if password was changed after a certain date (useful for JWT validation)
-  async wasPasswordChangedAfter(userId, timestamp) {
+  async wasPasswordChangedAfter(userId: string, timestamp: string | Date) {
     const user = await this.knex(this.tableName)
       .select('password_changed_at')
       .where({ id: userId })
@@ -117,9 +107,4 @@ class User {
     return new Date(user.password_changed_at) > new Date(timestamp);
   }
 }
-
-// Create and export a factory function
-export const createUserModel = (knex) => new User(knex);
-
-// Or export the class if you prefer
-export { User };
+export const userModel =  new User();

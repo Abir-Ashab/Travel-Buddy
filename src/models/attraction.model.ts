@@ -1,8 +1,12 @@
 import { Attraction } from '../interfaces/attraction.interface';
+import { getConnection } from "../database";
 
 class AttractionModel {
-  constructor(private knex) {
-    this.tableName = 'attractions';
+  private tableName = 'attraction';
+  
+  private get knex() {
+    const connection = getConnection();
+    return connection.getClient();
   }
 
   private async findOrCreateLocation(locationData: {
@@ -94,5 +98,4 @@ class AttractionModel {
   }
 }
 
-export const createAttractionModel = (knex) => new AttractionModel(knex);
-export { AttractionModel };
+export const attractionModel = new AttractionModel();

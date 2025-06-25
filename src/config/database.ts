@@ -4,11 +4,8 @@ dotenv.config();
 
 const config = {
   orm: process.env.DB_ORM || 'knex',
-
-  // Database Type
   type: process.env.DB_TYPE || 'postgresql',
 
-  // Database Configurations
   postgresql: {
     host: process.env.PG_HOST || 'localhost',
     port: parseInt(process.env.PG_PORT || '5432'),
@@ -38,7 +35,6 @@ const config = {
     }
   },
 
-  // Connection Pool Settings
   pool: {
     min: parseInt(process.env.DB_POOL_MIN || '2'),
     max: parseInt(process.env.DB_POOL_MAX || '10'),

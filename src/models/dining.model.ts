@@ -1,10 +1,13 @@
 import { Dining } from "../interfaces/dining.interface";
+import { getConnection } from "../database";
 
 class DiningModel {
-  constructor(private knex) {
-    this.tableName = 'dining';
+  private tableName = 'dining';
+  
+  private get knex() {
+    const connection = getConnection();
+    return connection.getClient();
   }
-
   private async findOrCreateLocation(locationData: {
     name: string;
     country?: string;
@@ -94,5 +97,4 @@ class DiningModel {
   }
 }
 
-export const createDiningModel = (knex) => new DiningModel(knex);
-export { DiningModel };
+export const diningModel = new DiningModel();

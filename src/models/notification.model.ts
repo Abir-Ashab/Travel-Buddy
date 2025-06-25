@@ -1,9 +1,12 @@
 import { Notification, CreateNotificationRequest, UpdateNotificationRequest } from "../interfaces/notification.interface";
+import { getConnection } from "../database";
 
 class NotificationModel {
-  constructor(knex) {
-    this.knex = knex;
-    this.tableName = 'notifications';
+  private tableName = 'locations';
+  
+  private get knex() {
+    const connection = getConnection();
+    return connection.getClient();
   }
 
   async findById(id: string): Promise<Notification | null> {
@@ -171,5 +174,4 @@ class NotificationModel {
   }
 }
 
-export const createNotificationModel = (knex) => new NotificationModel(knex);
-export { NotificationModel };
+export const notificationModel = new NotificationModel();

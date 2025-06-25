@@ -4,13 +4,7 @@ import config from "../config";
 import AppError from "../errors/AppError";
 import { USER_Role, USER_STATUS } from "../interfaces/user.interface";
 import { catchAsync } from "../utils/catchAsync";
-import { createUserModel } from "../models/user.model";
-import KnexConnection from '../database/implementations/knex/KnexConnection';
-const knexConnection = new KnexConnection();
-await knexConnection.connect();
-
-const knexInstance = knexConnection.getClient(); // This returns this.client
-const userModel = createUserModel(knexInstance);
+import { userModel } from "../models/user.model";
 
 export const authMiddleware = (...requiredRoles: (typeof USER_Role)[keyof typeof USER_Role][]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -24,10 +18,9 @@ export const authMiddleware = (...requiredRoles: (typeof USER_Role)[keyof typeof
       accessToken as string,
       config.jwt_access_secret as string
     );
-    
 
     console.log("verfiedToken", verfiedToken);
-    
+
     const { role, email } = verfiedToken as JwtPayload;
     console.log(email, role);
     const user = await userModel.findByEmail(email);

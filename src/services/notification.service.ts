@@ -1,5 +1,5 @@
 // notification.service.ts
-import { createNotificationModel } from "../models/notification.model";
+import { notificationModel } from "../models/notification.model";
 import {
   Notification,
   CreateNotificationRequest,
@@ -7,13 +7,6 @@ import {
   NotificationStats,
   ProximityNotificationPayload
 } from "../interfaces/notification.interface";
-import KnexConnection from '../database/implementations/knex/KnexConnection';
-
-const knexConnection = new KnexConnection();
-await knexConnection.connect();
-
-const knexInstance = knexConnection.getClient();
-const notificationModel = createNotificationModel(knexInstance);
 
 const getNotificationsByUser = async (
   userId: string, 

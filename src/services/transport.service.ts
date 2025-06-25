@@ -1,17 +1,10 @@
-import { createTransportModel } from "../models/transport.model"
-import { createPostModel } from '../models/post.model';
+import { transportModel } from "../models/transport.model"
+import { postModel } from '../models/post.model';
 import {
   Transport,
   CreateTransportRequest,
   UpdateTransportRequest
 } from '../interfaces/transport.interface';
-import KnexConnection from '../database/implementations/knex/KnexConnection';
-
-const knexConnection = new KnexConnection();
-await knexConnection.connect();
-
-const knexInstance = knexConnection.getClient();
-const transportModel = createTransportModel(knexInstance);
 
 const getTransportsByPost = async (postId: string): Promise<Transport[]> => {
   return await transportModel.findByPostId(postId);
@@ -26,7 +19,6 @@ const createTransport = async (
   transportData: CreateTransportRequest
 ): Promise<Transport> => {
   
-  const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(postId);
 
   const transportId = await transportModel.create({
@@ -51,8 +43,6 @@ const updateTransport = async (
   if (!transport) {
     return null;
   }
-
-  const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(transport.post_id);
   
   // if (!post || String(post.user_id) !== String(userId)) {
@@ -68,8 +58,6 @@ const deleteTransport = async (transportId: string): Promise<boolean> => {
   if (!transport) {
     return false;
   }
-
-  const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(transport.post_id);
   
   // if (!post || String(post.user_id) !== String(userId)) {

@@ -1,9 +1,12 @@
 import { Transport } from '../interfaces/transport.interface';
+import { getConnection } from "../database";
 
 class TransportModel {
-  constructor(knex) {
-    this.knex = knex;
-    this.tableName = 'transport';
+  private tableName = 'transports';
+  
+  private get knex() {
+    const connection = getConnection();
+    return connection.getClient();
   }
 
   async findByPostId(postId: string): Promise<Transport[]> {
@@ -46,5 +49,4 @@ class TransportModel {
   }
 }
 
-export const createTransportModel = (knex) => new TransportModel(knex);
-export { TransportModel };
+export const transportModel = new TransportModel();

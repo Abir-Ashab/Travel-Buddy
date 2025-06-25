@@ -1,16 +1,9 @@
-import { createLocationModel } from "../models/location.model"
+import { locationModel } from "../models/location.model"
 import {
   Location,
   CreateLocationRequest,
   UpdateLocationRequest
 } from "../interfaces/location.interface"
-import KnexConnection from '../database/implementations/knex/KnexConnection';
-
-const knexConnection = new KnexConnection();
-await knexConnection.connect();
-
-const knexInstance = knexConnection.getClient();
-const locationModel = createLocationModel(knexInstance);
 
 interface GetAllLocationsOptions {
   page: number;

@@ -69,8 +69,6 @@ class KnexConnection extends IDatabaseConnection {
       if (!this.client) {
         throw new Error('Knex client not initialized');
       }
-
-      // Test connection based on database type
       switch (dbConfig.type) {
         case 'postgresql':
           await this.client.raw('SELECT 1');

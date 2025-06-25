@@ -1,17 +1,10 @@
-import { createAccommodationModel } from "../models/accommodation.model"
-import { createPostModel } from '../models/post.model';
+import { accommodationModel } from "../models/accommodation.model"
+import { postModel } from '../models/post.model';
 import {
   Accommodation,
   CreateAccommodationRequest,
   UpdateAccommodationRequest
 } from "../interfaces/accommodation.interface"
-import KnexConnection from '../database/implementations/knex/KnexConnection';
-
-const knexConnection = new KnexConnection();
-await knexConnection.connect();
-
-const knexInstance = knexConnection.getClient();
-const accommodationModel = createAccommodationModel(knexInstance);
 
 const getAccommodationsByPost = async (postId: string): Promise<Accommodation[]> => {
   return await accommodationModel.findByPostId(postId);
@@ -71,7 +64,6 @@ const updateAccommodation = async (
     return null;
   }
 
-  const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(accommodation.post_id);
   
   // if (!post || String(post.user_id) !== String(userId)) {
@@ -101,9 +93,8 @@ const deleteAccommodation = async (accommodationId: string): Promise<boolean> =>
     return false;
   }
 
-  const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(accommodation.post_id);
-  
+
   // if (!post || String(post.user_id) !== String(userId)) {
   //   return false;
   // }

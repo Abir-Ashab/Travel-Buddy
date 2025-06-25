@@ -1,4 +1,4 @@
-import { createPostModel } from '../models/post.model';
+import { postModel } from '../models/post.model';
 import {
   Post,
   CreatePostRequest,
@@ -8,12 +8,6 @@ import {
   ReportReason,
   ReportStatus
 } from '../interfaces/post.interface';
-import KnexConnection from '../database/implementations/knex/KnexConnection';
-const knexConnection = new KnexConnection();
-await knexConnection.connect();
-
-const knexInstance = knexConnection.getClient(); // This returns this.client
-const postModel = createPostModel(knexInstance);
 
 const getPosts = async (filters: PostFilters, page: number, limit: number): Promise<PostsResponse> => {
   const offset = (page - 1) * limit;

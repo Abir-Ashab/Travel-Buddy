@@ -1,4 +1,6 @@
 import config from "../config";
+import { getConnection } from '../database';
+
 import { 
   Post, 
   PostFilters, 
@@ -8,33 +10,27 @@ import {
 } from '../interfaces/post.interface';
 
 class PostModel {
-  // private readonly tableName = 'posts';
-  // private readonly mediaTableName = 'media';
-  // private readonly likesTableName = 'post_likes';
-  // private readonly savesTableName = 'post_saves';
-  // private readonly sharesTableName = 'post_shares';
-  // private readonly reportsTableName = 'reports';
-  // private knex: any;
+  private tableName = 'posts';
+  private mediaTableName = 'media';
+  private likesTableName = 'post_likes';
+  private savesTableName = 'post_saves';
+  private sharesTableName = 'post_shares';
+  private reportsTableName = 'reports';
+  private transportsTableName = 'transport';
+  private accoTable = 'accommodation';
+  private diningTable = 'dining';
+  private attractionTable = 'attractions';
 
-  constructor(knex) {
-    this.knex = knex;
-    this.tableName = 'posts';
-    this.mediaTableName = 'media';
-    this.likesTableName = 'post_likes';
-    this.savesTableName = 'post_saves';
-    this.sharesTableName = 'post_shares';
-    this.reportsTableName = 'reports';
-    this.transportsTableName = 'transport';
-    this.accoTable = 'accommodation';
-    this.diningTable = 'dining';
-    this.attractionTable = 'attractions';
+  private get knex() {
+    const connection = getConnection();
+    return connection.getClient();
   }
 
-async findPostsWithFilters(
-  filters: PostFilters,
-  limit: number,
-  offset: number
-): Promise<{ posts: Post[]; total: number }> {
+  async findPostsWithFilters(
+    filters: PostFilters,
+    limit: number,
+    offset: number
+  ): Promise<{ posts: Post[]; total: number }> {
   let baseQuery = this.knex(this.tableName)
     .where('posts.status', PostStatus.PUBLISHED);
 
@@ -550,6 +546,4 @@ async findPostsWithFilters(
   }
 }
 
-export const createPostModel = (knex) => new PostModel(knex);
-
-export { PostModel };
+export const postModel = new PostModel();

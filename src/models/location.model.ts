@@ -1,4 +1,5 @@
 import { Location } from "../interfaces/location.interface"
+import { getConnection } from "../database";
 
 interface GetAllLocationsOptions {
   page: number;
@@ -8,9 +9,11 @@ interface GetAllLocationsOptions {
 }
 
 class LocationModel {
-  constructor(knex) {
-    this.knex = knex;
-    this.tableName = 'locations';
+  private tableName = 'locations';
+  
+  private get knex() {
+    const connection = getConnection();
+    return connection.getClient();
   }
 
   async findAll(options: GetAllLocationsOptions): Promise<Location[]> {
@@ -82,5 +85,4 @@ class LocationModel {
   }
 }
 
-export const createLocationModel = (knex) => new LocationModel(knex);
-export { LocationModel };
+export const locationModel = new LocationModel();
