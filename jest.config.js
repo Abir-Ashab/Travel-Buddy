@@ -5,3 +5,4 @@ export default {
   moduleFileExtensions: ["ts", "js", "json"],
   roots: ["<rootDir>/src", "<rootDir>/tests"],
 };
+

@@ -1,5 +1,3 @@
-// File: tests/controllers/attraction.controller.test.ts
-
 import { AttractionController } from '../../src/controllers/attraction.controller';
 import { AttractionService } from '../../src/services/attraction.service';
 import { Request, Response } from 'express';
@@ -46,5 +44,43 @@ describe('AttractionController', () => {
       data: mockAttraction,
       message: 'Attraction created successfully',
     });
+  });
+
+  it('updateAttraction - should return 404 if not found or unauthorized', async () => { 
+    const req = { params: { id: '1' }, body: { name: 'Updated Beach', user_id: '123' } } as unknown as Request;
+    (AttractionService.updateAttraction as jest.Mock).mockResolvedValue(null);
+    const next = jest.fn();
+    await AttractionController.updateAttraction(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Attraction not found or unauthorized' });
+  });
+
+  it('getAttractionsByPost - should return attractions for a post', async () => {
+    const req = { params: { postId: '1' } } as unknown as Request;
+    const mockAttractions = [{ id: 1, name: 'Beach' }];
+    (AttractionService.getAttractionsByPost as jest.Mock).mockResolvedValue(mockAttractions);
+
+    const next = jest.fn();
+    await AttractionController.getAttractionsByPost(req, res, next);
+
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      data: mockAttractions,
+    });
+  });
+
+  it('deleteAttraction - should return 404 if not found', async () => {
+    const req = {
+      params: { id: '1' },
+      body: { user_id: '123' } 
+    } as unknown as Request;
+
+    (AttractionService.deleteAttraction as jest.Mock).mockResolvedValue(false);
+    const next = jest.fn();
+    await AttractionController.deleteAttraction(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Attraction not found or unauthorized' });
   });
 });
