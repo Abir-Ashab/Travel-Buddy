@@ -6,7 +6,10 @@ class AccommodationModel {
   
   private get knex() {
     const connection = getConnection();
-    return connection.getClient();
+    if (!connection) {
+      throw new Error('Database connection is undefined');
+    }
+    return connection.getClient!();
   }
 
   private async findOrCreateLocation(locationData: {

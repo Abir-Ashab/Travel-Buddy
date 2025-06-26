@@ -6,7 +6,10 @@ class NotificationModel {
   
   private get knex() {
     const connection = getConnection();
-    return connection.getClient();
+    if (!connection) {
+      throw new Error('Database connection is undefined');
+    }
+    return connection.getClient!();
   }
 
   async findById(id: string): Promise<Notification | null> {
@@ -55,7 +58,7 @@ class NotificationModel {
       .count('id as count')
       .first();
 
-    return parseInt(result?.count || '0');
+    return parseInt(result?.count?.toString() || '0');
   }
 
   async create(notificationData: CreateNotificationRequest): Promise<string> {
