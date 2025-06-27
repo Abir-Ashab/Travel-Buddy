@@ -1,5 +1,5 @@
-import { diningModel } from '../models/dining.model';
-import { postModel } from '../models/post.model';
+import { diningModel } from '../repositories/dining.repository';
+import { postModel } from '../repositories/post.repository';
 import {
   Dining,
   CreateDiningRequest,
@@ -60,7 +60,7 @@ const updateDining = async (
 //     return null;
 //   }
 
-  if (updateData.rating && (updateData.rating < 1 || updateData.rating > 5)) {
+  if (updateData.rating !== undefined && (updateData.rating < 1 || updateData.rating > 5)) {
     throw new Error('Rating must be between 1 and 5');
   }
 
@@ -89,4 +89,4 @@ export const DiningService = {
     createDining,
     updateDining,
     deleteDining
-}
+};

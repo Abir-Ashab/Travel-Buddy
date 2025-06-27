@@ -1,5 +1,5 @@
-import { wishlistModel } from "../repositories/wishlist.repository";
-import { locationModel } from "../repositories/location.repository";
+import { wishlistModel } from "../models/wishlist.model";
+import { locationModel } from "../models/location.model";
 
 import {
   Wishlist,

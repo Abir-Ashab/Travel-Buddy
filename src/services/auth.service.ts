@@ -4,7 +4,7 @@ import { TUser } from "../interfaces/user.interface";
 import { TLoginUser } from "../interfaces/auth.interface";
 import jwt from "jsonwebtoken";
 import config from "../config";
-import { userModel } from "../models/user.model";
+import { userModel } from "../repositories/user.repository";
 
 const register = async (payload: TUser): Promise<any> => {
   const email = payload.email;

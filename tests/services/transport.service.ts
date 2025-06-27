@@ -1,5 +1,5 @@
-import { transportModel } from "../repositories/transport.repository"
-import { postModel } from '../repositories/post.repository';
+import { transportModel } from "../models/transport.model"
+import { postModel } from '../models/post.model';
 import {
   Transport,
   CreateTransportRequest,

@@ -1,5 +1,5 @@
 // notification.service.ts
-import { notificationModel } from "../repositories/notification.repository";
+import { notificationModel } from "../models/notification.model";
 import {
   Notification,
   CreateNotificationRequest,

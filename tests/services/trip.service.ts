@@ -1,5 +1,5 @@
 // trip.service.ts
-import { tripModel } from "../repositories/trip.repository";
+import { tripModel } from "../models/trip.model";
 import {
   TravelPlan,
   TravelParticipant,

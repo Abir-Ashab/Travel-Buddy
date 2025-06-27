@@ -1,5 +1,5 @@
-import { accommodationModel } from "../models/accommodation.model"
-import { postModel } from '../models/post.model';
+import { accommodationModel } from "../repositories/accommodation.repository"
+import { postModel } from '../repositories/post.repository';
 import {
   Accommodation,
   CreateAccommodationRequest,
@@ -70,7 +70,7 @@ const updateAccommodation = async (
   //   return null;
   // }
 
-  if (updateData.rating && (updateData.rating < 1 || updateData.rating > 5)) {
+  if (updateData.rating !== undefined && (updateData.rating < 1 || updateData.rating > 5)) {
     throw new Error('Rating must be between 1 and 5');
   }
 
