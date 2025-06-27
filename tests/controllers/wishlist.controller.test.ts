@@ -2,7 +2,7 @@ import { CreateWishlistRequest, UpdateWishlistRequest, WishlistFilters, CreateWi
 import { WishlistService } from '../../src/services/wishlist.service';
 import { WishlistController } from '../../src/controllers/wishlist.controller';
 import { Request, Response } from 'express';
-import { catchAsync } from '../../src/utils/catchAsync';
+import { catchAsync } from '../../src/utils/catchAsync.util';
 
 jest.mock('../../src/services/wishlist.service');
 

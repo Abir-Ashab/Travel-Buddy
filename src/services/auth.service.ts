@@ -43,8 +43,6 @@ const login = async (payload: TLoginUser) => {
     email: user.email,
     role: user.role,
   };
-
-  // console.log("jwtPayload", jwtPayload);
   
   const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
     expiresIn: parseInt(config.jwt_access_expires_in as string),

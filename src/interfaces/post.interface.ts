@@ -17,7 +17,7 @@ export enum ReportStatus {
 }
 
 export interface Location {
-  id: number;
+  id: string;
   name: string;
   country: string;
   region: string;
@@ -28,9 +28,9 @@ export interface Location {
 }
 
 export interface Post {
-  id: number;
-  user_id: number;
-  location_id: number;
+  id: string;
+  user_id: string;
+  location_id: string;
   title: string;
   description: string;
   total_cost: number;
@@ -46,37 +46,37 @@ export interface Post {
 }
 
 export interface Media {
-  id: number;
-  post_id: number;
+  id: string;
+  post_id: string;
   image_url: string;
 }
 
 export interface PostLike {
-  id: number;
-  post_id: number;
-  user_id: number;
+  id: string;
+  post_id: string;
+  user_id: string;
   created_at: Date;
 }
 
 export interface PostSave {
-  id: number;
-  post_id: number;
-  user_id: number;
+  id: string;
+  post_id: string;
+  user_id: string;
   created_at: Date;
 }
 
 export interface PostShare {
-  id: number;
-  post_id: number;
-  user_id: number;
+  id: string;
+  post_id: string;
+  user_id: string;
   platform?: 'facebook' | 'twitter' | 'whatsapp' | 'copy_link';
   created_at: Date;
 }
 
 export interface Report {
-  id: number;
-  reporter_id: number;
-  post_id: number;
+  id: string;
+  reporter_id: string;
+  post_id: string;
   reason: ReportReason;
   description?: string;
   status: ReportStatus;
@@ -86,7 +86,7 @@ export interface Report {
 export interface CreatePostRequest {
   title: string;
   description: string;
-  location_id: number;
+  location_id: string;
   total_cost: number;
   duration_days: number;
   effort_level: number;
@@ -138,15 +138,15 @@ export interface PostFilters {
 }
 
 export interface Like {
-  id: number;
-  user_id: number;
+  id: string;
+  user_id: string;
   post_id: string;
   created_at: Date;
 }
 
 export interface SavedPost {
-  id: number;
-  user_id: number;
+  id: string;
+  user_id: string;
   post_id: string;
   created_at: Date;
 }

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { LocationService } from "../services/location.service";
 import { CreateLocationRequest, UpdateLocationRequest } from "../interfaces/location.interface";
-import { catchAsync } from "../utils/catchAsync";
+import { catchAsync } from '../utils/catchAsync.util';
 
 const getAllLocations = catchAsync(async (req: Request, res: Response) => {
   const { page = 1, limit = 10, country, region } = req.query;

@@ -36,7 +36,6 @@ const createTransport = async (
 
 const updateTransport = async (
   transportId: string,
-  // userId: string,
   updateData: UpdateTransportRequest
 ): Promise<Transport | null> => {
   const transport = await transportModel.findById(transportId);
@@ -44,11 +43,6 @@ const updateTransport = async (
     return null;
   }
   const post = await postModel.findById(transport.post_id);
-  
-  // if (!post || String(post.user_id) !== String(userId)) {
-  //   return null;
-  // }
-
   await transportModel.update(transportId, updateData);
   return await transportModel.findById(transportId);
 };
@@ -59,11 +53,6 @@ const deleteTransport = async (transportId: string): Promise<boolean> => {
     return false;
   }
   const post = await postModel.findById(transport.post_id);
-  
-  // if (!post || String(post.user_id) !== String(userId)) {
-  //   return false;
-  // }
-
   return await transportModel.delete(transportId);
 };
 

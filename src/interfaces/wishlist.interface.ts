@@ -35,10 +35,7 @@ export interface WishlistItemWithLocation extends WishlistItem {
     latitude: number;
     longitude: number;
     timezone: string;
-    // Optional future fields:
     geom?: string;
-    // address?: string;
-    // postal_code?: string;
   };
 }
 
@@ -58,7 +55,7 @@ export interface UpdateWishlistRequest {
 }
 
 export interface CreateWishlistItemRequest {
-  location_id: string; // Now optional
+  location_id: string; 
   location?: {
     name: string;
     country: string;

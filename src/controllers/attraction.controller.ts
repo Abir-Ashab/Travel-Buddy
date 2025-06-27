@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { AttractionService } from '../services/attraction.service';
 import { CreateAttractionRequest, UpdateAttractionRequest } from '../interfaces/attraction.interface';
-import { catchAsync } from '../utils/catchAsync';
+import { catchAsync } from '../utils/catchAsync.util';
 
 const getAttractionsByPost = catchAsync(async (req: Request, res: Response) => {
   const { postId } = req.params;

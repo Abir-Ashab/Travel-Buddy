@@ -1,4 +1,4 @@
-import { catchAsync } from "../utils/catchAsync";
+import { catchAsync } from '../utils/catchAsync.util';
 import { UserServices } from "../services/user.services";
 
 const createAdmin = catchAsync(async (req, res) => {
@@ -13,8 +13,6 @@ const createAdmin = catchAsync(async (req, res) => {
 
 const updateUserStatus = catchAsync(async (req, res) => {
   const { user_id, ...rest } = req.body;
-  console.log(rest)
-  console.log(user_id)
   const result = await UserServices.updateUserStatus(user_id, rest);
 
   res.status(200).json({
@@ -26,8 +24,6 @@ const updateUserStatus = catchAsync(async (req, res) => {
 
 const updateUser = catchAsync(async (req, res) => {
   const { user_id, ...rest } = req.body;
-  console.log(rest)
-  console.log(user_id)
   const result = await UserServices.updateUser(user_id, rest);
 
   res.status(200).json({
@@ -48,7 +44,6 @@ const getUserProfile = catchAsync(async (req, res) => {
   });
 });
 
-// delete account
 const deleteUser = catchAsync(async (req, res) => {
   const { user_id } = req.body;
   await UserServices.deleteUser(user_id);
@@ -59,7 +54,6 @@ const deleteUser = catchAsync(async (req, res) => {
   });
 });
 
-// upgrade to traveler
 const upgradeToTraveler = catchAsync(async (req, res) => {
   const { user_id } = req.body;
   const result = await UserServices.upgradeToTraveler(user_id);

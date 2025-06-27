@@ -7,7 +7,7 @@ import {
   UpdateWishlistItemRequest,
   WishlistFilters
 } from '../interfaces/wishlist.interface';
-import { catchAsync } from '../utils/catchAsync';
+import { catchAsync } from '../utils/catchAsync.util';
 
 const createWishlist = catchAsync(async (req: Request, res: Response) => {
   const userId = req.body.user_id;

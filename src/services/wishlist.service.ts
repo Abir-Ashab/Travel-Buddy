@@ -78,7 +78,7 @@ const addWishlistItem = async (
         await locationModel.update(locationId, locationData);
       }
     } catch (error) {
-      console.error("Failed to create location:", error);
+      // console.error("Failed to create location:", error);
       return null;
     }
   }

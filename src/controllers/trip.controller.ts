@@ -7,7 +7,7 @@ import {
     SendMessageRequest,
     UpdateParticipantStatusRequest
 } from "../interfaces/trip.interface";
-import { catchAsync } from "../utils/catchAsync";
+import { catchAsync } from '../utils/catchAsync.util';
 
 const createTrip = catchAsync(async (req: Request, res: Response) => {
     const userId = req.body.user_id; 

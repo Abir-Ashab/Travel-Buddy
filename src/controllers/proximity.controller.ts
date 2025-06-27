@@ -5,7 +5,7 @@ import {
   UpdateLocationRequest,
   GetProximityAlertsRequest
 } from "../interfaces/proximity.interface";
-import { catchAsync } from "../utils/catchAsync";
+import { catchAsync } from "../utils/catchAsync.util";
 
 const getProximitySettings = catchAsync(async (req: Request, res: Response) => {
   const userId = req.body.user_id; 
@@ -268,7 +268,6 @@ const getNearbyFeaturedPosts = catchAsync(async (req: Request, res: Response) =>
 
 const getNearbyAttractions = catchAsync(async (req: Request, res: Response) => {
   let userId = String(req.query.user_id);
-  console.log(userId);
   if (!userId || userId === 'undefined') {
     return res.status(401).json({
       success: false,

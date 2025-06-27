@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { NotificationService } from "../services/notification.service";
 import { CreateNotificationRequest, UpdateNotificationRequest } from "../interfaces/notification.interface";
-import { catchAsync } from "../utils/catchAsync";
+import { catchAsync } from '../utils/catchAsync.util';
 
 const getNotificationsByUser = catchAsync(async (req: Request, res: Response) => {
   const { userId } = req.params;

@@ -25,7 +25,6 @@ const getLocationById = async (locationId: string): Promise<Location | null> => 
 };
 
 const createLocation = async (locationData: CreateLocationRequest): Promise<Location> => {
-  // Validate latitude and longitude ranges
   if (locationData.latitude < -90 || locationData.latitude > 90) {
     throw new Error('Latitude must be between -90 and 90');
   }
@@ -33,8 +32,6 @@ const createLocation = async (locationData: CreateLocationRequest): Promise<Loca
   if (locationData.longitude < -180 || locationData.longitude > 180) {
     throw new Error('Longitude must be between -180 and 180');
   }
-
-  // Check if location with same name and country already exists
   const existingLocation = await locationModel.findByNameAndCountry(
     locationData.name, 
     locationData.country
@@ -63,7 +60,6 @@ const updateLocation = async (
     return null;
   }
 
-  // Validate latitude and longitude if provided
   if (updateData.latitude !== undefined && (updateData.latitude < -90 || updateData.latitude > 90)) {
     throw new Error('Latitude must be between -90 and 90');
   }
@@ -71,8 +67,7 @@ const updateLocation = async (
   if (updateData.longitude !== undefined && (updateData.longitude < -180 || updateData.longitude > 180)) {
     throw new Error('Longitude must be between -180 and 180');
   }
-
-  // Check for duplicate name and country combination if updating name or country
+  
   if (updateData.name || updateData.country) {
     const name = updateData.name || location.name;
     const country = updateData.country || location.country;

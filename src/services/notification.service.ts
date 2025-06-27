@@ -1,4 +1,3 @@
-// notification.service.ts
 import { notificationModel } from "../repositories/notification.repository";
 import {
   Notification,
@@ -22,18 +21,15 @@ const getNotificationById = async (notificationId: string): Promise<Notification
 };
 
 const createNotification = async (notificationData: CreateNotificationRequest): Promise<string> => {
-  // Validate notification type
   const validTypes = ['like', 'save', 'trip_invite', 'match_found', 'wishlist_share', 'proximity_alert'];
   if (!validTypes.includes(notificationData.type)) {
     throw new Error('Invalid notification type');
   }
 
-  // Validate required fields
   if (!notificationData.user_id || !notificationData.title || !notificationData.message) {
     throw new Error('User ID, title, and message are required');
   }
 
-  // For proximity alerts, check for duplicates to prevent spam
   if (notificationData.type === 'proximity_alert' && notificationData.metadata) {
     const { location_id, trigger_type } = notificationData.metadata;
     if (location_id && trigger_type) {
@@ -41,7 +37,7 @@ const createNotification = async (notificationData: CreateNotificationRequest): 
         notificationData.user_id,
         location_id,
         trigger_type,
-        24 // Check last 24 hours
+        24 
       );
       
       if (duplicate) {
@@ -58,13 +54,11 @@ const updateNotification = async (
   userId: string,
   updateData: UpdateNotificationRequest
 ): Promise<Notification | null> => {
-  // Verify notification exists and belongs to user
+
   const notification = await notificationModel.findById(notificationId);
   if (!notification || notification.user_id !== userId) {
     return null;
   }
-
-  // Validate notification type if being updated
   if (updateData.type) {
     const validTypes = ['like', 'save', 'trip_invite', 'match_found', 'wishlist_share', 'proximity_alert'];
     if (!validTypes.includes(updateData.type)) {
@@ -97,7 +91,6 @@ const getNotificationsByType = async (
   type: string, 
   limit: number = 20
 ): Promise<Notification[]> => {
-  // Validate notification type
   const validTypes = ['like', 'save', 'trip_invite', 'match_found', 'wishlist_share', 'proximity_alert'];
   if (!validTypes.includes(type)) {
     throw new Error('Invalid notification type');
@@ -111,14 +104,12 @@ const getRecentByType = async (
   type: string, 
   hours: number = 24
 ): Promise<Notification[]> => {
-  // Validate notification type
   const validTypes = ['like', 'save', 'trip_invite', 'match_found', 'wishlist_share', 'proximity_alert'];
   if (!validTypes.includes(type)) {
     throw new Error('Invalid notification type');
   }
 
-  // Validate hours parameter
-  if (hours <= 0 || hours > 8760) { // Max 1 year
+  if (hours <= 0 || hours > 8760) { 
     throw new Error('Hours must be between 1 and 8760 (1 year)');
   }
 
@@ -138,7 +129,6 @@ const deleteMultiple = async (ids: string[], userId: string): Promise<number> =>
 };
 
 const deleteOldNotifications = async (userId: string, daysOld: number = 30): Promise<number> => {
-  // Validate days parameter
   if (daysOld <= 0 || daysOld > 365) {
     throw new Error('Days must be between 1 and 365');
   }
@@ -150,9 +140,7 @@ const getStatsByType = async (userId: string): Promise<NotificationStats[]> => {
   return await notificationModel.getStatsByType(userId);
 };
 
-// Helper function to create proximity notifications
 const createProximityNotification = async (payload: ProximityNotificationPayload): Promise<string> => {
-  // Validate proximity notification payload
   if (!payload.metadata?.location_id || !payload.metadata?.trigger_type) {
     throw new Error('Location ID and trigger type are required for proximity notifications');
   }
@@ -160,8 +148,6 @@ const createProximityNotification = async (payload: ProximityNotificationPayload
   if (!payload.metadata?.location_name || !payload.metadata?.distance_km) {
     throw new Error('Location name and distance are required for proximity notifications');
   }
-
-  // Check for duplicates
   const duplicate = await notificationModel.findDuplicateProximityAlert(
     payload.user_id,
     payload.metadata.location_id,
@@ -176,7 +162,6 @@ const createProximityNotification = async (payload: ProximityNotificationPayload
   return await createNotification(payload);
 };
 
-// Helper function to check if duplicate proximity alert exists
 const checkDuplicateProximityAlert = async (
   userId: string,
   locationId: string,

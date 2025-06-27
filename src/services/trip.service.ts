@@ -1,4 +1,3 @@
-// trip.service.ts
 import { tripModel } from "../repositories/trip.repository";
 import {
   TravelPlan,
@@ -29,11 +28,11 @@ const createTrip = async (
     throw new Error('End date must be after start date');
   }
 
-  if (tripData.total_budget <= 0) {
+  if (tripData.total_budget !== undefined && tripData.total_budget <= 0) {
     throw new Error('Total budget must be greater than 0');
   }
 
-  if (tripData.max_participants < 1) {
+  if (tripData.max_participants !== undefined && tripData.max_participants < 1) {
     throw new Error('Maximum participants must be at least 1');
   }
 
@@ -129,14 +128,15 @@ const updateTrip = async (
     }
   }
 
-  if (updateData.total_budget && updateData.total_budget <= 0) {
+  if (updateData.total_budget !== undefined && updateData.total_budget <= 0) {
     throw new Error('Total budget must be greater than 0');
   }
 
-  if (updateData.max_participants && updateData.max_participants < 1) {
+  if (updateData.max_participants !== undefined && updateData.max_participants < 1) {
     throw new Error('Maximum participants must be at least 1');
   }
-  if (updateData.max_participants) {
+
+  if (updateData.max_participants !== undefined) {
     const currentCount = await tripModel.getParticipantCount(tripId);
     if (updateData.max_participants < currentCount) {
       throw new Error('Cannot reduce max participants below current participant count');
