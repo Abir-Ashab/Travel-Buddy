@@ -1,5 +1,5 @@
-import { diningModel } from '../models/dining.model';
-import { postModel } from '../models/post.model';
+import { diningModel } from '../repositories/dining.repository';
+import { postModel } from '../repositories/post.repository';
 import {
   Dining,
   CreateDiningRequest,

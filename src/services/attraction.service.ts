@@ -1,5 +1,5 @@
-import { attractionModel } from '../models/attraction.model';
-import { postModel } from '../models/post.model';
+import { attractionModel } from '../repositories/attraction.repository';
+import { postModel } from '../repositories/post.repository';
 import {
   Attraction,
   CreateAttractionRequest,

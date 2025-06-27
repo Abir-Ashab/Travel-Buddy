@@ -8,9 +8,12 @@ class User {
   
   private get knex() {
     const connection = getConnection();
-    return connection.getClient();
+    if (!connection) {
+      throw new Error('Database connection is undefined');
+    }
+    return connection.getClient!();
   }
-
+  
   async create(userData: any) {
     const hashedPassword = await bcryptjs.hash(userData.password, Number(config.salt_round));
     

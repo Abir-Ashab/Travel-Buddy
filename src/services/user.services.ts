@@ -1,5 +1,5 @@
 import { TUser } from "../interfaces/user.interface";
-import { userModel } from "../models/user.model";
+import { userModel } from "../repositories/user.repository";
 import { USER_Role } from "../interfaces/user.interface";
 
 const createAdminIntoDB = async (payload: TUser) => {

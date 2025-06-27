@@ -1,5 +1,5 @@
-import { accommodationModel } from "../models/accommodation.model"
-import { postModel } from '../models/post.model';
+import { accommodationModel } from "../repositories/accommodation.repository"
+import { postModel } from '../repositories/post.repository';
 import {
   Accommodation,
   CreateAccommodationRequest,

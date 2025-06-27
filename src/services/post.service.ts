@@ -1,4 +1,4 @@
-import { postModel } from '../models/post.model';
+import { postModel } from '../repositories/post.repository';
 import {
   Post,
   CreatePostRequest,

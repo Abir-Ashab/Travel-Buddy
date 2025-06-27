@@ -23,7 +23,10 @@ class PostModel {
 
   private get knex() {
     const connection = getConnection();
-    return connection.getClient();
+    if (!connection) {
+      throw new Error('Database connection is undefined');
+    }
+    return connection.getClient!();
   }
 
   async findPostsWithFilters(
@@ -100,7 +103,7 @@ class PostModel {
   const countQuery = baseQuery.clone().clearSelect().clearOrder().countDistinct('posts.id as count');
 
   const [{ count }] = await countQuery;
-  const total = parseInt(count);
+  const total = parseInt(count.toString());
 
   if (!joinedLocations) {
     baseQuery = baseQuery.leftJoin('locations', 'posts.location_id', 'locations.id');
@@ -406,7 +409,7 @@ class PostModel {
       .where('posts.user_id', userId);
 
     const [{ count }] = await query.clone().count('posts.id as count');
-    const total = parseInt(count);
+    const total = parseInt(count.toString());
 
     const posts = await query
       .orderBy('posts.created_at', 'desc')
@@ -433,7 +436,7 @@ class PostModel {
       .where('posts.status', PostStatus.PUBLISHED);
 
     const [{ count }] = await query.clone().count('posts.id as count');
-    const total = parseInt(count);
+    const total = parseInt(count.toString());
 
     const posts = await query
       .orderBy('post_likes.created_at', 'desc')
@@ -460,7 +463,7 @@ class PostModel {
       .where('posts.status', PostStatus.PUBLISHED);
 
     const [{ count }] = await query.clone().count('posts.id as count');
-    const total = parseInt(count);
+    const total = parseInt(count.toString());
 
     const posts = await query
       .orderBy('post_saves.created_at', 'desc')

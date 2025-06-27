@@ -1,4 +1,5 @@
 import { getConnection } from "../database";
+import {WishlistLocation} from "../interfaces/proximity.interface";
 import { 
   ProximitySettings,
   ProximityAlert,
@@ -23,7 +24,10 @@ class ProximityModel {
 
   private get knex() {
     const connection = getConnection();
-    return connection.getClient();
+    if (!connection) {
+      throw new Error('Database connection is undefined');
+    }
+    return connection.getClient!();
   }
 
 
@@ -146,8 +150,11 @@ class ProximityModel {
     
     return alerts.map(alert => ({
       id: alert.id,
+      user_id: userId,
       trigger_type: alert.trigger_type,
       distance_km: parseFloat(alert.distance_km),
+      location_id: alert.location_id,
+      location_name: alert.location_name,
       location: {
         id: alert.location_id,
         name: alert.location_name,
@@ -219,7 +226,7 @@ class ProximityModel {
 
   const results = await this.knex.raw(query, [userId, radiusMeters]);
 
-  return results.rows.map(row => ({
+  return results.rows.map((row: any) => ({
     id: row.id,
     name: row.name,
     location: {
@@ -260,7 +267,7 @@ class ProximityModel {
 
     const results = await this.knex.raw(query, [userId, radiusMeters]);
 
-    return results.rows.map(row => ({
+    return results.rows.map((row: any) => ({
       id: row.id,
       name: row.name,
       location: {
@@ -304,7 +311,7 @@ class ProximityModel {
 
     const results = await this.knex.raw(query, [userId, userId, radiusMeters]);
 
-    return results.rows.map(row => ({
+    return results.rows.map((row: any) => ({
       id: row.id,
       name: row.name,
       location: {
@@ -348,7 +355,7 @@ class ProximityModel {
 
     const results = await this.knex.raw(query, [userId, radiusMeters]);
 
-    return results.rows.map(row => ({
+    return results.rows.map((row: any) => ({
       id: row.id,
       name: row.name,
       location: {
@@ -390,7 +397,7 @@ class ProximityModel {
 
     const results = await this.knex.raw(query, [userId, radiusMeters]);
 
-    return results.rows.map(row => ({
+    return results.rows.map((row: any) => ({
       id: row.id,
       name: row.name,
       location: {
@@ -432,7 +439,7 @@ class ProximityModel {
 
     const results = await this.knex.raw(query, [userId, radiusMeters]);
 
-    return results.rows.map(row => ({
+    return results.rows.map((row: any) => ({
       id: row.id,
       name: row.name,
       location: {
@@ -504,7 +511,6 @@ class ProximityModel {
       .del();
   }
 
-  // Utility method to validate radius ranges
   validateRadius(radiusKm: number | string, minRadius: number = 0.001, maxRadius: number = 10000): boolean {
     const radius = this.normalizeRadius(radiusKm);
     return radius >= minRadius && radius <= maxRadius;

@@ -1,4 +1,4 @@
-import { locationModel } from "../models/location.model"
+import { locationModel } from "../repositories/location.repository";
 import {
   Location,
   CreateLocationRequest,

@@ -1,5 +1,5 @@
-import { proximityModel } from "../models/proximity.model";
-import { notificationModel } from "../models/notification.model";
+import { proximityModel } from "../repositories/proximity.repository";
+import { notificationModel } from "../repositories/notification.repository";
 import {
   ProximitySettings,
   ProximityAlert,

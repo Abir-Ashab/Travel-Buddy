@@ -9,7 +9,10 @@ class TripModel {
 
   private get knex() {
     const connection = getConnection();
-    return connection.getClient();
+    if (!connection) {
+      throw new Error('Database connection is undefined');
+    }
+    return connection.getClient!();
   }
 
   // Trip CRUD operations
@@ -77,7 +80,8 @@ async findByUserId(userId: string, page: number = 1, limit: number = 10): Promis
     .count('* as count')
     .first();
 
-  const [trips, { count }] = await Promise.all([tripsQuery, countQuery]);
+  const [trips, countResult] = await Promise.all([tripsQuery, countQuery]);
+  const count = countResult?.count ?? 0;
 
   return {
     trips,
@@ -243,6 +247,9 @@ async findByUserId(userId: string, page: number = 1, limit: number = 10): Promis
       .count('* as count')
       .first();
 
+    if (!result || result.count === undefined) {
+      return 0;
+    }
     return parseInt(result.count.toString());
   }
 
