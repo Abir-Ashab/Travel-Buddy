@@ -4,7 +4,7 @@ import config from "../config";
 import AppError from "../errors/AppError";
 import { USER_Role, USER_STATUS } from "../interfaces/user.interface";
 import { catchAsync } from "../utils/catchAsync";
-import { userModel } from "../models/user.model";
+import { userModel } from "../repositories/user.repository";
 
 export const authMiddleware = (...requiredRoles: (typeof USER_Role)[keyof typeof USER_Role][]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
