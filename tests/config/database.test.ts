@@ -2,7 +2,7 @@ describe('Database Configuration', () => {
   const OLD_ENV = process.env;
 
   beforeEach(() => {
-    jest.resetModules(); 
+    jest.resetModules();
     process.env = { ...OLD_ENV };
     process.env.DB_ORM = 'knex';
     process.env.DB_TYPE = 'postgresql';
@@ -33,7 +33,7 @@ describe('Database Configuration', () => {
   });
 
   afterEach(() => {
-    process.env = OLD_ENV; 
+    process.env = OLD_ENV;
   });
 
   it('should load all database configuration correctly from .env', async () => {
@@ -97,5 +97,88 @@ describe('Database Configuration', () => {
     process.env.PG_SSL = 'true';
     const config = (await import('../../src/config/database')).default;
     expect(config.postgresql.ssl).toEqual({ rejectUnauthorized: false });
+  });
+
+  it('should use default values for mysql when env vars are missing', async () => {
+    delete process.env.MYSQL_HOST;
+    delete process.env.MYSQL_PORT;
+    delete process.env.MYSQL_DATABASE;
+    delete process.env.MYSQL_USER;
+    delete process.env.MYSQL_PASSWORD;
+
+    const config = (await import('../../src/config/database')).default;
+
+    expect(config.mysql).toEqual({
+      host: 'localhost',
+      port: 3306,
+      database: 'myapp',
+      user: 'root',
+      password: 'password',
+    });
+  });
+
+  it('should use default value for sqlite filename when env var is missing', async () => {
+    delete process.env.SQLITE_PATH;
+    const config = (await import('../../src/config/database')).default;
+    expect(config.sqlite.filename).toBe('./database.sqlite');
+  });
+
+  it('should use default value for mongodb uri when env var is missing', async () => {
+    delete process.env.MONGODB_URI;
+    const config = (await import('../../src/config/database')).default;
+    expect(config.mongodb.uri).toBe('mongodb://localhost:27017/myapp');
+  });
+
+  it('should use default pool values when env vars are missing', async () => {
+    delete process.env.DB_POOL_MIN;
+    delete process.env.DB_POOL_MAX;
+    delete process.env.DB_ACQUIRE_TIMEOUT;
+    delete process.env.DB_CREATE_TIMEOUT;
+    delete process.env.DB_DESTROY_TIMEOUT;
+    delete process.env.DB_IDLE_TIMEOUT;
+
+    const config = (await import('../../src/config/database')).default;
+
+    expect(config.pool).toEqual({
+      min: 2,
+      max: 10,
+      acquireTimeoutMillis: 60000,
+      createTimeoutMillis: 30000,
+      destroyTimeoutMillis: 5000,
+      idleTimeoutMillis: 30000,
+    });
+  });
+
+  it('should fallback to default orm and type if not set', async () => {
+    delete process.env.DB_ORM;
+    delete process.env.DB_TYPE;
+    const config = (await import('../../src/config/database')).default;
+    expect(config.orm).toBe('knex');
+    expect(config.type).toBe('postgresql');
+  });
+
+  it('should parse port numbers as integers', async () => {
+    process.env.PG_PORT = '1234';
+    process.env.MYSQL_PORT = '4321';
+    const config = (await import('../../src/config/database')).default;
+    expect(config.postgresql.port).toBe(1234);
+    expect(config.mysql.port).toBe(4321);
+  });
+
+  it('should handle invalid port numbers gracefully', async () => {
+    process.env.PG_PORT = 'notanumber';
+    process.env.MYSQL_PORT = 'notanumber';
+    const config = (await import('../../src/config/database')).default;
+    expect(config.postgresql.port).toBeNaN();
+    expect(config.mysql.port).toBeNaN();
+  });
+
+  it('should handle missing dotenv gracefully', async () => {
+    jest.resetModules();
+    jest.doMock('dotenv', () => ({
+      config: jest.fn(),
+    }));
+    const config = (await import('../../src/config/database')).default;
+    expect(config).toBeDefined();
   });
 });
