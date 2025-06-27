@@ -16,16 +16,9 @@ const getAttractionById = async (attractionId: string): Promise<Attraction | nul
 
 const createAttraction = async (
   postId: string,
-//   userId: string,
   attractionData: CreateAttractionRequest
 ): Promise<Attraction> => {
-  // Verify user owns the post
   const post = await postModel.findById(postId);
-
-//   if (!post || String(post.user_id) !== String(userId)) {
-//     throw new Error('Post not found or unauthorized');
-//   }
-
 
   if (attractionData.rating < 1 || attractionData.rating > 5) {
     throw new Error('Rating must be between 1 and 5');
@@ -50,7 +43,6 @@ const createAttraction = async (
 
 const updateAttraction = async (
   attractionId: string,
-  // userId: string,
   updateData: UpdateAttractionRequest
 ): Promise<Attraction | null> => {
   const attraction = await attractionModel.findById(attractionId);
@@ -59,10 +51,6 @@ const updateAttraction = async (
   }
 
   const post = await postModel.findById(attraction.post_id);
-  
-  // if (!post || String(post.user_id) !== String(userId)) {
-  //   return null;
-  // }
 
   if (updateData.rating && (updateData.rating < 1 || updateData.rating > 5)) {
     throw new Error('Rating must be between 1 and 5');
@@ -83,10 +71,6 @@ const deleteAttraction = async (attractionId: string): Promise<boolean> => {
   }
 
   const post = await postModel.findById(attraction.post_id);
-  
-  // if (!post || String(post.user_id) !== String(userId)) {
-  //   return false;
-  // }
 
   return await attractionModel.delete(attractionId);
 };

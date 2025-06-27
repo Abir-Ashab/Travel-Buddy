@@ -16,23 +16,13 @@ const getAccommodationById = async (accommodationId: string): Promise<Accommodat
 
 const createAccommodation = async (
   postId: string,
-//   userId: string,
   accommodationData: CreateAccommodationRequest
 ): Promise<Accommodation> => {
 
-//   const postModel = createPostModel(knexInstance);
-//   const post = await postModel.findById(postId);
-  
-//   if (!post || String(post.user_id) !== String(userId)) {
-//     throw new Error('Post not found or unauthorized');
-//   }
-
-  // Validate rating
   if (accommodationData.rating < 1 || accommodationData.rating > 5) {
     throw new Error('Rating must be between 1 and 5');
   }
 
-  // Validate dates
   const checkIn = new Date(accommodationData.check_in_date);
   const checkOut = new Date(accommodationData.check_out_date);
   
@@ -55,20 +45,14 @@ const createAccommodation = async (
 
 const updateAccommodation = async (
   accommodationId: string,
-  // userId: string,
   updateData: UpdateAccommodationRequest
 ): Promise<Accommodation | null> => {
-  // Verify user owns the post that this accommodation belongs to
   const accommodation = await accommodationModel.findById(accommodationId);
   if (!accommodation) {
     return null;
   }
 
   const post = await postModel.findById(accommodation.post_id);
-  
-  // if (!post || String(post.user_id) !== String(userId)) {
-  //   return null;
-  // }
 
   if (updateData.rating && (updateData.rating < 1 || updateData.rating > 5)) {
     throw new Error('Rating must be between 1 and 5');
@@ -92,13 +76,7 @@ const deleteAccommodation = async (accommodationId: string): Promise<boolean> =>
   if (!accommodation) {
     return false;
   }
-
   const post = await postModel.findById(accommodation.post_id);
-
-  // if (!post || String(post.user_id) !== String(userId)) {
-  //   return false;
-  // }
-
   return await accommodationModel.delete(accommodationId);
 };
 

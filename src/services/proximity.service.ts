@@ -16,7 +16,6 @@ import {
 const getProximitySettings = async (userId: string): Promise<ProximitySettings | null> => {
   let settings = await proximityModel.findSettingsByUserId(userId);
   
-  // Create default settings if none exist
   if (!settings) {
     settings = await createProximitySettings(userId, {});
   }
@@ -173,7 +172,6 @@ const processProximityAlerts = async (userId: string): Promise<void> => {
 
   const alerts: ProximityNotificationPayload[] = [];
 
-  // Utility to generate and log alerts
   const handleAlert = async (
     locationObj: any,
     type: string,
@@ -213,7 +211,6 @@ const processProximityAlerts = async (userId: string): Promise<void> => {
     });
   };
 
-  // ---- Wishlist
   if (settings.enable_wishlist_alerts) {
     const nearby = await getNearbyWishlistLocations(userId);
     for (const item of nearby) {
@@ -226,7 +223,6 @@ const processProximityAlerts = async (userId: string): Promise<void> => {
     }
   }
 
-  // ---- Trip Participants
   if (settings.enable_trip_participant_alerts) {
     const nearby = await getNearbyTripParticipants(userId);
     for (const item of nearby) {
@@ -241,7 +237,6 @@ const processProximityAlerts = async (userId: string): Promise<void> => {
     }
   }
 
-  // ---- Featured Posts
   if (settings.enable_featured_post_alerts) {
     const nearby = await getNearbyFeaturedPosts(userId);
     for (const item of nearby) {
@@ -254,7 +249,6 @@ const processProximityAlerts = async (userId: string): Promise<void> => {
     }
   }
 
-  // ---- Attractions
   if (settings.enable_attraction_alerts) {
     const nearby = await getNearbyAttractions(userId);
     for (const item of nearby) {
@@ -267,7 +261,6 @@ const processProximityAlerts = async (userId: string): Promise<void> => {
     }
   }
 
-  // ---- Accommodations
   if (settings.enable_accommodation_alerts) {
     const nearby = await getNearbyAccommodations(userId);
     for (const item of nearby) {
@@ -280,7 +273,6 @@ const processProximityAlerts = async (userId: string): Promise<void> => {
     }
   }
 
-  // ---- Dining
   if (settings.enable_dining_alerts) {
     const nearby = await getNearbyDining(userId);
     for (const item of nearby) {
@@ -293,7 +285,6 @@ const processProximityAlerts = async (userId: string): Promise<void> => {
     }
   }
 
-  // ---- Final alert dispatch
   console.log("Alerts to send:", alerts.length, alerts);
 
   for (const alert of alerts) {
@@ -302,7 +293,7 @@ const processProximityAlerts = async (userId: string): Promise<void> => {
         user_id: alert.user_id,
         title: alert.title,
         message: alert.message,
-        type: alert.type, // should be 'proximity_alert'
+        type: alert.type,
         metadata: alert.metadata,
       });
     } catch (error) {
