@@ -18,12 +18,12 @@ const FrontPage = () => {
             >
               Join Now
             </Link>
-            <Link
-              to="/explore"
+            {/* <Link
+              to="/posts"
               className="border-2 border-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:bg-opacity-10 transition duration-300"
             >
               Browse Destinations
-            </Link>
+            </Link> */}
           </div>
         </div>
       </section>

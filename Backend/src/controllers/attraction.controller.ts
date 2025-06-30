@@ -44,7 +44,7 @@ const createAttraction = catchAsync(async (req: Request, res: Response) => {
 const updateAttraction = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const updateData: UpdateAttractionRequest = req.body;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
   const attraction = await AttractionService.updateAttraction(id, updateData);
 
   if (!attraction) {
@@ -63,7 +63,7 @@ const updateAttraction = catchAsync(async (req: Request, res: Response) => {
 
 const deleteAttraction = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
   const success = await AttractionService.deleteAttraction(id);
 
   if (!success) {

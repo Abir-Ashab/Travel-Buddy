@@ -15,10 +15,15 @@ import {locationRoutes} from "./src/routes/location.route"
 import {proximityRoutes} from "./src/routes/proximity.route"
 import {notificationRoutes} from "./src/routes/notification.route"
 import {tripRoutes} from "./src/routes/trip.route"
+import cors from 'cors';
 
 config(); 
 const app = express();
 app.use(express.json());
+app.use(cors({
+  origin: 'http://localhost:5173', 
+  credentials: true,              
+}));
 
 const PORT = process.env.PORT || 3000;
 const startServer = async () => {

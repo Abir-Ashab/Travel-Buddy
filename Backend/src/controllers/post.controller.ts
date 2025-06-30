@@ -61,7 +61,7 @@ const getPostWithDetails = catchAsync(async (req: Request, res: Response) => {
 });
 
 const createPost = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.body.user_id;
+    const userId = req.user?.id;
     const postData: CreatePostRequest = req.body;
     const post = await PostService.createPost(userId, postData);
 
@@ -74,7 +74,7 @@ const createPost = catchAsync(async (req: Request, res: Response) => {
 
 const updatePost = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = req.body.user_id;
+    const userId = req.user?.id;
     const updateData: UpdatePostRequest = req.body;
 
     const post = await PostService.updatePost(id, userId, updateData);
@@ -95,7 +95,7 @@ const updatePost = catchAsync(async (req: Request, res: Response) => {
 
 const deletePost = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = req.body.user_id;
+    const userId = req.user?.id;
 
     const deleted = await PostService.deletePost(id, userId);
 
@@ -114,7 +114,7 @@ const deletePost = catchAsync(async (req: Request, res: Response) => {
 
 const likePost = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = req.body.user_id;
+    const userId = req.user?.id;
 
     const result = await PostService.likePost(id, userId);
 
@@ -127,7 +127,7 @@ const likePost = catchAsync(async (req: Request, res: Response) => {
 
 const unlikePost = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = req.body.user_id;
+    const userId = req.user?.id;
 
     const result = await PostService.unlikePost(id, userId);
 
@@ -140,7 +140,7 @@ const unlikePost = catchAsync(async (req: Request, res: Response) => {
 
 const savePost = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = req.body.user_id;
+    const userId = req.user?.id;
 
     const result = await PostService.savePost(id, userId);
 
@@ -153,7 +153,7 @@ const savePost = catchAsync(async (req: Request, res: Response) => {
 
 const unsavePost = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = req.body.user_id;
+    const userId = req.user?.id;
 
     const result = await PostService.unsavePost(id, userId);
 
@@ -166,7 +166,7 @@ const unsavePost = catchAsync(async (req: Request, res: Response) => {
 
 const sharePost = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = req.body.user_id;
+    const userId = req.user?.id;
     const { platform } = req.body;
 
     const result = await PostService.sharePost(id, userId, platform);
@@ -179,7 +179,7 @@ const sharePost = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getUserPosts = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.body.user_id;
+    const userId = req.user?.id;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
 
@@ -192,7 +192,7 @@ const getUserPosts = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getUserLikedPosts = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.body.user_id;
+    const userId = req.user?.id;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
 
@@ -205,7 +205,7 @@ const getUserLikedPosts = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getUserSavedPosts = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.body.user_id;
+    const userId = req.user?.id;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
 
@@ -219,7 +219,8 @@ const getUserSavedPosts = catchAsync(async (req: Request, res: Response) => {
 
 const reportPost = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { reason, description, user_id } = req.body;
+    const { reason, description } = req.body;
+    const user_id = req.user?.id;
     const report = await PostService.reportPost(id, user_id, reason, description);
     res.status(201).json({
         success: true,

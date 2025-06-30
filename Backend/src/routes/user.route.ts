@@ -22,12 +22,6 @@ router.delete(
   userControllers.deleteUser
 );
 
-router.put(
-  "/upgrade",
-  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER),
-  userControllers.upgradeToTraveler
-);
-
 router.get('/reports', authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN), PostController.getReports);
 router.put('/reports/:reportId', PostController.resolveReport);
 router.delete('/reports/:reportId', PostController.deleteReportedPost);

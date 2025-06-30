@@ -4,7 +4,7 @@ import { CreateNotificationRequest, UpdateNotificationRequest } from "../interfa
 import { catchAsync } from '../utils/catchAsync.util';
 
 const getNotificationsByUser = catchAsync(async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const userId = req.user?.id;
   const { limit = 50, offset = 0, isRead } = req.query;
   
   const parsedLimit = parseInt(limit as string);
@@ -56,7 +56,7 @@ const createNotification = catchAsync(async (req: Request, res: Response) => {
 const updateNotification = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const updateData: UpdateNotificationRequest = req.body;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
 
   const notification = await NotificationService.updateNotification(id, userId, updateData);
 
@@ -76,7 +76,7 @@ const updateNotification = catchAsync(async (req: Request, res: Response) => {
 
 const deleteNotification = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
 
   const success = await NotificationService.deleteNotification(id, userId);
 
@@ -95,7 +95,7 @@ const deleteNotification = catchAsync(async (req: Request, res: Response) => {
 
 const markAsRead = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
 
   const success = await NotificationService.markAsRead(id, userId);
 
@@ -113,7 +113,7 @@ const markAsRead = catchAsync(async (req: Request, res: Response) => {
 });
 
 const markAllAsRead = catchAsync(async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const userId = req.user?.id;
 
   const updatedCount = await NotificationService.markAllAsRead(userId);
 
@@ -125,7 +125,7 @@ const markAllAsRead = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getUnreadCount = catchAsync(async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const userId = req.user?.id;
 
   const count = await NotificationService.getUnreadCount(userId);
 
@@ -136,7 +136,8 @@ const getUnreadCount = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getNotificationsByType = catchAsync(async (req: Request, res: Response) => {
-  const { userId, type } = req.params;
+  const userId = req.user?.id;
+  const { type } = req.params;
   const { limit = 20 } = req.query;
 
   const parsedLimit = parseInt(limit as string);
@@ -149,7 +150,8 @@ const getNotificationsByType = catchAsync(async (req: Request, res: Response) =>
 });
 
 const getRecentByType = catchAsync(async (req: Request, res: Response) => {
-  const { userId, type } = req.params;
+  const userId = req.user?.id;
+  const { type } = req.params;
   const { hours = 24 } = req.query;
 
   const parsedHours = parseInt(hours as string);
@@ -162,7 +164,7 @@ const getRecentByType = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deleteMultiple = catchAsync(async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const userId = req.user?.id;
   const { ids } = req.body;
 
   if (!Array.isArray(ids) || ids.length === 0) {
@@ -182,7 +184,7 @@ const deleteMultiple = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deleteOldNotifications = catchAsync(async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const userId = req.user?.id;
   const { daysOld = 30 } = req.query;
 
   const parsedDaysOld = parseInt(daysOld as string);
@@ -196,7 +198,7 @@ const deleteOldNotifications = catchAsync(async (req: Request, res: Response) =>
 });
 
 const getStatsByType = catchAsync(async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const userId = req.user?.id;
 
   const stats = await NotificationService.getStatsByType(userId);
 

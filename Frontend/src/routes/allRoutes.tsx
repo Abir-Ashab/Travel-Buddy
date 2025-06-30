@@ -4,6 +4,7 @@ import RegisterPage from '../components/auth/registerPage';
 import LoginPage from '../components/auth/loginPage';
 import PostsList from '../components/posts/postsList';
 import CreatePost from '../components/posts/createPost';
+import UpgradeTraveler from '../components/profile/upgradeTraveller';
 
 export default function AllRoutes() {
   return (
@@ -12,7 +13,8 @@ export default function AllRoutes() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/posts" element={<PostsList />} />
-      <Route path="/create-post" element={<CreatePost />} />
+      <Route path="/create-post" element={<CreatePost onPostCreated={() => {}} />} />
+      <Route path="/upgrade-traveler" element={<UpgradeTraveler />} />
     </Routes>
   );
 }

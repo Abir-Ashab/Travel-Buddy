@@ -3,13 +3,13 @@ import { register } from '../../services/auth'
 import { useNavigate } from 'react-router-dom'
 
 interface FormData {
-  username: string;
+  name: string;
   email: string;
   password: string;
 }
 
 export default function RegisterPage() {
-  const [form, setForm] = useState<FormData>({ username: '', email: '', password: '' });
+  const [form, setForm] = useState<FormData>({ name: '', email: '', password: '' });
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,8 +33,8 @@ export default function RegisterPage() {
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-md">
         <h2 className="text-2xl mb-4">Register</h2>
         <input
-          name="username"
-          placeholder="Username"
+          name="name"
+          placeholder="name"
           onChange={handleChange}
           className="border p-2 mb-4 w-full"
         />

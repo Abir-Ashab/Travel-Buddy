@@ -10,7 +10,7 @@ import {
 import { catchAsync } from '../utils/catchAsync.util';
 
 const createWishlist = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ success: false, message: 'Authentication required' });
   }
@@ -26,9 +26,9 @@ const createWishlist = catchAsync(async (req: Request, res: Response) => {
 
 const getWishlistById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = String(req.query.user_id);
+  const userId = req.user?.id;
   const wishlist = await WishlistService.getWishlistById(id, userId);
-  if (!userId || userId === 'undefined') {
+  if (!userId) {
     return res.status(401).json({
       success: false,
       message: 'User not authenticated'
@@ -42,8 +42,8 @@ const getWishlistById = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getUserWishlists = catchAsync(async (req: Request, res: Response) => {
-  const userId = String(req.query.user_id);
-  if (!userId || userId === 'undefined') {
+  const userId = req.user?.id;
+  if (!userId) {
     return res.status(401).json({
       success: false,
       message: 'Authentication required'
@@ -76,7 +76,7 @@ const getPublicWishlists = catchAsync(async (req: Request, res: Response) => {
 
 const updateWishlist = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ success: false, message: 'Authentication required' });
   }
@@ -93,7 +93,7 @@ const updateWishlist = catchAsync(async (req: Request, res: Response) => {
 
 const deleteWishlist = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ success: false, message: 'Authentication required' });
   }
@@ -108,7 +108,7 @@ const deleteWishlist = catchAsync(async (req: Request, res: Response) => {
 
 const addWishlistItem = catchAsync(async (req: Request, res: Response) => {
   const { wishlistId } = req.params;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ success: false, message: 'Authentication required' });
   }
@@ -128,7 +128,7 @@ const addWishlistItem = catchAsync(async (req: Request, res: Response) => {
 
 const updateWishlistItem = catchAsync(async (req: Request, res: Response) => {
   const { itemId } = req.params;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ success: false, message: 'Authentication required' });
   }
@@ -145,7 +145,7 @@ const updateWishlistItem = catchAsync(async (req: Request, res: Response) => {
 
 const deleteWishlistItem = catchAsync(async (req: Request, res: Response) => {
   const { itemId } = req.params;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ success: false, message: 'Authentication required' });
   }
@@ -160,7 +160,7 @@ const deleteWishlistItem = catchAsync(async (req: Request, res: Response) => {
 
 const shareWishlist = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ success: false, message: 'Authentication required' });
   }

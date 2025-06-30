@@ -42,14 +42,15 @@ const login = async (payload: TLoginUser) => {
   const jwtPayload = {
     email: user.email,
     role: user.role,
+    user_id: user.id
   };
   
   const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
-    expiresIn: parseInt(config.jwt_access_expires_in as string),
+    expiresIn: config.jwt_access_expires_in as string,
   });
 
   const refreshToken = jwt.sign(jwtPayload, config.jwt_refresh_secret as string, {
-    expiresIn: parseInt(config.jwt_refresh_expires_in as string),
+    expiresIn: config.jwt_refresh_expires_in as string,
   });
 
   return {
@@ -68,7 +69,7 @@ const refreshToken = async (token: string): Promise<{ accessToken: string }> => 
     const { email, role } = decoded as { email: string; role: string };
 
     const newAccessToken = jwt.sign({ email, role }, config.jwt_access_secret as string, {
-      expiresIn: parseInt(config.jwt_access_expires_in as string),
+      expiresIn: config.jwt_access_expires_in as string,
     });
 
     return { accessToken: newAccessToken };

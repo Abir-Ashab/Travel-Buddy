@@ -2,7 +2,7 @@ import { Transport } from '../interfaces/transport.interface';
 import { getConnection } from "../database";
 
 class TransportModel {
-  private tableName = 'transports';
+  private tableName = 'transport';
   
   private get knex() {
     const connection = getConnection();
@@ -15,7 +15,6 @@ class TransportModel {
   async findByPostId(postId: string): Promise<Transport[]> {
     return await this.knex(this.tableName)
       .where('post_id', postId)
-      // .orderBy('created_at', 'asc');
   }
 
   async findById(id: string): Promise<Transport | null> {

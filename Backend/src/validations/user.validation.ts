@@ -21,10 +21,26 @@ const updateUserValidation = z.object({
 
 const updateUserProfileValidation = z.object({
   body: z.object({
-    name: z.string().min(1, "Name is required").optional(),
+    name: z.string().optional(),
+    number: z.string().nullable().optional(),
     bio: z.string().optional(),
-    travel_preferences: z.record(z.any()).optional(),
-    profile_picture: z.string().url("Invalid profile picture URL").optional(),
+    status: z.string().optional(),
+    role: z.string().optional(),
+    profile_picture: z.string().optional(),
+    travel_preferences: z.object({
+      budget: z.string().optional(),
+      preferred_climate: z.string().optional(),
+      interests: z.array(z.string()).optional(),
+    }).optional(),
+    proximity_notifications_enabled: z.boolean().optional(),
+    proximity_radius_km: z.number().nullable().optional(),
+    current_latitude: z.number().nullable().optional(),
+    current_longitude: z.number().nullable().optional(),
+    location_updated_at: z.string().nullable().optional(),
+    geom: z.object({
+      type: z.string(),
+      coordinates: z.array(z.number()),
+    }).nullable().optional(),
   }),
 });
 

@@ -6,6 +6,14 @@ import { USER_Role, USER_STATUS } from "../interfaces/user.interface";
 import { catchAsync } from "../utils/catchAsync.util";
 import { userModel } from "../repositories/user.repository";
 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
+
 export const authMiddleware = (...requiredRoles: (typeof USER_Role)[keyof typeof USER_Role][]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const accessToken = req.headers.authorization;
@@ -21,9 +29,16 @@ export const authMiddleware = (...requiredRoles: (typeof USER_Role)[keyof typeof
 
     console.log("verfiedToken", verfiedToken);
 
-    const { role, email } = verfiedToken as JwtPayload;
-    console.log(email, role);
+    const { role, email, user_id } = verfiedToken as JwtPayload;
+    console.log(email, role, user_id);
     const user = await userModel.findByEmail(email);
+    req.user = {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        status: user.status
+    };
+
     console.log("user", user);
     if (!user) {
       throw new AppError(401, "User not found");

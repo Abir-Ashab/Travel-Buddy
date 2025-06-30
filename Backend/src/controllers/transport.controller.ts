@@ -32,6 +32,9 @@ const getTransportById = catchAsync(async (req: Request, res: Response) => {
 const createTransport = catchAsync(async (req: Request, res: Response) => {
   const { postId } = req.params;
   const transportData: CreateTransportRequest = req.body;
+  const userId = req.user?.id;
+
+  // You can pass userId to the service if needed
   const transport = await TransportService.createTransport(postId, transportData);
 
   res.status(201).json({
@@ -44,7 +47,7 @@ const createTransport = catchAsync(async (req: Request, res: Response) => {
 const updateTransport = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const updateData: UpdateTransportRequest = req.body;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
 
   // if (!userId) {
   //   return res.status(401).json({
@@ -71,7 +74,7 @@ const updateTransport = catchAsync(async (req: Request, res: Response) => {
 
 const deleteTransport = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
 
   // if (!userId) {
   //   return res.status(401).json({

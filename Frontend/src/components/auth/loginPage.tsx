@@ -19,7 +19,9 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const res = await login(form);
-      localStorage.setItem('token', res.token);
+      console.log("res: ", res);
+      
+      localStorage.setItem('token', res.data.accessToken);
       navigate('/posts');
     } catch (err) {
       console.error(err);

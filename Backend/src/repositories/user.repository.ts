@@ -54,7 +54,7 @@ class User {
   }
 
   async updateById(id: string, updateData: Record<string, any>) {
-    const userId = (typeof id === 'object' && id !== null && '_id' in id) ? (id as { _id: string })._id : id;
+    const userId = id;
     if (updateData.password) {
       updateData.password = await bcryptjs.hash(updateData.password, Number(config.salt_round));
       updateData.passwordChangedAt = new Date();

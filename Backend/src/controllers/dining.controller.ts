@@ -31,7 +31,7 @@ const getDiningById = catchAsync(async (req: Request, res: Response) => {
 const createDining = catchAsync(async (req: Request, res: Response) => {
   const { postId } = req.params;
   const diningData: CreateDiningRequest = req.body;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
   const dining = await DiningService.createDining(postId, diningData);
 
   res.status(201).json({
@@ -44,7 +44,7 @@ const createDining = catchAsync(async (req: Request, res: Response) => {
 const updateDining = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const updateData: UpdateDiningRequest = req.body;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
   const dining = await DiningService.updateDining(id, updateData);
 
   if (!dining) {
@@ -63,7 +63,7 @@ const updateDining = catchAsync(async (req: Request, res: Response) => {
 
 const deleteDining = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
   const success = await DiningService.deleteDining(id);
 
   if (!success) {

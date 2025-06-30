@@ -45,14 +45,7 @@ const createAccommodation = catchAsync(async (req: Request, res: Response) => {
 const updateAccommodation = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const updateData: UpdateAccommodationRequest = req.body;
-  const userId = req.body.user_id;
-
-  // if (!userId) {
-  //   return res.status(401).json({
-  //     success: false,
-  //     message: 'User not authenticated'
-  //   });
-  // }
+  const userId = req.user?.id;
 
   const accommodation = await AccommodationService.updateAccommodation(id, updateData);
 
@@ -72,7 +65,7 @@ const updateAccommodation = catchAsync(async (req: Request, res: Response) => {
 
 const deleteAccommodation = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
 
   // if (!userId) {
   //   return res.status(401).json({
