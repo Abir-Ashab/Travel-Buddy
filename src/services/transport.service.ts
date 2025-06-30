@@ -1,4 +1,4 @@
-import { transportModel } from '../repositories/transport.repository';
+import { transportModel } from "../repositories/transport.repository"
 import { postModel } from '../repositories/post.repository';
 import {
   Transport,
@@ -18,6 +18,7 @@ const createTransport = async (
   postId: string,
   transportData: CreateTransportRequest
 ): Promise<Transport> => {
+  
   const post = await postModel.findById(postId);
 
   const transportId = await transportModel.create({
@@ -42,7 +43,6 @@ const updateTransport = async (
     return null;
   }
   const post = await postModel.findById(transport.post_id);
-
   await transportModel.update(transportId, updateData);
   return await transportModel.findById(transportId);
 };
@@ -53,7 +53,6 @@ const deleteTransport = async (transportId: string): Promise<boolean> => {
     return false;
   }
   const post = await postModel.findById(transport.post_id);
-
   return await transportModel.delete(transportId);
 };
 

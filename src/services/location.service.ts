@@ -1,4 +1,4 @@
-import { locationModel } from "../repositories/location.repository";
+import { locationModel } from "../repositories/location.repository"
 import {
   Location,
   CreateLocationRequest,
@@ -25,7 +25,6 @@ const getLocationById = async (locationId: string): Promise<Location | null> => 
 };
 
 const createLocation = async (locationData: CreateLocationRequest): Promise<Location> => {
-  // Validate latitude and longitude ranges
   if (locationData.latitude < -90 || locationData.latitude > 90) {
     throw new Error('Latitude must be between -90 and 90');
   }
@@ -33,7 +32,6 @@ const createLocation = async (locationData: CreateLocationRequest): Promise<Loca
   if (locationData.longitude < -180 || locationData.longitude > 180) {
     throw new Error('Longitude must be between -180 and 180');
   }
-
   const existingLocation = await locationModel.findByNameAndCountry(
     locationData.name, 
     locationData.country

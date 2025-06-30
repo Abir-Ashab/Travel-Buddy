@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { TransportService } from '../services/transport.service';
 import { CreateTransportRequest, UpdateTransportRequest } from '../interfaces/transport.interface';
-import { catchAsync } from '../utils/catchAsync';
+import { catchAsync } from '../utils/catchAsync.util';
 
 const getTransportsByPost = catchAsync(async (req: Request, res: Response) => {
   const { postId } = req.params;

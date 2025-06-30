@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { PostService } from '../services/post.service';
 import { CreatePostRequest, UpdatePostRequest, PostFilters } from '../interfaces/post.interface';
-import { catchAsync } from '../utils/catchAsync';
+import { catchAsync } from '../utils/catchAsync.util';
 
 const getPosts = catchAsync(async (req: Request, res: Response) => {
     const filters: PostFilters = req.query;
@@ -63,8 +63,6 @@ const getPostWithDetails = catchAsync(async (req: Request, res: Response) => {
 const createPost = catchAsync(async (req: Request, res: Response) => {
     const userId = req.body.user_id;
     const postData: CreatePostRequest = req.body;
-    console.log(postData);
-    
     const post = await PostService.createPost(userId, postData);
 
     res.status(201).json({
@@ -221,11 +219,8 @@ const getUserSavedPosts = catchAsync(async (req: Request, res: Response) => {
 
 const reportPost = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    console.log(req.body);
     const { reason, description, user_id } = req.body;
-    console.log('Reporting post:', id, 'by user:', user_id, 'for reason:', reason, 'with description:', description);
     const report = await PostService.reportPost(id, user_id, reason, description);
-
     res.status(201).json({
         success: true,
         message: 'Report submitted successfully',

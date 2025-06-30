@@ -7,7 +7,7 @@ import {
   UpdateWishlistItemRequest,
   WishlistFilters
 } from '../interfaces/wishlist.interface';
-import { catchAsync } from '../utils/catchAsync';
+import { catchAsync } from '../utils/catchAsync.util';
 
 const createWishlist = catchAsync(async (req: Request, res: Response) => {
   const userId = req.body.user_id;
@@ -28,7 +28,12 @@ const getWishlistById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const userId = String(req.query.user_id);
   const wishlist = await WishlistService.getWishlistById(id, userId);
-
+  if (!userId || userId === 'undefined') {
+    return res.status(401).json({
+      success: false,
+      message: 'User not authenticated'
+    });
+  }
   if (!wishlist) {
     return res.status(404).json({ success: false, message: 'Wishlist not found' });
   }
@@ -38,8 +43,11 @@ const getWishlistById = catchAsync(async (req: Request, res: Response) => {
 
 const getUserWishlists = catchAsync(async (req: Request, res: Response) => {
   const userId = String(req.query.user_id);
-  if (!userId) {
-    return res.status(401).json({ success: false, message: 'Authentication required' });
+  if (!userId || userId === 'undefined') {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required'
+    });
   }
 
   const filters: WishlistFilters = {

@@ -1,9 +1,8 @@
 import config from "../config";
-import { catchAsync } from "../utils/catchAsync";
+import { catchAsync } from "../utils/catchAsync.util";
 import { AuthServices } from "../services/auth.service";
 
 const register = catchAsync(async (req, res) => {
-  console.log("body", req.body);
   const result = await AuthServices.register(req.body);
   res.status(200).json({
     success: true,
@@ -33,7 +32,6 @@ const login = catchAsync(async (req, res) => {
 const refreshToken = catchAsync(async (req, res) => {
   const { cookie } = req.headers;
   const refreshToken = cookie?.split("refreshToken=")[1];
-  console.log("refreshToken", refreshToken);
   if (!refreshToken) {
     return res.status(401).json({
       success: false,

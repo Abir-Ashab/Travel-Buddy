@@ -1,4 +1,4 @@
-// proximity.interface.ts
+import { Location } from "./location.interface";
 export interface ProximityAlert {
   id: string;
   user_id: string;
@@ -95,3 +95,10 @@ export interface NearbyItem {
   };
   metadata?: any;
 }
+
+  export interface WishlistLocation {
+    id: string;
+    name: string;
+    location: Location;
+    distance_km: number;
+  }

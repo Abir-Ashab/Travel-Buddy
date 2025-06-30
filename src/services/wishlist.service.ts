@@ -1,5 +1,6 @@
-import { wishlistModel } from '../repositories/wishlist.repository';
-import { locationModel } from '../repositories/location.repository';
+import { wishlistModel } from "../repositories/wishlist.repository";
+import { locationModel } from "../repositories/location.repository";
+
 import {
   Wishlist,
   WishlistItem,
@@ -77,7 +78,7 @@ const addWishlistItem = async (
         await locationModel.update(locationId, locationData);
       }
     } catch (error) {
-      console.error("Failed to create location:", error);
+      // console.error("Failed to create location:", error);
       return null;
     }
   }

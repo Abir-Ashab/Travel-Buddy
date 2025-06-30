@@ -104,7 +104,6 @@ const deleteProximityAlert = async (alertId: string, userId: string): Promise<bo
 
 const getNearbyWishlistLocations = async (userId: string): Promise<NearbyItem[]> => {
   const settings = await getProximitySettings(userId);
-  console.log(settings)
   if (!settings?.enable_wishlist_alerts) {
     return [];
   }
@@ -158,20 +157,17 @@ const getNearbyDining = async (userId: string): Promise<NearbyItem[]> => {
 };
 
 const processProximityAlerts = async (userId: string): Promise<void> => {
-  const settings = await getProximitySettings(userId);
+  const settings = await proximityModel.findSettingsByUserId(userId);
   if (!settings) {
-    console.log("⚠️ No settings found for user:", userId);
     return;
   }
 
   const userLocation = await getUserLocation(userId);
   if (!userLocation) {
-    console.log("⚠️ No user location found for user:", userId);
     return;
   }
 
   const alerts: ProximityNotificationPayload[] = [];
-
   const handleAlert = async (
     locationObj: any,
     type: string,
@@ -285,15 +281,13 @@ const processProximityAlerts = async (userId: string): Promise<void> => {
     }
   }
 
-  console.log("Alerts to send:", alerts.length, alerts);
-
   for (const alert of alerts) {
     try {
       await notificationModel.create({
         user_id: alert.user_id,
         title: alert.title,
         message: alert.message,
-        type: alert.type,
+        type: alert.type, 
         metadata: alert.metadata,
       });
     } catch (error) {

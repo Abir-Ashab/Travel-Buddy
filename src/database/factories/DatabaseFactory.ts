@@ -1,5 +1,6 @@
 import dbConfig from '../../config/database';
 import KnexConnection from '../implementations/knex/KnexConnection';
+import { Knex } from 'knex';
 // const PrismaConnection = require('../implementations/prisma/PrismaConnection');
 // const TypeORMConnection = require('../implementations/typeorm/TypeORMConnection');
 // const MongooseConnection = require('../implementations/mongoose/MongooseConnection');
@@ -11,6 +12,7 @@ class DatabaseFactory {
     connect: () => Promise<void>;
     disconnect: () => Promise<void>;
     getConnectionInfo?: () => any;
+    getClient?: () => Knex;
     testConnection?: () => Promise<any>;
     runMigrations?: () => Promise<any>;
     rollbackMigrations?: () => Promise<any>;

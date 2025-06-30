@@ -1,4 +1,3 @@
-// trip.controller.ts
 import { Request, Response } from 'express';
 import { TripService } from "../services/trip.service";
 import {
@@ -8,18 +7,18 @@ import {
     SendMessageRequest,
     UpdateParticipantStatusRequest
 } from "../interfaces/trip.interface";
-import { catchAsync } from "../utils/catchAsync";
+import { catchAsync } from '../utils/catchAsync.util';
 
 const createTrip = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.body.user_id; // From auth middleware
+    const userId = req.body.user_id; 
     const tripData: CreateTripRequest = req.body;
 
-    if (!userId) {
-        return res.status(401).json({
-            success: false,
-            message: 'User not authenticated'
-        });
-    }
+  if (!userId || userId === 'undefined') {
+    return res.status(401).json({
+      success: false,
+      message: 'User not authenticated'
+    });
+  }
 
     const trip = await TripService.createTrip(userId, tripData);
 
@@ -31,14 +30,14 @@ const createTrip = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getUserTrips = catchAsync(async (req: Request, res: Response) => {
-    const userId = String(req.query.user_id); // From auth middleware
+    const userId = String(req.query.user_id); 
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
 
-    if (!userId) {
+    if (!userId || userId === 'undefined') {
         return res.status(401).json({
-            success: false,
-            message: 'User not authenticated'
+        success: false,
+        message: 'User not authenticated'
         });
     }
 
@@ -52,14 +51,14 @@ const getUserTrips = catchAsync(async (req: Request, res: Response) => {
 
 const getTripById = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = String(req.query.user_id); // From auth middleware
+    const userId = String(req.query.user_id); 
 
-    if (!userId) {
-        return res.status(401).json({
-            success: false,
-            message: 'User not authenticated'
-        });
-    }
+  if (!userId || userId === 'undefined') {
+    return res.status(401).json({
+      success: false,
+      message: 'User not authenticated'
+    });
+  }
 
     const trip = await TripService.getTripById(id, userId);
 
@@ -78,15 +77,15 @@ const getTripById = catchAsync(async (req: Request, res: Response) => {
 
 const updateTrip = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = req.body.user_id; // From auth middleware
+    const userId = req.body.user_id; 
     const updateData: UpdateTripRequest = req.body;
 
-    if (!userId) {
-        return res.status(401).json({
-            success: false,
-            message: 'User not authenticated'
-        });
-    }
+  if (!userId || userId === 'undefined') {
+    return res.status(401).json({
+      success: false,
+      message: 'User not authenticated'
+    });
+  }
 
     const trip = await TripService.updateTrip(id, userId, updateData);
 
@@ -106,14 +105,14 @@ const updateTrip = catchAsync(async (req: Request, res: Response) => {
 
 const deleteTrip = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = req.body.user_id; // From auth middleware
+    const userId = req.body.user_id; 
 
-    if (!userId) {
-        return res.status(401).json({
-            success: false,
-            message: 'User not authenticated'
-        });
-    }
+  if (!userId || userId === 'undefined') {
+    return res.status(401).json({
+      success: false,
+      message: 'User not authenticated'
+    });
+  }
 
     const success = await TripService.deleteTrip(id, userId);
 
@@ -132,15 +131,15 @@ const deleteTrip = catchAsync(async (req: Request, res: Response) => {
 
 const inviteParticipants = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = req.body.user_id; // From auth middleware
+    const userId = req.body.user_id; 
     const inviteData: InviteParticipantsRequest = req.body;
 
-    if (!userId) {
-        return res.status(401).json({
-            success: false,
-            message: 'User not authenticated'
-        });
-    }
+  if (!userId || userId === 'undefined') {
+    return res.status(401).json({
+      success: false,
+      message: 'User not authenticated'
+    });
+  }
 
     if (!inviteData.user_ids || !Array.isArray(inviteData.user_ids) || inviteData.user_ids.length === 0) {
         return res.status(400).json({
@@ -159,15 +158,15 @@ const inviteParticipants = catchAsync(async (req: Request, res: Response) => {
 
 const updateParticipantStatus = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = req.body.user_id; // From auth middleware
+    const userId = req.body.user_id; 
     const { status }: UpdateParticipantStatusRequest = req.body;
 
-    if (!userId) {
-        return res.status(401).json({
-            success: false,
-            message: 'User not authenticated'
-        });
-    }
+  if (!userId || userId === 'undefined') {
+    return res.status(401).json({
+      success: false,
+      message: 'User not authenticated'
+    });
+  }
 
     if (!status || !['joined', 'declined'].includes(status)) {
         return res.status(400).json({
@@ -193,14 +192,14 @@ const updateParticipantStatus = catchAsync(async (req: Request, res: Response) =
 
 const leaveTrip = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = req.body.user_id; // From auth middleware
+    const userId = req.body.user_id; 
 
-    if (!userId) {
-        return res.status(401).json({
-            success: false,
-            message: 'User not authenticated'
-        });
-    }
+  if (!userId || userId === 'undefined') {
+    return res.status(401).json({
+      success: false,
+      message: 'User not authenticated'
+    });
+  }
 
     const success = await TripService.leaveTrip(id, userId);
 
@@ -219,14 +218,14 @@ const leaveTrip = catchAsync(async (req: Request, res: Response) => {
 
 const removeParticipant = catchAsync(async (req: Request, res: Response) => {
     const { id, participantId } = req.params;
-    const userId = req.body.user_id; // From auth middleware
+    const userId = req.body.user_id; 
 
-    if (!userId) {
-        return res.status(401).json({
-            success: false,
-            message: 'User not authenticated'
-        });
-    }
+  if (!userId || userId === 'undefined') {
+    return res.status(401).json({
+      success: false,
+      message: 'User not authenticated'
+    });
+  }
 
     const success = await TripService.removeParticipant(id, userId, participantId);
 
@@ -245,15 +244,15 @@ const removeParticipant = catchAsync(async (req: Request, res: Response) => {
 
 const sendMessage = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = req.body.user_id; // From auth middleware
+    const userId = req.body.user_id; 
     const messageData: SendMessageRequest = req.body;
 
-    if (!userId) {
-        return res.status(401).json({
-            success: false,
-            message: 'User not authenticated'
-        });
-    }
+  if (!userId || userId === 'undefined') {
+    return res.status(401).json({
+      success: false,
+      message: 'User not authenticated'
+    });
+  }
 
     if (!messageData.message || !messageData.message.trim()) {
         return res.status(400).json({
@@ -273,16 +272,16 @@ const sendMessage = catchAsync(async (req: Request, res: Response) => {
 
 const getTripMessages = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = String(req.query.user_id); // From auth middleware
+    const userId = String(req.query.user_id); 
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 50;
 
-    if (!userId) {
-        return res.status(401).json({
-            success: false,
-            message: 'User not authenticated'
-        });
-    }
+  if (!userId || userId === 'undefined') {
+    return res.status(401).json({
+      success: false,
+      message: 'User not authenticated'
+    });
+  }
     const messages = await TripService.getTripMessages(id, userId, page, limit);
     res.json({
         success: true,
@@ -291,14 +290,14 @@ const getTripMessages = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getUserInvites = catchAsync(async (req: Request, res: Response) => {
-    const userId = String(req.query.user_id); // From auth middleware
+    const userId = String(req.query.user_id); 
 
-    if (!userId) {
-        return res.status(401).json({
-            success: false,
-            message: 'User not authenticated'
-        });
-    }
+  if (!userId || userId === 'undefined') {
+    return res.status(401).json({
+      success: false,
+      message: 'User not authenticated'
+    });
+  }
 
     const invites = await TripService.getUserInvites(userId);
 
@@ -310,14 +309,14 @@ const getUserInvites = catchAsync(async (req: Request, res: Response) => {
 
 const getTripParticipants = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const userId = String(req.query.user_id); // From auth middleware
+    const userId = String(req.query.user_id); 
 
-    if (!userId) {
-        return res.status(401).json({
-            success: false,
-            message: 'User not authenticated'
-        });
-    }
+  if (!userId || userId === 'undefined') {
+    return res.status(401).json({
+      success: false,
+      message: 'User not authenticated'
+    });
+  }
 
     const participants = await TripService.getTripParticipants(id, userId);
 

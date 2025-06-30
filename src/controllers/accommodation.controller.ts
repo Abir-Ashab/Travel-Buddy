@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { AccommodationService } from "../services/accommodation.service";
 import { CreateAccommodationRequest, UpdateAccommodationRequest } from "../interfaces/accommodation.interface";
-import { catchAsync } from "../utils/catchAsync";
+import { catchAsync } from "../utils/catchAsync.util";
 
 const getAccommodationsByPost = catchAsync(async (req: Request, res: Response) => {
   const { postId } = req.params;

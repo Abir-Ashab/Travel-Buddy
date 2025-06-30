@@ -19,7 +19,6 @@ const createAttraction = async (
   attractionData: CreateAttractionRequest
 ): Promise<Attraction> => {
   const post = await postModel.findById(postId);
-
   if (attractionData.rating < 1 || attractionData.rating > 5) {
     throw new Error('Rating must be between 1 and 5');
   }
@@ -51,7 +50,6 @@ const updateAttraction = async (
   }
 
   const post = await postModel.findById(attraction.post_id);
-
   if (updateData.rating && (updateData.rating < 1 || updateData.rating > 5)) {
     throw new Error('Rating must be between 1 and 5');
   }
@@ -69,9 +67,7 @@ const deleteAttraction = async (attractionId: string): Promise<boolean> => {
   if (!attraction) {
     return false;
   }
-
   const post = await postModel.findById(attraction.post_id);
-
   return await attractionModel.delete(attractionId);
 };
 

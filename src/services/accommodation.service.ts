@@ -18,7 +18,6 @@ const createAccommodation = async (
   postId: string,
   accommodationData: CreateAccommodationRequest
 ): Promise<Accommodation> => {
-
   if (accommodationData.rating < 1 || accommodationData.rating > 5) {
     throw new Error('Rating must be between 1 and 5');
   }
@@ -53,8 +52,7 @@ const updateAccommodation = async (
   }
 
   const post = await postModel.findById(accommodation.post_id);
-
-  if (updateData.rating && (updateData.rating < 1 || updateData.rating > 5)) {
+  if (updateData.rating !== undefined && (updateData.rating < 1 || updateData.rating > 5)) {
     throw new Error('Rating must be between 1 and 5');
   }
 

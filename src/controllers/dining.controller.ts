@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import { DiningService } from '../services/dining.sevice';
 import { CreateDiningRequest, UpdateDiningRequest } from '../interfaces/dining.interface';
-import { catchAsync } from '../utils/catchAsync';
-
+import { catchAsync } from '../utils/catchAsync.util';
 const getDiningsByPost = catchAsync(async (req: Request, res: Response) => {
   const { postId } = req.params;
   const dinings = await DiningService.getDiningsByPost(postId);

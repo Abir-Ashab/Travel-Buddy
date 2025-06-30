@@ -20,7 +20,6 @@ const createDining = async (
 ): Promise<Dining> => {
 
   const post = await postModel.findById(postId);
-
   if (diningData.rating < 1 || diningData.rating > 5) {
     throw new Error('Rating must be between 1 and 5');
   }
@@ -46,10 +45,8 @@ const updateDining = async (
   if (!dining) {
     return null;
   }
-
   const post = await postModel.findById(dining.post_id);
-
-  if (updateData.rating && (updateData.rating < 1 || updateData.rating > 5)) {
+  if (updateData.rating !== undefined && (updateData.rating < 1 || updateData.rating > 5)) {
     throw new Error('Rating must be between 1 and 5');
   }
 
@@ -62,9 +59,7 @@ const deleteDining = async (diningId: string): Promise<boolean> => {
   if (!dining) {
     return false;
   }
-
   const post = await postModel.findById(dining.post_id);
-
   return await diningModel.delete(diningId);
 }
 
@@ -74,4 +69,4 @@ export const DiningService = {
     createDining,
     updateDining,
     deleteDining
-}
+};
