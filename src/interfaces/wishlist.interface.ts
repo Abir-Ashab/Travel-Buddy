@@ -48,14 +48,14 @@ export interface CreateWishlistRequest {
 }
 
 export interface UpdateWishlistRequest {
-  name?: string;
-  description?: string;
-  grouping_type?: 'region' | 'theme' | 'budget' | 'season';
-  is_public?: boolean;
+  name?: string | null;
+  description?: string | null;
+  grouping_type?: 'region' | 'theme' | 'budget' | 'season' | null;
+  is_public?: boolean | null;
 }
 
 export interface CreateWishlistItemRequest {
-  location_id: string; 
+  location_id?: string;
   location?: {
     name: string;
     country: string;
@@ -65,26 +65,26 @@ export interface CreateWishlistItemRequest {
     timezone?: string;
   };
   notes?: string;
-  estimated_budget?: number;
-  priority_level: number;
-  preferred_start_date?: string;
-  preferred_end_date?: string;
+  estimated_budget?: number | null;
+  priority_level: number | null;
+  preferred_start_date?: string | null;
+  preferred_end_date?: string | null;
 }
 
 export interface UpdateWishlistItemRequest {
-  notes?: string;
-  estimated_budget?: number;
-  priority_level?: number;
-  preferred_start_date?: string;
-  preferred_end_date?: string;
+  notes?: string | null;
+  estimated_budget?: number | null;
+  priority_level?: number | null;
+  preferred_start_date?: string | null;
+  preferred_end_date?: string | null;
 }
 
 export interface WishlistFilters {
-  grouping_type?: 'region' | 'theme' | 'budget' | 'season';
-  is_public?: boolean;
-  search?: string;
-  limit?: number;
-  offset?: number;
+  grouping_type?: 'region' | 'theme' | 'budget' | 'season' | null;
+  is_public?: boolean | null;
+  search?: string | null;
+  limit?: number | null;
+  offset?: number | null;
 }
 
 export interface WishlistShareResponse {

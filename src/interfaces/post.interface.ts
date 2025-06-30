@@ -106,7 +106,7 @@ export interface UpdatePostRequest {
 }
 
 export interface PostFilters {
-  location_id?: number;
+  location_id?: string;
   country?: string;
   region?: string;
   min_cost?: number;
@@ -115,7 +115,7 @@ export interface PostFilters {
   max_duration?: number;
   effort_level?: number;
   is_featured?: boolean;
-  user_id?: number;
+  user_id?: string;
   search?: string;
 }
 

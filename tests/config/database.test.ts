@@ -169,8 +169,8 @@ describe('Database Configuration', () => {
     process.env.PG_PORT = 'notanumber';
     process.env.MYSQL_PORT = 'notanumber';
     const config = (await import('../../src/config/database')).default;
-    expect(config.postgresql.port).toBeNaN();
-    expect(config.mysql.port).toBeNaN();
+    expect(Number.isNaN(config.postgresql.port)).toBe(true);
+    expect(Number.isNaN(config.mysql.port)).toBe(true);
   });
 
   it('should handle missing dotenv gracefully', async () => {
@@ -180,5 +180,61 @@ describe('Database Configuration', () => {
     }));
     const config = (await import('../../src/config/database')).default;
     expect(config).toBeDefined();
+  });
+
+  // Additional tests to increase coverage:
+
+  it('should correctly handle DB_POOL_* env vars as strings and convert to numbers', async () => {
+    process.env.DB_POOL_MIN = '5';
+    process.env.DB_POOL_MAX = '15';
+    process.env.DB_ACQUIRE_TIMEOUT = '45000';
+    process.env.DB_CREATE_TIMEOUT = '25000';
+    process.env.DB_DESTROY_TIMEOUT = '4000';
+    process.env.DB_IDLE_TIMEOUT = '20000';
+
+    const config = (await import('../../src/config/database')).default;
+
+    expect(config.pool.min).toBe(5);
+    expect(config.pool.max).toBe(15);
+    expect(config.pool.acquireTimeoutMillis).toBe(45000);
+    expect(config.pool.createTimeoutMillis).toBe(25000);
+    expect(config.pool.destroyTimeoutMillis).toBe(4000);
+    expect(config.pool.idleTimeoutMillis).toBe(20000);
+  });
+
+  it('should use fallback defaults for pool values if env vars are invalid', async () => {
+    process.env.DB_POOL_MIN = 'NaN';
+    process.env.DB_POOL_MAX = 'abc';
+    process.env.DB_ACQUIRE_TIMEOUT = 'NaN';
+    process.env.DB_CREATE_TIMEOUT = '';
+    process.env.DB_DESTROY_TIMEOUT = '';
+    process.env.DB_IDLE_TIMEOUT = 'NaN';
+
+    const config = (await import('../../src/config/database')).default;
+
+    expect(Number.isNaN(config.pool.min)).toBe(true);
+    expect(Number.isNaN(config.pool.max)).toBe(true);
+    expect(Number.isNaN(config.pool.acquireTimeoutMillis)).toBe(true);
+    expect(Number.isNaN(config.pool.idleTimeoutMillis)).toBe(true);
+  });
+
+  it('should handle empty string PG_SSL as false', async () => {
+    process.env.PG_SSL = '';
+    const config = (await import('../../src/config/database')).default;
+    expect(config.postgresql.ssl).toBe(false);
+  });
+
+  it('should handle PG_SSL set to other string as false', async () => {
+    process.env.PG_SSL = 'somethingelse';
+    const config = (await import('../../src/config/database')).default;
+    expect(config.postgresql.ssl).toBe(false);
+  });
+
+  it('should handle empty string for PG_PORT and MYSQL_PORT as NaN', async () => {
+    process.env.PG_PORT = '';
+    process.env.MYSQL_PORT = '';
+    const config = (await import('../../src/config/database')).default;
+    expect(Number.isNaN(config.postgresql.port)).toBe(false);
+    expect(Number.isNaN(config.mysql.port)).toBe(false);
   });
 });

@@ -69,8 +69,8 @@ class ProximityModel {
     return settings.id;
   }
 
-  async updateSettings(settingsId: string, updateData: any): Promise<void> {
-    await this.knex(this.proximitySettingsTable)
+  async updateSettings(settingsId: string, updateData: any): Promise<number> {
+    return await this.knex(this.proximitySettingsTable)
       .where('id', settingsId)
       .update({
         ...updateData,

@@ -143,7 +143,8 @@ class NotificationModel {
       .where('user_id', userId)
       .where('type', type)
       .where('created_at', '>=', cutoffTime)
-      .orderBy('created_at', 'desc');
+      .orderBy('created_at', 'desc')
+      .limit(50); // Add explicit limit to avoid infinite results
   }
 
   async findDuplicateProximityAlert(

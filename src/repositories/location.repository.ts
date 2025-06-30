@@ -23,7 +23,7 @@ class LocationModel {
     const { page, limit, country, region } = options;
     const offset = (page - 1) * limit;
 
-    let query = this.knex(this.tableName);
+    let query = this.knex(this.tableName).select('*');
 
     if (country) {
       query = query.where('country', 'ilike', `%${country}%`);
@@ -41,6 +41,7 @@ class LocationModel {
 
   async search(query: string): Promise<Location[]> {
     return await this.knex(this.tableName)
+      .select('*')
       .where('name', 'ilike', `%${query}%`)
       .orWhere('country', 'ilike', `%${query}%`)
       .orWhere('region', 'ilike', `%${query}%`)
