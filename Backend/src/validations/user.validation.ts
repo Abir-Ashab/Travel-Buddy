@@ -38,8 +38,8 @@ const updateUserProfileValidation = z.object({
     current_longitude: z.number().nullable().optional(),
     location_updated_at: z.string().nullable().optional(),
     geom: z.object({
-      type: z.string(),
-      coordinates: z.array(z.number()),
+      type: z.string().optional(),
+      coordinates: z.array(z.number()).optional(),
     }).nullable().optional(),
   }),
 });

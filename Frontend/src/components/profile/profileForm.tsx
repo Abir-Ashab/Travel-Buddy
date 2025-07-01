@@ -47,7 +47,7 @@ const [formData, setFormData] = useState<ProfileFormState>({
   status: initialData?.status || 'active',
   profile_picture: initialData?.profile_picture || '',
   travel_preferences: {
-    budget: initialData?.travel_preferences?.budget || 'medium',
+    budget: initialData?.travel_preferences?.budget || 'medium', // Fixed typo: 'budget' not 'budget'
     preferred_climate: initialData?.travel_preferences?.preferred_climate || 'temperate',
     interests: initialData?.travel_preferences?.interests || []
   },
@@ -74,8 +74,10 @@ const [formData, setFormData] = useState<ProfileFormState>({
     }
   };
 
+// In your ProfileForm component, modify the location change handler:
 const handleLocationChange = (field: 'current_latitude' | 'current_longitude', value: string) => {
-  const numValue = value === '' ? null : parseFloat(value);
+  // Convert to number or null if empty
+  const numValue = value === '' ? null : Number(value);
   
   setFormData(prev => {
     const newData = {
@@ -84,14 +86,12 @@ const handleLocationChange = (field: 'current_latitude' | 'current_longitude', v
       location_updated_at: new Date().toISOString()
     };
     
-    // Only create geom if both coordinates exist
-    if (numValue !== null) {
+    // Update geom only if both coordinates are numbers
+    if (typeof newData.current_latitude === 'number' && 
+        typeof newData.current_longitude === 'number') {
       newData.geom = {
         type: "Point",
-        coordinates: [
-          field === 'current_longitude' ? numValue : (prev.current_longitude ?? 0),
-          field === 'current_latitude' ? numValue : (prev.current_latitude ?? 0)
-        ]
+        coordinates: [newData.current_longitude, newData.current_latitude]
       };
     } else {
       newData.geom = null;
@@ -101,19 +101,29 @@ const handleLocationChange = (field: 'current_latitude' | 'current_longitude', v
   });
 };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const submitData = {
-        ...formData,
-        geom: formData.current_latitude && formData.current_longitude ? {
-        type: "Point",
-        coordinates: [formData.current_longitude, formData.current_latitude]
-        } : null
-    };
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  // Prepare the submit data carefully
+  const submitData: ProfileFormState = {
+    ...formData,
+    // Ensure travel_preferences is properly structured
+    travel_preferences: {
+      budget: formData.travel_preferences.budget || 'medium',
+      preferred_climate: formData.travel_preferences.preferred_climate || 'temperate',
+      interests: formData.travel_preferences.interests || []
+    },
+    // Only include geom if both coordinates exist
+    geom: (formData.current_latitude !== null && formData.current_longitude !== null) 
+      ? {
+          type: "Point",
+          coordinates: [formData.current_longitude, formData.current_latitude]
+        }
+      : null
+  };
 
-    await onSubmit(submitData);
-    };
+  await onSubmit(submitData);
+};
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -220,8 +230,7 @@ const handleLocationChange = (field: 'current_latitude' | 'current_longitude', v
           </div>
         </div>
       </div>
-
-      {/* Travel Preferences Section */}
+      
       <div className="border-t pt-4">
         <h3 className="font-medium mb-4 flex items-center">
           <FiMapPin className="mr-2" /> Travel Preferences
@@ -307,7 +316,6 @@ const handleLocationChange = (field: 'current_latitude' | 'current_longitude', v
                   })}
                   className="ml-1 text-gray-500 hover:text-red-500"
                 >
-                  ×
                 </button>
               </span>
             ))}

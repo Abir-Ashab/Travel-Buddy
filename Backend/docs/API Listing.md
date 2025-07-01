@@ -12,7 +12,6 @@
 ## Users (`/api/users`)
 - `POST /create-admin` - Create admin user (ADMIN+)
 - `DELETE /account` - Delete user account (ADMIN+)
-- `PUT /upgrade` - Upgrade to traveler (ADMIN+, EXPLORER)
 - `PUT /status` - Update user status (ADMIN+)
 - `PUT /profile` - Update user profile (All)
 - `GET /profile` - Get user profile (All)
