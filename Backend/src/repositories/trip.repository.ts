@@ -15,11 +15,55 @@ class TripModel {
     return connection.getClient!();
   }
 
-  // Trip CRUD operations
+  private async findOrCreateLocation(locationData: {
+    name: string;
+    country?: string;
+    region?: string;
+    latitude: number;
+    longitude: number;
+    timezone?: string;
+  }): Promise<string> {
+    const existingLocation = await this.knex('locations')
+      .where('latitude', locationData.latitude)
+      .andWhere('longitude', locationData.longitude)
+      .first();
+
+    if (existingLocation) {
+      return existingLocation.id;
+    }
+
+    const [newLocation] = await this.knex('locations')
+      .insert({
+        id: this.knex.raw('uuid_generate_v4()'),
+        name: locationData.name,
+        country: locationData.country || null,
+        region: locationData.region || null,
+        latitude: locationData.latitude,
+        longitude: locationData.longitude,
+        timezone: locationData.timezone || 'UTC',
+        created_at: this.knex.fn.now(),
+      })
+      .returning('*');
+
+    return newLocation.id;
+  }
+
   async create(tripData: any): Promise<string> {
+    let locationId = null;
+    console.log("tripData: ", tripData)
+    if (tripData.location) {
+      console.log("tripData: ", tripData)
+      locationId = await this.findOrCreateLocation(tripData.location);
+    }
+    const { location, ...fields } = tripData;
+
     const [trip] = await this.knex(this.tableName)
-      .insert(tripData)
+      .insert({
+        ...fields,
+        location_id: locationId,
+      })
       .returning('id');
+
     return trip.id;
   }
 

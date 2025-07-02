@@ -1,3 +1,4 @@
+// Update your AllRoutes.tsx
 import { Route, Routes } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import FrontPage from '../components/globalFiles/frontPage';
@@ -12,7 +13,8 @@ import MyPosts from '../components/posts/myPost';
 import EditProfile from '../components/profile/editProfile';
 import PostDetails from '../components/posts/postDetail';
 import WishlistDashboard from '../components/wishlists/wishlistDashboard';
-// import TravelPlansPage from '../components/travelPlans/travelPlansPage';
+import TripPlansDashboard from '../components/trip/tripDashboard';
+// import TripDetailsPage from '../components/trip/tripDetailsPage';
 
 export default function AllRoutes() {
   return (
@@ -31,7 +33,8 @@ export default function AllRoutes() {
         <Route path="/upgrade" element={<UpgradeTraveler />} />
         <Route path='/edit-profile' element={<EditProfile/>}/>
         <Route path="/wishlists" element={<WishlistDashboard />} />
-        {/* <Route path="/travel-plans" element={<TravelPlansPage />} />  */}
+        <Route path="/travel-plans" element={<TripPlansDashboard />} />
+        {/* <Route path="/travel-plans/:id" element={<TripDetailsPage />} /> */}
       </Route>
     </Routes>
   );

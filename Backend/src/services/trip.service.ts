@@ -43,7 +43,7 @@ const createTrip = async (
 
   const tripId = await tripModel.create({
     creator_id: userId,
-    location_id: tripData.location_id,
+    location: tripData.location,
     trip_name: tripData.trip_name,
     start_date: startDate,
     end_date: endDate,

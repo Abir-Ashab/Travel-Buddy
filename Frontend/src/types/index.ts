@@ -1,3 +1,4 @@
+// types/index.ts
 export interface TripStatus {
   id: string;
   name: 'planning' | 'confirmed' | 'ongoing' | 'completed' | 'cancelled';
@@ -50,14 +51,7 @@ export interface Message {
 }
 
 export interface CreateTripRequest {
-  location: {
-      name: string;
-      country: string;
-      region: string;
-      latitude: number;
-      longitude: number;
-      timezone: string;
-  };
+  location_id: string;
   trip_name: string;
   start_date: string;
   end_date: string;

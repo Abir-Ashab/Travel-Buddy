@@ -3,12 +3,21 @@ const tripStatuses = z.enum(['planning', 'confirmed', 'ongoing', 'completed', 'c
 const participantRoles = z.enum(['creator', 'participant']);
 const participantStatuses = z.enum(['invited', 'joined', 'declined']);
 
+const locationSchema = z.object({
+  name: z.string().min(1, "Location name is required"),
+  country: z.string().optional(),
+  region: z.string().optional(),
+  latitude: z.number(),
+  longitude: z.number(),
+  timezone: z.string().optional(),
+});
+
 const createTripValidation = z.object({
   body: z.object({
-    location_id: z.string().min(1, "Location ID is required"),
+    location: locationSchema.optional(), 
     trip_name: z.string().min(1, "Trip name is required"),
-    start_date: z.string().datetime("Invalid start date format"),
-    end_date: z.string().datetime("Invalid end date format"),
+    start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Start date must be in YYYY-MM-DD format").optional(),
+    end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "End date must be in YYYY-MM-DD format").optional(),
     total_budget: z.number().min(0, "Budget must be non-negative"),
     max_participants: z.number().int().min(1, "Must allow at least 1 participant"),
   }),

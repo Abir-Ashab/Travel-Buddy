@@ -11,7 +11,7 @@ import { catchAsync } from '../utils/catchAsync.util';
 
 const createTrip = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
-  const tripData: CreateTripRequest = req.body;
+  const tripData = req.body;
 
   if (!userId || userId === 'undefined') {
     return res.status(401).json({
@@ -19,7 +19,8 @@ const createTrip = catchAsync(async (req: Request, res: Response) => {
     message: 'User not authenticated'
     });
   }
-
+  console.log("trip data: ", tripData);
+  
   const trip = await TripService.createTrip(userId, tripData);
 
   res.status(201).json({
@@ -78,7 +79,7 @@ const getTripById = catchAsync(async (req: Request, res: Response) => {
 const updateTrip = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const userId = req.user?.id;
-  const updateData: UpdateTripRequest = req.body;
+  const updateData = req.body;
 
   if (!userId || userId === 'undefined') {
   return res.status(401).json({
@@ -132,7 +133,7 @@ const deleteTrip = catchAsync(async (req: Request, res: Response) => {
 const inviteParticipants = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const userId = req.user?.id;
-  const inviteData: InviteParticipantsRequest = req.body;
+  const inviteData = req.body;
 
   if (!userId || userId === 'undefined') {
   return res.status(401).json({
@@ -159,7 +160,7 @@ const inviteParticipants = catchAsync(async (req: Request, res: Response) => {
 const updateParticipantStatus = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const userId = req.user?.id;
-  const { status }: UpdateParticipantStatusRequest = req.body;
+  const { status } = req.body;
 
   if (!userId || userId === 'undefined') {
   return res.status(401).json({
@@ -245,7 +246,7 @@ const removeParticipant = catchAsync(async (req: Request, res: Response) => {
 const sendMessage = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const userId = req.user?.id;
-  const messageData: SendMessageRequest = req.body;
+  const messageData = req.body;
 
   if (!userId || userId === 'undefined') {
   return res.status(401).json({
