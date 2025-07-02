@@ -14,8 +14,18 @@ import {
   FiNavigation,
   FiCheck,
   FiAlertCircle,
-  FiLoader
+  FiLoader,
+  FiTruck,
+  FiHome,
+  FiCamera,
+  FiCoffee
 } from "react-icons/fi";
+
+// Import detail components
+import TransportDetails from "./transportDetails";
+import AccommodationDetails from "./accommodationDetails";
+import AttractionDetails from "./attractionDetails";
+import DiningDetails from "./diningDetails";
 
 interface PostCreateProps {
   onPostCreated: () => void;
@@ -40,6 +50,13 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [createdPostId, setCreatedPostId] = useState<string | null>(null);
+  
+  // Modal states for detail components
+  const [showTransportModal, setShowTransportModal] = useState(false);
+  const [showAccommodationModal, setShowAccommodationModal] = useState(false);
+  const [showAttractionModal, setShowAttractionModal] = useState(false);
+  const [showDiningModal, setShowDiningModal] = useState(false);
 
   const effortLevels = [
     { value: 1, label: "Very Easy", color: "bg-emerald-100 text-emerald-700", description: "Relaxing pace" },
@@ -78,7 +95,7 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
       const userRole = role;
       console.log("user role: ", userRole)
       console.log("id: ", id)
-      await api.post("/posts", {
+      const response = await api.post("/posts", {
         title,
         description,
         total_cost: parseFloat(totalCost),
@@ -96,25 +113,10 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
         }
       });
 
+      // Store the created post ID for use in detail modals
+      setCreatedPostId(response.data.data.id || response.data.id);
       setSuccess(true);
       onPostCreated();
-      
-      setTimeout(() => {
-        setTitle("");
-        setDescription("");
-        setTotalCost("");
-        setDurationDays(1);
-        setEffortLevel(1);
-        setLocation({
-          name: "",
-          country: "",
-          region: "",
-          timezone: "",
-          latitude: 0,
-          longitude: 0
-        });
-        setSuccess(false);
-      }, 2000);
 
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to create post. Please try again.");
@@ -122,6 +124,24 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
       setLoading(false);
     }
   }
+
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setTotalCost("");
+    setDurationDays(1);
+    setEffortLevel(1);
+    setLocation({
+      name: "",
+      country: "",
+      region: "",
+      timezone: "",
+      latitude: 0,
+      longitude: 0
+    });
+    setSuccess(false);
+    setCreatedPostId(null);
+  };
   
   console.log("role: ", role)
   if (role === "explorer") {
@@ -158,17 +178,63 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
           </h1>
           <p className="text-slate-600">Tell the world about your incredible journey and inspire fellow travelers</p>
         </div>
+
         {success && (
-          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3">
-            <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
-              <FiCheck className="text-emerald-600" />
+          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                <FiCheck className="text-emerald-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-emerald-800">Story Published!</h3>
+                <p className="text-emerald-700 text-sm">Your adventure has been shared with the community.</p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-emerald-800">Story Published!</h3>
-              <p className="text-emerald-700 text-sm">Your adventure has been shared with the community.</p>
+            
+            <div className="border-t border-emerald-200 pt-4">
+              <p className="text-emerald-700 text-sm mb-3 font-medium">Want to add more details to your adventure?</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button
+                  onClick={() => setShowTransportModal(true)}
+                  className="flex items-center gap-2 px-3 py-2 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-colors text-sm font-medium text-emerald-700"
+                >
+                  <FiTruck className="text-xs" />
+                  Transport
+                </button>
+                <button
+                  onClick={() => setShowAccommodationModal(true)}
+                  className="flex items-center gap-2 px-3 py-2 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-colors text-sm font-medium text-emerald-700"
+                >
+                  <FiHome className="text-xs" />
+                  Stay
+                </button>
+                <button
+                  onClick={() => setShowAttractionModal(true)}
+                  className="flex items-center gap-2 px-3 py-2 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-colors text-sm font-medium text-emerald-700"
+                >
+                  <FiCamera className="text-xs" />
+                  Attractions
+                </button>
+                <button
+                  onClick={() => setShowDiningModal(true)}
+                  className="flex items-center gap-2 px-3 py-2 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-colors text-sm font-medium text-emerald-700"
+                >
+                  <FiCoffee className="text-xs" />
+                  Dining
+                </button>
+              </div>
+              <div className="mt-4 flex justify-center">
+                <button
+                  onClick={resetForm}
+                  className="px-6 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors font-medium"
+                >
+                  Create Another Post
+                </button>
+              </div>
             </div>
           </div>
         )}
+
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3">
             <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
@@ -422,6 +488,35 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
             </button>
           </div>
         </form>
+
+        {/* Conditional rendering of detail modals */}
+        {showTransportModal && createdPostId && (
+          <TransportDetails
+            postId={createdPostId}
+            onClose={() => setShowTransportModal(false)}
+          />
+        )}
+
+        {showAccommodationModal && createdPostId && (
+          <AccommodationDetails
+            postId={createdPostId}
+            onClose={() => setShowAccommodationModal(false)}
+          />
+        )}
+
+        {showAttractionModal && createdPostId && (
+          <AttractionDetails
+            postId={createdPostId}
+            onClose={() => setShowAttractionModal(false)}
+          />
+        )}
+
+        {showDiningModal && createdPostId && (
+          <DiningDetails
+            postId={createdPostId}
+            onClose={() => setShowDiningModal(false)}
+          />
+        )}
       </div>
     </div>
   );

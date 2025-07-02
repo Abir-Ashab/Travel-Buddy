@@ -158,6 +158,16 @@ const deleteWishlistItem = catchAsync(async (req: Request, res: Response) => {
   res.json({ success: true, message: 'Wishlist item deleted successfully' });
 });
 
+const getWishlistItem = catchAsync(async (req: Request, res: Response) => {
+  const { itemId } = req.params;
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ success: false, message: 'Authentication required' });
+  }
+  const item = await WishlistService.getWishlistItem(itemId, userId);
+  res.json({ success: true, data: item });
+});
+
 const shareWishlist = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const userId = req.user?.id;
@@ -194,6 +204,7 @@ export const WishlistController = {
   addWishlistItem,
   updateWishlistItem,
   deleteWishlistItem,
+  getWishlistItem,
   shareWishlist,
   getSharedWishlist
 };

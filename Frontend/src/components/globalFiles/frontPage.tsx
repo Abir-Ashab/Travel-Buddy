@@ -11,7 +11,7 @@ export default function FrontPage() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <FiCompass className="h-8 w-8 text-indigo-600" />
-              <span className="ml-2 text-xl font-bold text-gray-800">TravelBuddy</span>
+              <span className="ml-2 text-xl font-bold text-gray-800">Travel-Buddy</span>
             </div>
             <div className="flex items-center space-x-4">
               <Link to="/features" className="text-gray-600 hover:text-indigo-600">
@@ -58,7 +58,7 @@ export default function FrontPage() {
       <div className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            Why TravelBuddy?
+            Why Travel-Buddy?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[

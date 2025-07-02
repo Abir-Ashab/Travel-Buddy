@@ -18,11 +18,11 @@ export default function Navbar() {
       <nav className="hidden md:flex md:flex-col md:w-64 md:min-h-screen bg-white border-r border-slate-200/60 shadow-sm">
         <div className="p-6">
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
-              <FiCompass className="text-white text-xl" />
+            <div className="w-10 h-10  from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+              {/* <FiCompass className="text-white text-xl" /> */}
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-800">TravelBuddy</h1>
+              <h1 className="text-xl font-bold text-slate-800">Travel-Buddy</h1>
               <p className="text-xs text-slate-500">Adventure awaits</p>
             </div>
           </div>

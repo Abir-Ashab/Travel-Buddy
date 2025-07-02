@@ -9,6 +9,7 @@
     "http-status": "^1.7.4",
     "jsonwebtoken": "^9.0.2",
     "knex": "^3.1.0",
+    "lucide-react": "^0.525.0",
     "mime": "^4.0.7",
     "mysql2": "^3.14.1",
     "pg": "^8.16.0",

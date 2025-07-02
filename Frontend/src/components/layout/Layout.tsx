@@ -14,6 +14,7 @@ interface User {
 export default function Layout() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     async function fetchUser() {
@@ -29,6 +30,14 @@ export default function Layout() {
     }
     fetchUser();
   }, []);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
 
   if (loading) {
     return (
@@ -52,11 +61,45 @@ export default function Layout() {
       <div className="flex">
         <Navbar />
         <main className="flex-1 min-h-screen relative">
+            <button
+              onClick={toggleSidebar}
+              className="fixed top-7 left-6 z-40 items-center justify-center w-10 h-10 rounded-full border border-slate-200 shadow-sm hover:shadow-md hover:ring-2 hover:ring-blue-200 transition-all"
+            > 
+              {user?.profile_picture ? (
+                <img
+                  src={user.profile_picture}
+                  alt={user.name}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+                  <svg
+                    className="w-5 h-5 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
+                    />
+                  </svg>
+                </div>
+              )}
+            </button>
+
+
           <div className="pb-20 md:pb-0">
             <Outlet context={{ user }} />
           </div>
         </main>
-        <Sidebar user={user} />
+        
+        {/* Conditional Sidebar */}
+        {sidebarOpen && (
+          <Sidebar 
+            user={user} 
+            isOpen={sidebarOpen} 
+            onClose={closeSidebar} 
+          />
+        )}
       </div>
     </div>
   );

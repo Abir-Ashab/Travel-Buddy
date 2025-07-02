@@ -116,6 +116,10 @@ const deleteWishlistItem = async (id: string, userId: string): Promise<boolean> 
   return await wishlistModel.deleteItem(id);
 };
 
+const getWishlistItem = async (id: string, userId: string): Promise<WishlistItem| null> => {
+  return await wishlistModel.findItemById(id);
+};
+
 const shareWishlist = async (id: string, userId: string): Promise<WishlistShareResponse | null> => {
   const hasOwnership = await wishlistModel.checkOwnership(id, userId);
   if (!hasOwnership) return null;
@@ -126,7 +130,7 @@ const shareWishlist = async (id: string, userId: string): Promise<WishlistShareR
   const wishlistWithItems = await wishlistModel.findWithItems(id);
   if (!wishlistWithItems) return null;
 
-  const shareUrl = `${process.env.BASE_URL || 'http://localhost:3000'}/wishlists/shared/${id}`;
+  const shareUrl = `${process.env.BASE_URL || 'http://localhost:3000/api'}/wishlists/shared/${id}`;
 
   return {
     share_url: shareUrl,
@@ -147,6 +151,7 @@ export const WishlistService = {
   getPublicWishlists,
   updateWishlist,
   deleteWishlist,
+  getWishlistItem,
   addWishlistItem,
   updateWishlistItem,
   deleteWishlistItem,

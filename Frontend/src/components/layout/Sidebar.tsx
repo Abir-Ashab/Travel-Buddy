@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FiUser, FiLogOut, FiX, FiMenu, FiSettings, FiBell, FiHelpCircle, FiShield } from "react-icons/fi";
+import { FiUser, FiLogOut, FiX, FiSettings, FiBell, FiHelpCircle } from "react-icons/fi";
 import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
 
@@ -11,14 +11,19 @@ interface User {
   profile_picture?: string;
 }
 
-export default function Sidebar({ user }: { user: User | null }) {
-  const [isOpen, setIsOpen] = useState(false);
+interface SidebarProps {
+  user: User | null;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-    localStorage.removeItem("token");
-    navigate("/");
+      localStorage.removeItem("token");
+      navigate("/");
     } catch (err) {
       console.error("Logout failed", err);
     }
@@ -54,29 +59,24 @@ export default function Sidebar({ user }: { user: User | null }) {
 
   return (
     <>
-      <button 
-        onClick={() => setIsOpen(true)}
-        className="md:hidden fixed top-6 right-6 z-50 p-3 bg-white rounded-2xl shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-200"
-      >
-        <FiMenu size={20} className="text-slate-700" />
-      </button>
-
       <div 
         className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-all duration-300 ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        } md:hidden`} 
-        onClick={() => setIsOpen(false)} 
+        }`} 
+        onClick={onClose} 
       />
+      
+      {/* Sidebar */}
       <aside className={`fixed top-0 right-0 z-50 h-full w-80 bg-white shadow-2xl transform transition-all duration-300 ${
         isOpen ? "translate-x-0" : "translate-x-full"
-      } md:relative md:translate-x-0 md:shadow-none md:w-80 md:border-l md:border-slate-200/60`}>
+      }`}>
         
         <div className="p-6 border-b border-slate-200/60 bg-gradient-to-br from-slate-50 to-white">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl font-bold text-slate-800">Account</h3>
             <button 
-              onClick={() => setIsOpen(false)} 
-              className="md:hidden p-2 hover:bg-slate-100 rounded-xl transition-colors"
+              onClick={onClose} 
+              className="p-2 hover:bg-slate-100 rounded-xl transition-colors"
             >
               <FiX size={20} className="text-slate-600" />
             </button>
@@ -135,12 +135,13 @@ export default function Sidebar({ user }: { user: User | null }) {
           <Link 
             to="/edit-profile" 
             className="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all duration-200 group"
+            onClick={onClose}
           >
             <div className="p-2 bg-blue-100 rounded-xl group-hover:bg-blue-200 transition-colors">
               <FiUser className="text-blue-600" />
             </div>
             <div className="flex-1">
-              <div className="font-medium text-slate-800">Profile Settings</div>
+              <div className="font-medium text-slate-800">Edit Profile</div>
               <div className="text-sm text-slate-500">Manage your account</div>
             </div>
           </Link>
@@ -165,7 +166,7 @@ export default function Sidebar({ user }: { user: User | null }) {
             </div>
           </button>
 
-          <button className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all duration-200 group">
+          {/* <button className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all duration-200 group">
             <div className="p-2 bg-emerald-100 rounded-xl group-hover:bg-emerald-200 transition-colors">
               <FiHelpCircle className="text-emerald-600" />
             </div>
@@ -173,7 +174,7 @@ export default function Sidebar({ user }: { user: User | null }) {
               <div className="font-medium text-slate-800">Help & Support</div>
               <div className="text-sm text-slate-500">Get assistance</div>
             </div>
-          </button>
+          </button> */}
         </nav>
 
         <div className="mt-auto p-6 border-t border-slate-200/60">
