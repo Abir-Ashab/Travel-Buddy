@@ -36,21 +36,18 @@ const updateTripValidation = z.object({
 
 const inviteParticipantsValidation = z.object({
   body: z.object({
-    user_id: z.string().min(1, "User ID is required"),
     user_ids: z.array(z.string().min(1, "User ID is required")).min(1, "At least one user ID is required"),
   }),
 });
 
 const updateParticipantStatusValidation = z.object({
   body: z.object({
-    user_id: z.string().min(1, "User ID is required"),
     status: z.enum(['joined', 'declined']),
   }),
 });
 
 const sendMessageValidation = z.object({
   body: z.object({
-    user_id: z.string().min(1, "User ID is required"),
     message: z.string().min(1, "Message is required"),
     attachments: z.array(z.any()).optional(),
   }),

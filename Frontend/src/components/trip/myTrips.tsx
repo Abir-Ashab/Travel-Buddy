@@ -1,28 +1,35 @@
-// components/travelPlans/MyTrips.tsx
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { type TravelPlan } from '../../types';
-import { format } from 'date-fns';
 import api from '../../services/api';
+import { Calendar, Users, MapPin, DollarSign, Clock, MessageSquare, Plus, Eye, UserPlus, Check, X, Send } from 'lucide-react';
 
-export default function MyTrips() {
+const MyTripsComponent: React.FC<{ onTripSelect: (trip: TravelPlan) => void }> = ({ onTripSelect }) => {
   const [trips, setTrips] = useState<TravelPlan[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTrips = async () => {
-      try {
-        const response = await api.get('/trips/my-trips');
-        setTrips(response.data.trips);
-      } catch (error) {
-        console.error('Error fetching trips:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTrips();
+    fetchMyTrips();
   }, []);
+
+  const fetchMyTrips = async () => {
+    try {
+      const response = await api.get('/trips/my-trips');
+      console.log("get trip: ", response)
+      const tripsData = response.data.data.trips;
+      if (Array.isArray(tripsData)) {
+        setTrips(tripsData);
+      } else if (tripsData && Array.isArray(tripsData.trips)) {
+        setTrips(tripsData.trips);
+      } else {
+        setTrips([]);
+      }
+    } catch (error) {
+      console.error('Error fetching trips:', error);
+      setTrips([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -35,53 +42,67 @@ export default function MyTrips() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return <div className="text-center py-8">Loading your trips...</div>;
+  }
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">My Trips</h2>
-      
-      {!trips? (
-        <div className="text-center py-10">
-          <p className="text-gray-500">You don't have any trips yet. Create one to get started!</p>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold text-gray-900">My Trips</h2>
+        <span className="text-sm text-gray-500">{trips.length} trips</span>
+      </div>
+
+      {trips.length === 0 ? (
+        <div className="text-center py-12 bg-white rounded-lg border">
+          <MapPin className="mx-auto h-12 w-12 text-gray-400" />
+          <h3 className="mt-2 text-sm font-medium text-gray-900">No trips yet</h3>
+          <p className="mt-1 text-sm text-gray-500">Get started by creating your first trip!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {trips.map(trip => (
-            <Link 
-              to={`/travel-plans/${trip.id}`} 
+        <div className="space-y-3">
+          {trips.map((trip) => (
+            <div
               key={trip.id}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+              className="bg-white p-6 rounded-lg border hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => onTripSelect(trip)}
             >
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg font-semibold text-gray-800">{trip.trip_name}</h3>
-                  <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(trip.status_name || '')}`}>
-                    {trip.status_name}
-                  </span>
+              <div className="flex justify-between items-start mb-3">
+                <h3 className="text-lg font-medium text-gray-900">{trip.trip_name}</h3>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(trip.status_name || 'planning')}`}>
+                  {trip.status_name || 'Planning'}
+                </span>
+              </div>
+              
+              <div className="flex items-center text-sm text-gray-600 mb-2">
+                <MapPin className="h-4 w-4 mr-1" />
+                <span>{trip.location_name}</span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                <div className="flex items-center">
+                  <Calendar className="h-4 w-4 mr-1" />
+                  <span>{new Date(trip.start_date).toLocaleDateString()}</span>
                 </div>
-                
-                <p className="text-gray-600 mb-2">
-                  {format(new Date(trip.start_date), 'MMM d, yyyy')} - {format(new Date(trip.end_date), 'MMM d, yyyy')}
-                </p>
-                
-                <p className="text-gray-600 mb-2">
-                  {trip.location_name}
-                </p>
-                
-                <div className="flex justify-between items-center mt-4">
-                  <span className="text-sm text-gray-500">
-                    {trip.participants_count || 0} participants
-                  </span>
-                  <span className="font-medium">
-                    ${trip.total_budget.toLocaleString()}
-                  </span>
+                <div className="flex items-center">
+                  <Users className="h-4 w-4 mr-1" />
+                  <span>{trip.participants_count}/{trip.max_participants}</span>
+                </div>
+                <div className="flex items-center">
+                  <DollarSign className="h-4 w-4 mr-1" />
+                  <span>${trip.total_budget}</span>
+                </div>
+                <div className="flex items-center">
+                  <Clock className="h-4 w-4 mr-1" />
+                  <span>{Math.ceil((new Date(trip.end_date).getTime() - new Date(trip.start_date).getTime()) / (1000 * 60 * 60 * 24))} days</span>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}
     </div>
   );
-}
+};
+
+export default MyTripsComponent;
