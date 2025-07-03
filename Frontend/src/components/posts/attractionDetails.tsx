@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FiCamera, FiPlus, FiTrash2, FiSave, FiX, FiMapPin, FiStar, FiClock } from "react-icons/fi";
 import api from "../../services/api";
+import LocationSearch from "../globalFiles/locationSearch";
 
 interface Attraction {
   attraction_name: string;
@@ -68,7 +69,33 @@ export default function AttractionDetails({ postId, onClose }: AttractionDetails
     "morning", "afternoon", "evening", "night", "sunrise", "sunset", 
     "weekday", "weekend", "early_morning", "late_evening", "anytime"
   ];
-
+  const [location, setLocation] = useState({
+    name: "",
+    country: "",
+    region: "",
+    timezone: "",
+    latitude: 0,
+    longitude: 0
+  });
+  const handleLocationSelect = (lat: number, lon: number, displayName: string) => {
+  // Parse the display name to extract components
+    const parts = displayName.split(', ');
+    const name = parts[0] || '';
+    const region = parts.length > 1 ? parts[1] : '';
+    const country = parts.length > 2 ? parts[parts.length - 1] : '';
+    
+    setLocation({
+        name: name,
+        country: country,
+        region: region,
+        timezone: 'UTC', // Default, can be updated with timezone API if needed
+        latitude: lat,
+        longitude: lon
+    });
+  };
+  const addLocation = (index: number) => {
+    attractions[index].location = location
+  };
   const addAttraction = () => {
     setAttractions([...attractions, {
       attraction_name: "",
@@ -158,8 +185,8 @@ export default function AttractionDetails({ postId, onClose }: AttractionDetails
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed ml-[15%] inset-0 backdrop-blur-md flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl shadow-xl max-w-4xl max-h-[95vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-slate-200 px-8 py-6 rounded-t-3xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -390,26 +417,26 @@ export default function AttractionDetails({ postId, onClose }: AttractionDetails
                     </div>
 
                     {/* Location Details */}
-                    <div className="border-t border-slate-200 pt-6">
-                      <h4 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                        <FiMapPin className="text-green-600" />
+                    <div>
+                      <h4 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                        <FiMapPin className="text-purple-600" />
                         Location Details
                       </h4>
-
                       <div className="grid md:grid-cols-3 gap-4">
                         <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-2">
-                            Location Name
-                          </label>
-                          <input
-                            type="text"
-                            value={attraction.location.name}
-                            onChange={(e) => updateAttraction(index, 'location.name', e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
-                            placeholder="e.g., City Center"
-                          />
+                            <label className="block text-sm font-semibold text-slate-700 mb-3">
+                            <FiMapPin className="inline mr-1" />
+                            Search Location
+                            </label>
+                            <LocationSearch 
+                            onLocationSelect={handleLocationSelect}
+                            placeholder="Search for a location (e.g., Everest Base Camp, Nepal)"
+                            />
+                            {(() => {
+                                addLocation(index);
+                                return null; 
+                            })()}
                         </div>
-
                         <div>
                           <label className="block text-sm font-semibold text-slate-700 mb-2">
                             Country *
@@ -417,10 +444,10 @@ export default function AttractionDetails({ postId, onClose }: AttractionDetails
                           <input
                             type="text"
                             required
-                            value={attraction.location.country}
+                            value={location.country}
                             onChange={(e) => updateAttraction(index, 'location.country', e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
-                            placeholder="e.g., France"
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                            placeholder="e.g., UK"
                           />
                         </div>
 
@@ -430,26 +457,24 @@ export default function AttractionDetails({ postId, onClose }: AttractionDetails
                           </label>
                           <input
                             type="text"
-                            value={attraction.location.region}
+                            value={location.region}
                             onChange={(e) => updateAttraction(index, 'location.region', e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
                             placeholder="e.g., Europe"
                           />
                         </div>
-                      </div>
 
-                      <div className="grid md:grid-cols-3 gap-4 mt-4">
                         <div>
                           <label className="block text-sm font-semibold text-slate-700 mb-2">
                             Latitude
                           </label>
                           <input
                             type="number"
-                            step="0.000001"
-                            value={attraction.location.latitude}
+                            step="0.0001"
+                            value={location.latitude}
                             onChange={(e) => updateAttraction(index, 'location.latitude', parseFloat(e.target.value))}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
-                            placeholder="48.858844"
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                            placeholder="51.5074"
                           />
                         </div>
 
@@ -459,11 +484,11 @@ export default function AttractionDetails({ postId, onClose }: AttractionDetails
                           </label>
                           <input
                             type="number"
-                            step="0.000001"
-                            value={attraction.location.longitude}
+                            step="0.0001"
+                            value={location.longitude}
                             onChange={(e) => updateAttraction(index, 'location.longitude', parseFloat(e.target.value))}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
-                            placeholder="2.294351"
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                            placeholder="0.1278"
                           />
                         </div>
 
@@ -473,10 +498,10 @@ export default function AttractionDetails({ postId, onClose }: AttractionDetails
                           </label>
                           <input
                             type="text"
-                            value={attraction.location.timezone}
+                            value={location.timezone}
                             onChange={(e) => updateAttraction(index, 'location.timezone', e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
-                            placeholder="Europe/Paris"
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                            placeholder="Europe/London"
                           />
                         </div>
                       </div>

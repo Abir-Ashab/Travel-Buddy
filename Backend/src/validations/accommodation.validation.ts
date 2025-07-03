@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-const accommodationTypes = z.enum(['hotel', 'hostel', 'airbnb', 'guesthouse']);
+const accommodationTypes = z.enum(["hotel", "hostel", "resort", "apartment", "villa", "guesthouse", 
+    "bed_and_breakfast", "camping", "motel", "homestay", "other"]);
 
 const dateString = z.string().refine(
   (val) => !isNaN(Date.parse(val)),

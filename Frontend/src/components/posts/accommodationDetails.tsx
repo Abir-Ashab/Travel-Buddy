@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FiHome, FiPlus, FiTrash2, FiSave, FiX, FiMapPin, FiStar } from "react-icons/fi";
 import api from "../../services/api";
+import LocationSearch from "../globalFiles/locationSearch";
 
 interface Accommodation {
   accommodation_type: string;
@@ -59,6 +60,14 @@ export default function AccommodationDetails({ postId, onClose }: AccommodationD
       }
     }
   ]);
+  const [location, setLocation] = useState({
+    name: "",
+    country: "",
+    region: "",
+    timezone: "",
+    latitude: 0,
+    longitude: 0
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -129,8 +138,10 @@ export default function AccommodationDetails({ postId, onClose }: AccommodationD
 
     try {
       // Filter out empty accommodations
+      console.log("accomm: ", accommodations);
+      
       const validAccommodations = accommodations.filter(a => 
-        a.accommodation_type && a.name && a.cost_per_night > 0 && a.location.country
+        a.accommodation_type && a.location.name && a.cost_per_night > 0 && a.location.country
       );
 
       if (validAccommodations.length === 0) {
@@ -158,10 +169,31 @@ export default function AccommodationDetails({ postId, onClose }: AccommodationD
       setLoading(false);
     }
   };
+  const handleLocationSelect = (lat: number, lon: number, displayName: string) => {
+  // Parse the display name to extract components
+    const parts = displayName.split(', ');
+    const name = parts[0] || '';
+    const region = parts.length > 1 ? parts[1] : '';
+    const country = parts.length > 2 ? parts[parts.length - 1] : '';
+    
+    setLocation({
+        name: name,
+        country: country,
+        region: region,
+        timezone: 'UTC', // Default, can be updated with timezone API if needed
+        latitude: lat,
+        longitude: lon
+    });
+    
+  };
+
+  const addLocation = (index: number) => {
+    accommodations[index].location = location
+  };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed ml-[15%] inset-0 backdrop-blur-md flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl shadow-xl max-w-4xl max-h-[95vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-slate-200 px-8 py-6 rounded-t-3xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -203,7 +235,7 @@ export default function AccommodationDetails({ postId, onClose }: AccommodationD
               {accommodations.map((accommodation, index) => (
                 <div key={index} className="bg-slate-50 rounded-2xl p-6 border border-slate-200">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="font-semibold text-slate-800">Accommodation #{index + 1}</h3>
+                    <h3 className="font-semibold text-slate-800">Accommodation {index + 1}</h3>
                     {accommodations.length > 1 && (
                       <button
                         type="button"
@@ -322,18 +354,20 @@ export default function AccommodationDetails({ postId, onClose }: AccommodationD
                       </h4>
                       <div className="grid md:grid-cols-3 gap-4">
                         <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-2">
-                            Location Name
-                          </label>
-                          <input
-                            type="text"
-                            value={accommodation.location.name}
-                            onChange={(e) => updateAccommodation(index, 'location.name', e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
-                            placeholder="e.g., Downtown"
-                          />
+                            <label className="block text-sm font-semibold text-slate-700 mb-3">
+                            <FiMapPin className="inline mr-1" />
+                            Search Location
+                            </label>
+                            <LocationSearch 
+                            onLocationSelect={handleLocationSelect}
+                            placeholder="Search for a location (e.g., Everest Base Camp, Nepal)"
+                            />
+                            {(() => {
+                                addLocation(index);
+                                return null; 
+                            })()}
                         </div>
-
+                        {/* Location state is managed via updateAccommodation and setLocation */}
                         <div>
                           <label className="block text-sm font-semibold text-slate-700 mb-2">
                             Country *
@@ -341,7 +375,7 @@ export default function AccommodationDetails({ postId, onClose }: AccommodationD
                           <input
                             type="text"
                             required
-                            value={accommodation.location.country}
+                            value={location.country}
                             onChange={(e) => updateAccommodation(index, 'location.country', e.target.value)}
                             className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
                             placeholder="e.g., UK"
@@ -354,7 +388,7 @@ export default function AccommodationDetails({ postId, onClose }: AccommodationD
                           </label>
                           <input
                             type="text"
-                            value={accommodation.location.region}
+                            value={location.region}
                             onChange={(e) => updateAccommodation(index, 'location.region', e.target.value)}
                             className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
                             placeholder="e.g., Europe"
@@ -368,7 +402,7 @@ export default function AccommodationDetails({ postId, onClose }: AccommodationD
                           <input
                             type="number"
                             step="0.0001"
-                            value={accommodation.location.latitude}
+                            value={location.latitude}
                             onChange={(e) => updateAccommodation(index, 'location.latitude', parseFloat(e.target.value))}
                             className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
                             placeholder="51.5074"
@@ -382,7 +416,7 @@ export default function AccommodationDetails({ postId, onClose }: AccommodationD
                           <input
                             type="number"
                             step="0.0001"
-                            value={accommodation.location.longitude}
+                            value={location.longitude}
                             onChange={(e) => updateAccommodation(index, 'location.longitude', parseFloat(e.target.value))}
                             className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
                             placeholder="0.1278"
@@ -395,7 +429,7 @@ export default function AccommodationDetails({ postId, onClose }: AccommodationD
                           </label>
                           <input
                             type="text"
-                            value={accommodation.location.timezone}
+                            value={location.timezone}
                             onChange={(e) => updateAccommodation(index, 'location.timezone', e.target.value)}
                             className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
                             placeholder="Europe/London"

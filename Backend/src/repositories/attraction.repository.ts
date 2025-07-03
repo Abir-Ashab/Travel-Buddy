@@ -2,7 +2,7 @@ import { Attraction } from '../interfaces/attraction.interface';
 import { getConnection } from "../database";
 
 class AttractionModel {
-  private tableName = 'attraction';
+  private tableName = 'attractions';
   
   private get knex() {
     const connection = getConnection();

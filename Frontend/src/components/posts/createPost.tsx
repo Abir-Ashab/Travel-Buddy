@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../../services/api";
 import {FiUser, FiPlus} from "react-icons/fi";
 import { useOutletContext, Link } from "react-router-dom";
+import LocationSearch from "../globalFiles/locationSearch";
 
 import { 
   FiEdit3, 
@@ -21,7 +22,6 @@ import {
   FiCoffee
 } from "react-icons/fi";
 
-// Import detail components
 import TransportDetails from "./transportDetails";
 import AccommodationDetails from "./accommodationDetails";
 import AttractionDetails from "./attractionDetails";
@@ -124,6 +124,23 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
       setLoading(false);
     }
   }
+
+  const handleLocationSelect = (lat: number, lon: number, displayName: string) => {
+    // Parse the display name to extract components
+    const parts = displayName.split(', ');
+    const name = parts[0] || '';
+    const region = parts.length > 1 ? parts[1] : '';
+    const country = parts.length > 2 ? parts[parts.length - 1] : '';
+    
+    setLocation({
+      name: name,
+      country: country,
+      region: region,
+      timezone: 'UTC', // Default, can be updated with timezone API if needed
+      latitude: lat,
+      longitude: lon
+    });
+  };
 
   const resetForm = () => {
     setTitle("");
@@ -374,17 +391,13 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-3">
                     <FiMapPin className="inline mr-1" />
-                    Location Name
+                    Search Location
                   </label>
-                  <input
-                    type="text"
-                    value={location.name}
-                    onChange={(e) => setLocation({...location, name: e.target.value})}
-                    className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
-                    placeholder="e.g., Everest Base Camp"
+                  <LocationSearch 
+                    onLocationSelect={handleLocationSelect}
+                    placeholder="Search for a location (e.g., Everest)"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-3">
                     <FiGlobe className="inline mr-1" />

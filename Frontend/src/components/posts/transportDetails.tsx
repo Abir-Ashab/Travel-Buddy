@@ -82,8 +82,8 @@ export default function TransportDetails({ postId, onClose }: TransportDetailsPr
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed ml-[15%] inset-0 backdrop-blur-md flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl shadow-xl max-w-4xl max-h-[95vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-slate-200 px-8 py-6 rounded-t-3xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -125,7 +125,7 @@ export default function TransportDetails({ postId, onClose }: TransportDetailsPr
               {transports.map((transport, index) => (
                 <div key={index} className="bg-slate-50 rounded-2xl p-6 border border-slate-200">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-slate-800">Transport #{index + 1}</h3>
+                    <h3 className="font-semibold text-slate-800">Transport {index + 1}</h3>
                     {transports.length > 1 && (
                       <button
                         type="button"

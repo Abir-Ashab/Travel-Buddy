@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FiCoffee, FiPlus, FiTrash2, FiSave, FiX, FiMapPin, FiStar } from "react-icons/fi";
 import api from "../../services/api";
+import LocationSearch from "../globalFiles/locationSearch";
 
 interface Dining {
   restaurant_name: string;
@@ -63,6 +64,36 @@ export default function DiningDetails({ postId, onClose }: DiningDetailsProps) {
 
   const mealTypes = ["breakfast", "brunch", "lunch", "dinner", "snack", "dessert", "drinks"];
 
+    const [location, setLocation] = useState({
+    name: "",
+    country: "",
+    region: "",
+    timezone: "",
+    latitude: 0,
+    longitude: 0
+  });
+
+  const handleLocationSelect = (lat: number, lon: number, displayName: string) => {
+  // Parse the display name to extract components
+    const parts = displayName.split(', ');
+    const name = parts[0] || '';
+    const region = parts.length > 1 ? parts[1] : '';
+    const country = parts.length > 2 ? parts[parts.length - 1] : '';
+    
+    setLocation({
+        name: name,
+        country: country,
+        region: region,
+        timezone: 'UTC', // Default, can be updated with timezone API if needed
+        latitude: lat,
+        longitude: lon
+    });
+  };
+
+  const addLocation = (index: number) => {
+    dinings[index].location = location
+  };
+  
   const addDining = () => {
     setDinings([...dinings, {
       restaurant_name: "",
@@ -183,8 +214,8 @@ export default function DiningDetails({ postId, onClose }: DiningDetailsProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed ml-[15%] inset-0 backdrop-blur-md flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl shadow-xl max-w-4xl max-h-[95vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-slate-200 px-8 py-6 rounded-t-3xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -395,23 +426,24 @@ export default function DiningDetails({ postId, onClose }: DiningDetailsProps) {
                     {/* Location */}
                     <div>
                       <h4 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                        <FiMapPin className="text-orange-600" />
+                        <FiMapPin className="text-purple-600" />
                         Location Details
                       </h4>
                       <div className="grid md:grid-cols-3 gap-4">
                         <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-2">
-                            Location Name
-                          </label>
-                          <input
-                            type="text"
-                            value={dining.location.name}
-                            onChange={(e) => updateDining(index, 'location.name', e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
-                            placeholder="e.g., Downtown Food Street"
-                          />
+                            <label className="block text-sm font-semibold text-slate-700 mb-3">
+                            <FiMapPin className="inline mr-1" />
+                            Search Location
+                            </label>
+                            <LocationSearch 
+                            onLocationSelect={handleLocationSelect}
+                            placeholder="Search for a location (e.g., Everest Base Camp, Nepal)"
+                            />
+                            {(() => {
+                                addLocation(index);
+                                return null; 
+                            })()}
                         </div>
-
                         <div>
                           <label className="block text-sm font-semibold text-slate-700 mb-2">
                             Country *
@@ -419,10 +451,10 @@ export default function DiningDetails({ postId, onClose }: DiningDetailsProps) {
                           <input
                             type="text"
                             required
-                            value={dining.location.country}
+                            value={location.country}
                             onChange={(e) => updateDining(index, 'location.country', e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
-                            placeholder="e.g., Bangladesh"
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                            placeholder="e.g., UK"
                           />
                         </div>
 
@@ -432,10 +464,10 @@ export default function DiningDetails({ postId, onClose }: DiningDetailsProps) {
                           </label>
                           <input
                             type="text"
-                            value={dining.location.region}
+                            value={location.region}
                             onChange={(e) => updateDining(index, 'location.region', e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
-                            placeholder="e.g., City Center"
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                            placeholder="e.g., Europe"
                           />
                         </div>
 
@@ -446,10 +478,10 @@ export default function DiningDetails({ postId, onClose }: DiningDetailsProps) {
                           <input
                             type="number"
                             step="0.0001"
-                            value={dining.location.latitude}
+                            value={location.latitude}
                             onChange={(e) => updateDining(index, 'location.latitude', parseFloat(e.target.value))}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
-                            placeholder="12.346000"
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                            placeholder="51.5074"
                           />
                         </div>
 
@@ -460,10 +492,10 @@ export default function DiningDetails({ postId, onClose }: DiningDetailsProps) {
                           <input
                             type="number"
                             step="0.0001"
-                            value={dining.location.longitude}
+                            value={location.longitude}
                             onChange={(e) => updateDining(index, 'location.longitude', parseFloat(e.target.value))}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
-                            placeholder="98.765000"
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                            placeholder="0.1278"
                           />
                         </div>
 
@@ -473,15 +505,14 @@ export default function DiningDetails({ postId, onClose }: DiningDetailsProps) {
                           </label>
                           <input
                             type="text"
-                            value={dining.location.timezone}
+                            value={location.timezone}
                             onChange={(e) => updateDining(index, 'location.timezone', e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
-                            placeholder="Asia/Dhaka"
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+                            placeholder="Europe/London"
                           />
                         </div>
                       </div>
                     </div>
-
                     {/* Review and Notes */}
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>

@@ -1,6 +1,10 @@
 import { z } from 'zod';
-const attractionTypes = z.enum(['museum', 'monument', 'park', 'beach', 'temple', 'market', 'viewpoint', 'adventure']);
-const bestTimeToVisit = z.enum(['morning', 'afternoon', 'evening', 'night']);
+const attractionTypes = z.enum(["museum", "monument", "park", "beach", "mountain", "temple", "church", 
+    "palace", "castle", "zoo", "aquarium", "garden", "market", "viewpoint", 
+    "waterfall", "lake", "historical_site", "cultural_site", "shopping", 
+    "entertainment", "adventure", "nature", "landmark", "other"]);
+const bestTimeToVisit = z.enum(["morning", "afternoon", "evening", "night", "sunrise", "sunset", 
+    "weekday", "weekend", "early_morning", "late_evening", "anytime"]);
 
 const dateString = z.string().refine(
   (val) => !isNaN(Date.parse(val)),

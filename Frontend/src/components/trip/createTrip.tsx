@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import api from '../../services/api';
 import { type CreateTripRequest } from '../../types';
+import LocationSearch from '../globalFiles/locationSearch';
 
 interface CreateTripModalProps {
   onClose: () => void;
@@ -94,6 +95,26 @@ const CreateTripComponent: React.FC = () => {
     }
   };
 
+    const handleLocationSelect = (lat: number, lon: number, displayName: string) => {
+    // Parse the display name to extract components
+    const parts = displayName.split(', ');
+    const name = parts[0] || '';
+    const region = parts.length > 1 ? parts[1] : '';
+    const country = parts.length > 2 ? parts[parts.length - 1] : '';
+    
+    setFormData(prev => ({
+      ...prev,
+      location: {
+        name: name,
+        country: country,
+        region: region,
+        latitude: lat.toString(),
+        longitude: lon.toString(),
+        timezone: 'UTC' // Default, can be updated with timezone API if needed
+      }
+    }));
+  };
+
   return (
     <div className="bg-white p-6 rounded-lg border">
       <h2 className="text-xl font-semibold text-gray-900 mb-6">Create New Trip</h2>
@@ -177,6 +198,27 @@ const CreateTripComponent: React.FC = () => {
             />
           </div>
         </div>
+
+        <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Search Location
+            </label>
+            <LocationSearch 
+              onLocationSelect={handleLocationSelect}
+              placeholder="Search for a location (e.g., Chimbuk, Bandarban)"
+            />
+        </div>
+        {formData.location.name && (
+          <div className="p-3 bg-gray-50 rounded-md border border-gray-200">
+            <h4 className="font-medium text-sm mb-2">Selected Location:</h4>
+            <p className="text-sm">
+              {formData.location.name}, {formData.location.region}, {formData.location.country}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Coordinates: {formData.location.latitude}, {formData.location.longitude}
+            </p>
+          </div>
+        )}
 
         <h3 className="text-lg font-medium mt-6">Location Details</h3>
         <div className="space-y-4">

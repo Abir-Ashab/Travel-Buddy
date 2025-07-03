@@ -1,5 +1,10 @@
 import { z } from 'zod';
-const mealTypes = z.enum(['breakfast', 'lunch', 'dinner', 'snack']);
+const mealTypes = z.enum(["breakfast", "brunch", "lunch", "dinner", "snack", "dessert", "drinks"]);
+const cuisineTypes = z.enum([
+  "local", "italian", "chinese", "indian", "mexican", "japanese", "french", 
+  "thai", "american", "mediterranean", "middle_eastern", "korean", "vietnamese", 
+  "greek", "spanish", "german", "british", "fusion", "vegetarian", "vegan", "other"
+]);
 
 const dateString = z.string().refine(
   (val) => !isNaN(Date.parse(val)),
@@ -22,7 +27,7 @@ const locationSchema = z.object({
 const createDiningValidation = z.object({
   body: z.object({
     restaurant_name: z.string().min(1, "Restaurant name is required"),
-    cuisine_type: z.string().min(1, "Cuisine type is required"),
+    cuisine_type: cuisineTypes,
     meal_type: mealTypes,
     cost: z.number().min(0, "Cost must be non-negative"),
     rating: z.number().min(0).max(5, "Rating must be between 0 and 5"),
