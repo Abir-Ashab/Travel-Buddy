@@ -16,7 +16,7 @@ const TripInvitesComponent: React.FC = () => {
     try {
       const response = await api.get('/trips/invites');
       const invitesData = response.data.data
-      // Handle different response structures
+      console.log("invitesData: ", invitesData)
       if (Array.isArray(invitesData)) {
         setInvites(invitesData);
       } else if (invitesData && Array.isArray(invitesData.invites)) {
@@ -34,7 +34,7 @@ const TripInvitesComponent: React.FC = () => {
 
   const handleInviteResponse = async (tripId: string, status: 'joined' | 'declined') => {
     try {
-      const response = await api.put(`/trips/${tripId}/status`, { status });
+      const response = await api.put(`/trips/${tripId}/status`, { 'status' : status });
 
       if (response.status === 200) {
         setInvites(invites.filter(invite => invite.id !== tripId));
@@ -84,14 +84,14 @@ const TripInvitesComponent: React.FC = () => {
               
               <div className="flex space-x-3">
                 <button
-                  onClick={() => handleInviteResponse(invite.id, 'joined')}
+                  onClick={() => handleInviteResponse(invite.trip_plan_id, 'joined')}
                   className="flex items-center px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
                 >
                   <Check className="h-4 w-4 mr-1" />
                   Accept
                 </button>
                 <button
-                  onClick={() => handleInviteResponse(invite.id, 'declined')}
+                  onClick={() => handleInviteResponse(invite.trip_plan_id, 'declined')}
                   className="flex items-center px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm"
                 >
                   <X className="h-4 w-4 mr-1" />

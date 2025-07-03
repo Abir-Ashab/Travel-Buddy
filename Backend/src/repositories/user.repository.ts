@@ -84,10 +84,10 @@ class User {
     });
   }
 
-  async findAll(filters = {}) {
+  async findTravelers() {
     return this.knex(this.tableName)
-      .select('id', 'name', 'role', 'email', 'status', 'password_changed_at', 'created_at', 'updated_at')
-      .where(filters);
+      .select('id', 'name', 'role', 'email', 'status', 'created_at', 'updated_at')
+      .where({ role: 'traveler' });
   }
 
   async deleteById(id : string) {

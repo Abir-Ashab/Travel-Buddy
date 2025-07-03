@@ -48,6 +48,16 @@ const getUserProfile = catchAsync(async (req, res) => {
   });
 });
 
+const getTravelers = catchAsync(async (req, res) => {
+  const result = await UserServices.getTravelers();
+
+  res.status(200).json({
+    success: true,
+    message: "User profile fetched successfully!",
+    data: result,
+  });
+});
+
 const deleteUser = catchAsync(async (req, res) => {
   const user_id = req.user?.id;
   await UserServices.deleteUser(user_id);
@@ -60,6 +70,7 @@ const deleteUser = catchAsync(async (req, res) => {
 
 export const userControllers = {
   createAdmin,
+  getTravelers,
   updateUser,
   getUserProfile,
   deleteUser,

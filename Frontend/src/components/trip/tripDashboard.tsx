@@ -50,16 +50,10 @@ const TripPlanningDashboard: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            {activeTab === 'my-trips' && <MyTripsComponent onTripSelect={setSelectedTrip} />}
+            {activeTab === 'my-trips' && <MyTripsComponent />}
             {activeTab === 'create' && <CreateTripComponent />}
             {activeTab === 'invites' && <TripInvitesComponent />}
           </div>
-          
-          {selectedTrip && activeTab === 'my-trips' && (
-            <div className="lg:col-span-1">
-              <TripDetailsComponent trip={selectedTrip} />
-            </div>
-          )}
         </div>
       </div>
     </div>

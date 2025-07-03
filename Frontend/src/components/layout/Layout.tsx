@@ -50,6 +50,11 @@ export default function Layout() {
           <div className="space-y-2">
             <h2 className="text-2xl font-bold text-slate-800">Loading TravelStory</h2>
             <p className="text-slate-600">Preparing your adventure dashboard...</p>
+            <div className="flex justify-center items-center gap-2 mt-4">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            </div>
           </div>
         </div>
       </div>
@@ -58,47 +63,45 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-      <div className="flex">
-        <Navbar />
-        <main className="flex-1 min-h-screen relative">
-            <button
-              onClick={toggleSidebar}
-              className="fixed top-7 left-6 z-40 items-center justify-center w-10 h-10 rounded-full border border-slate-200 shadow-sm hover:shadow-md hover:ring-2 hover:ring-blue-200 transition-all"
-            > 
-              {user?.profile_picture ? (
-                <img
-                  src={user.profile_picture}
-                  alt={user.name}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
-                    />
-                  </svg>
-                </div>
-              )}
-            </button>
-
-
-          <div className="pb-20 md:pb-0">
-            <Outlet context={{ user }} />
+      <div className="flex h-screen">
+        {/* Navbar with Profile Integration */}
+        <Navbar user={user} onToggleSidebar={toggleSidebar} />
+        
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-y-auto relative md:ml-64 bg-gradient-to-br from-slate-50/50 to-white">
+          {/* Content Container with Enhanced Styling */}
+          <div className="min-h-full pb-20 md:pb-0">
+            {/* Decorative Background Elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-blue-100/20 to-indigo-100/20 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+              <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-purple-100/20 to-pink-100/20 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2"></div>
+            </div>
+            
+            {/* Main Content */}
+            <div className="relative z-10">
+              <Outlet context={{ user }} />
+            </div>
           </div>
         </main>
         
-        {/* Conditional Sidebar */}
+        {/* Sidebar Overlay */}
         {sidebarOpen && (
-          <Sidebar 
-            user={user} 
-            isOpen={sidebarOpen} 
-            onClose={closeSidebar} 
-          />
+          <>
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity duration-300"
+              onClick={closeSidebar}
+            />
+            
+            {/* Sidebar */}
+            <div className="fixed inset-y-0 right-0 z-50 transform transition-transform duration-300 ease-in-out">
+              <Sidebar 
+                user={user} 
+                isOpen={sidebarOpen} 
+                onClose={closeSidebar} 
+              />
+            </div>
+          </>
         )}
       </div>
     </div>

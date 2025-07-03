@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { type TravelPlan } from '../../types';
 import api from '../../services/api';
 import { Calendar, Users, MapPin, DollarSign, Clock, MessageSquare, Plus, Eye, UserPlus, Check, X, Send } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const MyTripsComponent: React.FC<{ onTripSelect: (trip: TravelPlan) => void }> = ({ onTripSelect }) => {
+const MyTripsComponent: React.FC = () => {
   const [trips, setTrips] = useState<TravelPlan[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchMyTrips();
@@ -42,6 +44,10 @@ const MyTripsComponent: React.FC<{ onTripSelect: (trip: TravelPlan) => void }> =
     }
   };
 
+  const handleTripClick = (trip: TravelPlan) => {
+    navigate(`/travel-plans/${trip.id}`);
+  };
+
   if (loading) {
     return <div className="text-center py-8">Loading your trips...</div>;
   }
@@ -65,7 +71,7 @@ const MyTripsComponent: React.FC<{ onTripSelect: (trip: TravelPlan) => void }> =
             <div
               key={trip.id}
               className="bg-white p-6 rounded-lg border hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => onTripSelect(trip)}
+              onClick={() => handleTripClick(trip)}
             >
               <div className="flex justify-between items-start mb-3">
                 <h3 className="text-lg font-medium text-gray-900">{trip.trip_name}</h3>

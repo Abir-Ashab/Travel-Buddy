@@ -230,16 +230,7 @@ async findByUserId(userId: string, page: number = 1, limit: number = 10): Promis
 
   async getUserInvites(userId: string): Promise<any[]> {
     return await this.knex(this.participantsTable)
-      .select(
-        'travel_participants.id',
-        'travel_plan.trip_name',
-        'travel_plan.start_date',
-        'travel_plan.end_date',
-        'travel_participants.status',
-        'travel_participants.created_at',
-        'users.name as creator_name',
-        'locations.name as location_name'
-      )
+      .select("*")
       .join('travel_plan', 'travel_participants.trip_plan_id', 'travel_plan.id')
       .join('users', 'travel_plan.creator_id', 'users.id')
       .join('locations', 'travel_plan.location_id', 'locations.id')

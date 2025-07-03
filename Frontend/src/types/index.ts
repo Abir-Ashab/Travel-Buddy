@@ -96,6 +96,7 @@ export interface TripDetailsResponse extends TravelPlan {
 export interface InviteResponse {
   id: string;
   trip_name: string;
+  trip_plan_id: string,
   creator_name: string;
   location_name: string;
   start_date: Date;

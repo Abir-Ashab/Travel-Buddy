@@ -29,6 +29,11 @@ const getUserProfile = async (userId: string) => {
   return user;
 };
 
+const getTravelers = async () => {
+  const user = await userModel.findTravelers();
+  return user;
+};
+
 const deleteUser = async (userId: string) => {
   await userModel.deleteById(userId);
 };
@@ -37,6 +42,7 @@ export const UserServices = {
   createAdminIntoDB,
   updateUser,
   getUserProfile,
+  getTravelers,
   deleteUser,
   updateUserStatus
 };

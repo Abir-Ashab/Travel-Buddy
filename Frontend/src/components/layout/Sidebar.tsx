@@ -66,7 +66,6 @@ export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
         onClick={onClose} 
       />
       
-      {/* Sidebar */}
       <aside className={`fixed top-0 right-0 z-50 h-full w-80 bg-white shadow-2xl transform transition-all duration-300 ${
         isOpen ? "translate-x-0" : "translate-x-full"
       }`}>
