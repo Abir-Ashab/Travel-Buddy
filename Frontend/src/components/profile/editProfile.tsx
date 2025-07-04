@@ -46,14 +46,12 @@ export default function EditProfile() {
     fetchUserProfile();
   }, []);
 
-  // In your ProfileUpdate component, modify the handleSubmit function:
 const handleSubmit = async (formData: UserProfile) => {
   setLoading(true);
   setError(null);
   setSuccess(false);
 
   try {
-    // Convert string numbers to actual numbers
     const current_latitude = formData.current_latitude !== null 
       ? Number(formData.current_latitude) 
       : null;
@@ -72,8 +70,8 @@ const handleSubmit = async (formData: UserProfile) => {
         ? {
             type: "Point",
             coordinates: [
-              Number(current_longitude), 
-              Number(current_latitude)
+              Number(current_latitude), 
+              Number(current_longitude)
             ]
           } 
         : null
@@ -103,29 +101,25 @@ const handleSubmit = async (formData: UserProfile) => {
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Update Your Profile</h1>
-      
-      {/* Success Message */}
+
       {success && (
         <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
           Profile updated successfully!
         </div>
       )}
       
-      {/* Error Message */}
       {error && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
           {error}
         </div>
       )}
       
-      {/* Profile Form */}
       <ProfileForm 
         initialData={user} 
         onSubmit={handleSubmit} 
         loading={loading}
       />
       
-      {/* Debugging section (remove in production) */}
       <div className="mt-8 p-4 bg-gray-50 rounded-lg">
         <h3 className="font-medium mb-2">Debug Info</h3>
         <details>

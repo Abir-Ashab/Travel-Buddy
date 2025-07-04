@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, Edit, Trash2, MapPin, DollarSign, Calendar, Star, Loader2 } from 'lucide-react';
 import { wishlistApi, type Wishlist } from './wishlistApi';
 import WishlistItemForm from './wishlistItemForm';
+import { useParams } from 'react-router-dom';
 
 interface WishlistItem {
   id: string;
@@ -344,7 +345,6 @@ const WishlistDetails: React.FC<WishlistDetailsProps> = ({
           
           return (
             <div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              {/* Priority Badge */}
               <div className="bg-gray-50 px-4 py-2 border-b">
                 <div className={`flex items-center text-sm font-medium ${priority.color}`}>
                   <Star className="h-4 w-4 mr-1 fill-current" />
@@ -353,13 +353,11 @@ const WishlistDetails: React.FC<WishlistDetailsProps> = ({
               </div>
 
               <div className="p-4">
-                {/* Location Name */}
                 <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
                   <MapPin className="h-5 w-5 mr-2 text-gray-500" />
                   {item.location.name}
                 </h3>
                 
-                {/* Location Details */}
                 <div className="text-sm text-gray-600 mb-3">
                   {item.location.region && (
                     <span className="inline-block bg-gray-100 px-2 py-1 rounded mr-2 mb-1">

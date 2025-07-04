@@ -1,4 +1,3 @@
-// components/wishlists/WishlistItemForm.tsx
 import React, { useState, useEffect } from 'react';
 import { MapPin, DollarSign, Calendar, Star } from 'lucide-react';
 
@@ -131,14 +130,11 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate required fields
+
     if (!formData.location.name.trim()) {
       alert('Location name is required');
       return;
     }
-    
-    // Prepare data for submission
     const submitData: WishlistItemFormData = {
       ...formData,
       notes: formData.notes.trim(),

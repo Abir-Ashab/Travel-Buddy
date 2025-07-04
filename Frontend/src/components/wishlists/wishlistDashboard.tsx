@@ -1,12 +1,13 @@
-// components/wishlists/WishlistDashboard.tsx
 import React, { useState, useEffect } from 'react';
-import { Plus, Heart, Users, Settings, Eye, Share2, Edit, Trash2 } from 'lucide-react';
+import { Plus, Heart, Users, Navigation } from 'lucide-react';
 import { wishlistApi, type Wishlist } from './wishlistApi';
 import CreateWishlist from './createWishlist';
 import WishlistDetails from './wishlistDetails';
+import WishlistCard from './wishlistCard';
+import NearbyWishlistComponent from './NearbyWishlist';
 
 const WishlistDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'my' | 'public'>('my');
+  const [activeTab, setActiveTab] = useState<'my' | 'public' | 'nearby'>('my');
   const [myWishlists, setMyWishlists] = useState<Wishlist[]>([]);
   const [publicWishlists, setPublicWishlists] = useState<Wishlist[]>([]);
   const [selectedWishlist, setSelectedWishlist] = useState<Wishlist | null>(null);
@@ -15,18 +16,20 @@ const WishlistDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadWishlists();
+    if (activeTab === 'my' || activeTab === 'public') {
+      loadWishlists();
+    }
   }, [activeTab]);
 
   const loadWishlists = async () => {
     try {
       setLoading(true);
+      setError(null);
       if (activeTab === 'my') {
         const data = await wishlistApi.getUserWishlists();
         setMyWishlists(data);
-      } else {
+      } else if (activeTab === 'public') {
         const data = await wishlistApi.getPublicWishlists();
-        console.log("public wishlist: ", data);
         setPublicWishlists(data);
       }
     } catch (err) {
@@ -38,17 +41,15 @@ const WishlistDashboard: React.FC = () => {
   };
 
   const handleCreateWishlist = async (data: {
-      name: string;
-      description?: string;
-      grouping_type: 'region' | 'theme' | 'budget' | 'season';
-      isPublic?: boolean;
-    }) => {
+    name: string;
+    description?: string;
+    grouping_type: 'region' | 'theme' | 'budget' | 'season';
+    isPublic?: boolean;
+  }) => {
     try {
       await wishlistApi.createWishlist(data);
       setShowCreateForm(false);
-      if (activeTab === 'my') {
-        loadWishlists();
-      }
+      if (activeTab === 'my') loadWishlists();
     } catch (err) {
       console.error('Failed to create wishlist:', err);
     }
@@ -74,70 +75,10 @@ const WishlistDashboard: React.FC = () => {
     }
   };
 
-  const WishlistCard: React.FC<{ wishlist: Wishlist; showActions?: boolean }> = ({ 
-    wishlist, 
-    showActions = false 
-  }) => (
-    <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h3 className="text-xl font-semibold text-gray-800">{wishlist.name}</h3>
-          {wishlist.description && (
-            <p className="text-gray-600 mt-1">{wishlist.description}</p>
-          )}
-        </div>
-        <div className="flex items-center space-x-2">
-          {wishlist.is_public ? (
-            <Users className="h-5 w-5 text-green-500">
-              <title>Public</title>
-            </Users>
-          ) : (
-            <Heart className="h-5 w-5 text-red-500">
-              <title>Private</title>
-            </Heart>
-          )}
-        </div>
-      </div>
-      
-      <div className="flex justify-between items-center">
-        <span className="text-sm text-gray-500">
-          {wishlist.itemCount || wishlist.items?.length || 0} items
-        </span>
-        <div className="flex space-x-2">
-          <button
-            onClick={() => setSelectedWishlist(wishlist)}
-            className="flex items-center px-3 py-1 text-blue-600 hover:bg-blue-50 rounded"
-          >
-            <Eye className="h-4 w-4 mr-1" />
-            View
-          </button>
-          {showActions && (
-            <>
-              <button
-                onClick={() => handleShareWishlist(wishlist.id)}
-                className="flex items-center px-3 py-1 text-green-600 hover:bg-green-50 rounded"
-              >
-                <Share2 className="h-4 w-4 mr-1" />
-                Share
-              </button>
-              <button
-                onClick={() => handleDeleteWishlist(wishlist.id)}
-                className="flex items-center px-3 py-1 text-red-600 hover:bg-red-50 rounded"
-              >
-                <Trash2 className="h-4 w-4 mr-1" />
-                Delete
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-
   if (selectedWishlist) {
     return (
-      <WishlistDetails 
-        wishlist={selectedWishlist} 
+      <WishlistDetails
+        wishlist={selectedWishlist}
         onBack={() => setSelectedWishlist(null)}
         onUpdate={loadWishlists}
       />
@@ -154,86 +95,106 @@ const WishlistDashboard: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Wishlists</h1>
-        {activeTab === 'my' && (
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Create New Wishlist
-          </button>
-        )}
-      </div>
-
-      {/* Tabs */}
-      <div className="flex space-x-1 mb-6">
-        <button
-          onClick={() => setActiveTab('my')}
-          className={`px-4 py-2 rounded-lg font-medium ${
-            activeTab === 'my'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          My Wishlists
-        </button>
-        <button
-          onClick={() => setActiveTab('public')}
-          className={`px-4 py-2 rounded-lg font-medium ${
-            activeTab === 'public'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          Public Wishlists
-        </button>
-      </div>
-
-      {/* Content */}
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Wishlists</h1>
+              <p className="text-gray-600 mt-1">Discover and organize your dream destinations</p>
+            </div>
+            {activeTab === 'my' && (
+              <button
+                onClick={() => setShowCreateForm(true)}
+                className="flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 shadow-lg transition-all duration-200"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                Create New Wishlist
+              </button>
+            )}
+          </div>
         </div>
-      ) : error ? (
-        <div className="text-center text-red-600 py-8">{error}</div>
-      ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {activeTab === 'my' 
-                  ? myWishlists.map((wishlist) => (
-                      <WishlistCard 
-                        key={wishlist.id} 
-                        wishlist={wishlist} 
-                        showActions={true}
-                      />
-                    ))
-                  : publicWishlists.map((wishlist) => (
-                      <WishlistCard 
-                        key={wishlist.id} 
-                        wishlist={wishlist} 
-                        showActions={false}
-                      />
-                    ))
-                }
-                {((activeTab === 'my' && myWishlists.length === 0) || 
-                  (activeTab === 'public' && publicWishlists.length === 0)) && (
-                  <div className="col-span-full text-center py-12">
+
+        <div className="bg-white rounded-xl shadow-sm p-2 mb-8">
+          <div className="flex space-x-1">
+            {[
+              { tab: 'my', label: 'My Wishlists', Icon: Heart },
+              { tab: 'public', label: 'Public Wishlists', Icon: Users },
+              { tab: 'nearby', label: 'Nearby Wishlists', Icon: Navigation },
+            ].map(({ tab, label, Icon }) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab as any)}
+                className={`flex items-center px-6 py-3 rounded-lg font-medium transition ${
+                  activeTab === tab
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <Icon className="h-5 w-5 mr-2" />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {loading && (activeTab !== 'nearby') ? (
+          <div className="flex justify-center items-center h-64 bg-white rounded-xl shadow-sm">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading wishlists...</p>
+            </div>
+          </div>
+        ) : error && (activeTab !== 'nearby') ? (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
+              onClick={loadWishlists}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : (
+          <div>
+            {activeTab === 'nearby' && (
+              <NearbyWishlistComponent />
+            )}
+
+            {(activeTab === 'my' || activeTab === 'public') && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                {((activeTab === 'my' && myWishlists.length === 0) ||
+                  (activeTab === 'public' && publicWishlists.length === 0)) ? (
+                  <div className="text-center py-16">
                     <Heart className="h-16 w-16 text-gray-300 mx-auto mb-4" />
                     <h3 className="text-xl font-medium text-gray-500 mb-2">
                       {activeTab === 'my' ? 'No wishlists yet' : 'No public wishlists found'}
                     </h3>
-                    <p className="text-gray-400">
-                      {activeTab === 'my' 
+                    <p className="text-gray-400 max-w-md mx-auto">
+                      {activeTab === 'my'
                         ? 'Create your first wishlist to get started!'
-                        : 'Check back later for public wishlists from other travelers.'
-                      }
-                </p>
-            </div>
+                        : 'Check back later for public wishlists or create your own and share!'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {(activeTab === 'my' ? myWishlists : publicWishlists).map((wishlist) => (
+                      <WishlistCard
+                        key={wishlist.id}
+                        wishlist={wishlist}
+                        showActions={activeTab === 'my'}
+                        onView={setSelectedWishlist}
+                        onShare={handleShareWishlist}
+                        onDelete={handleDeleteWishlist}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         )}
       </div>
-      )}
     </div>
   );
 };

@@ -145,15 +145,19 @@ export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
             </div>
           </Link>
 
-          <button className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all duration-200 group">
+          <Link 
+            to="/proximity-settings" 
+            className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all duration-200 group"
+            onClick={onClose}
+          >
             <div className="p-2 bg-slate-100 rounded-xl group-hover:bg-slate-200 transition-colors">
               <FiSettings className="text-slate-600" />
             </div>
             <div className="flex-1 text-left">
-              <div className="font-medium text-slate-800">Settings</div>
+              <div className="font-medium text-slate-800">Proximity Settings</div>
               <div className="text-sm text-slate-500">Preferences & privacy</div>
             </div>
-          </button>
+          </Link>
 
           <button className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all duration-200 group">
             <div className="p-2 bg-amber-100 rounded-xl group-hover:bg-amber-200 transition-colors">
@@ -164,16 +168,6 @@ export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
               <div className="text-sm text-slate-500">Manage alerts</div>
             </div>
           </button>
-
-          {/* <button className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all duration-200 group">
-            <div className="p-2 bg-emerald-100 rounded-xl group-hover:bg-emerald-200 transition-colors">
-              <FiHelpCircle className="text-emerald-600" />
-            </div>
-            <div className="flex-1 text-left">
-              <div className="font-medium text-slate-800">Help & Support</div>
-              <div className="text-sm text-slate-500">Get assistance</div>
-            </div>
-          </button> */}
         </nav>
 
         <div className="mt-auto p-6 border-t border-slate-200/60">

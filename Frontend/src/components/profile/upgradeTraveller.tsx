@@ -35,7 +35,7 @@ const handleSubmit = async (data: any) => {
       proximity_radius_km: data.proximity_radius_km ?? null,
       geom: (data.current_latitude && data.current_longitude) ? {
         type: "Point",
-        coordinates: [data.current_longitude, data.current_latitude]
+        coordinates: [data.current_latitude, data.current_longitude]
       } : null
     };
     console.log("data: ", submitData);

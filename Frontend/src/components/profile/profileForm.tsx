@@ -76,7 +76,6 @@ export default function ProfileForm({
     }
   };
 
-  // Handle location selection from search
   const handleLocationSelect = (latitude: number, longitude: number, displayName: string) => {
     setFormData(prev => ({
       ...prev,
@@ -85,12 +84,11 @@ export default function ProfileForm({
       location_updated_at: new Date().toISOString(),
       geom: {
         type: "Point",
-        coordinates: [longitude, latitude]
+        coordinates: [latitude, longitude]
       }
     }));
   };
 
-  // Manual location change (for fallback)
   const handleLocationChange = (field: 'current_latitude' | 'current_longitude', value: string) => {
     const numValue = value === '' ? null : Number(value);
     
@@ -105,7 +103,7 @@ export default function ProfileForm({
           typeof newData.current_longitude === 'number') {
         newData.geom = {
           type: "Point",
-          coordinates: [newData.current_longitude, newData.current_latitude]
+          coordinates: [newData.current_latitude, newData.current_longitude]
         };
       } else {
         newData.geom = null;
@@ -128,7 +126,7 @@ export default function ProfileForm({
       geom: (formData.current_latitude !== null && formData.current_longitude !== null) 
         ? {
             type: "Point",
-            coordinates: [formData.current_longitude, formData.current_latitude]
+            coordinates: [ formData.current_latitude, formData.current_longitude]
           }
         : null
     };
@@ -139,15 +137,12 @@ export default function ProfileForm({
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">
             {isUpgrade ? 'Complete Your Profile' : 'Edit Profile'}
           </h2>
           <p className="text-gray-600">Fill in your details to connect with fellow travelers</p>
         </div>
-
-        {/* Basic Information */}
         <div className="bg-gray-50 p-6 rounded-lg">
           <h3 className="text-lg font-semibold mb-4 flex items-center">
             <FiUser className="mr-2" /> Basic Information
@@ -227,7 +222,6 @@ export default function ProfileForm({
           </div>
         </div>
 
-        {/* Location Section */}
         <div className="bg-blue-50 p-6 rounded-lg">
           <h3 className="text-lg font-semibold mb-4 flex items-center">
             <FiNavigation className="mr-2" /> Current Location
