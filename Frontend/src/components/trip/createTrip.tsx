@@ -3,6 +3,9 @@ import { useState } from 'react';
 import api from '../../services/api';
 import { type CreateTripRequest } from '../../types';
 import LocationSearch from '../globalFiles/locationSearch';
+import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import {FiUser, FiPlus} from "react-icons/fi";
 
 interface CreateTripModalProps {
   onClose: () => void;
@@ -27,7 +30,21 @@ const CreateTripComponent: React.FC = () => {
     }
   });
 
-  const [loading, setLoading] = useState(false);
+const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState('explorer');
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await api.get("/users/profile");
+        const userRole = response.data.data.role;
+        setRole(userRole)
+      } catch (err) {
+        console.error("Failed to fetch user data:", err);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -114,6 +131,31 @@ const CreateTripComponent: React.FC = () => {
       }
     }));
   };
+
+  if (role === "explorer") {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center">
+        <div className="max-w-md mx-auto px-4 py-12 text-center">
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-200/50 p-8">
+            <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <FiUser className="text-purple-600 text-2xl" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-800 mb-3">Be a Traveler To Create Travel-Plan!</h2>
+            <p className="text-slate-600 mb-6">
+              Upgrade your account to Traveler status to share your adventures and stories with our community.
+            </p>
+            <button
+              className="px-6 py-3 rounded-2xl font-semibold text-white bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 shadow-lg transition-all duration-200"
+            >
+              <Link to="/upgrade">
+                Upgrade Account
+              </Link>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-6 rounded-lg border">

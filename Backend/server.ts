@@ -15,6 +15,7 @@ import {locationRoutes} from "./src/routes/location.route"
 import {proximityRoutes} from "./src/routes/proximity.route"
 import {notificationRoutes} from "./src/routes/notification.route"
 import {tripRoutes} from "./src/routes/trip.route"
+import {mediaRoutes} from "./src/routes/media.route"
 import cors from 'cors';
 
 config(); 
@@ -37,6 +38,7 @@ const startServer = async () => {
     app.use("/api/accomodations", accommodationRoutes);
     app.use("/api/dinings", diningRoutes);
     app.use("/api/attractions", attractionRoutes);
+    app.use("/api/medias", mediaRoutes);
     app.use("/api/wishlists", wishlistRoutes);
     app.use("/api/locations", locationRoutes);
     app.use("/api/proximity", proximityRoutes);

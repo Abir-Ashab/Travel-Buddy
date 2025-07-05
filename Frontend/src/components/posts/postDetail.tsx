@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import MediaDetails from "./mediaDetails"; // Import the MediaDetails component
 import { 
   FiX, 
   FiUser, 
@@ -13,7 +14,9 @@ import {
   FiCoffee, 
   FiMapPin,
   FiArrowLeft,
-  FiLoader
+  FiLoader,
+  FiImage,
+  FiEdit3
 } from "react-icons/fi";
 
 interface PostDetails {
@@ -94,6 +97,7 @@ export default function PostDetails() {
   const [post, setPost] = useState<PostDetails | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showMediaDetails, setShowMediaDetails] = useState(false);
 
   async function fetchPostDetails() {
     if (!id) return;
@@ -193,6 +197,36 @@ export default function PostDetails() {
         {/* Content */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-8 space-y-8">
+            {post.media && post.media.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                  <FiImage className="text-blue-600" />
+                  Media Gallery
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {post.media.map((media, index) => (
+                    <div key={index} className="relative group">
+                      <div className="aspect-square bg-slate-100 rounded-2xl overflow-hidden">
+                        <img
+                          src={media.image_url}
+                          alt={`Media ${index + 1}`}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded-2xl flex items-center justify-center">
+                        <button
+                          onClick={() => window.open(media.image_url, '_blank')}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-2 bg-white rounded-xl text-slate-700 hover:bg-slate-100"
+                        >
+                          <FiImage />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Overview */}
             <div>
               <h2 className="text-2xl font-bold text-slate-800 mb-4">Overview</h2>

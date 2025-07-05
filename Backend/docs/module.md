@@ -40,28 +40,56 @@ export interface UpdateAccommodationRequest {
 }
 
 
-
 <!-- accomodation.route.ts -->
 import { Router } from 'express';
-import { AccommodationController } from "../controllers/accomodation.controller";
-// import { authenticateToken } from '../middleware/auth.middleware';
+import { AccommodationController } from "../controllers/accommodation.controller";
+import { authMiddleware } from "../middlewares/auth.middleware";
+import { USER_Role } from "../interfaces/user.interface";
+import { AccommodationValidations } from "../validations/accommodation.validation";
+import validateRequest from "../middlewares/validateRequest";
 
 const router = Router();
 
-router.get('/post/:postId', AccommodationController.getAccommodationsByPost);
-router.get('/:id', AccommodationController.getAccommodationById);
-router.post('/post/:postId', AccommodationController.createAccommodation);
-router.put('/:id', AccommodationController.updateAccommodation);
-router.delete('/:id', AccommodationController.deleteAccommodation);
+router.get(
+    '/post/:postId',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    AccommodationController.getAccommodationsByPost
+);
+
+router.get(
+    '/:id',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    AccommodationController.getAccommodationById
+);
+
+router.post(
+    '/post/:postId',
+    validateRequest(AccommodationValidations.createAccommodationValidation),
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    AccommodationController.createAccommodation
+);
+
+router.put(
+    '/:id',
+    validateRequest(AccommodationValidations.updateAccommodationValidation),
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    AccommodationController.updateAccommodation
+);
+
+router.delete(
+    '/:id',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    AccommodationController.deleteAccommodation
+);
 
 export { router as accommodationRoutes };
 
 
 <!-- accomodation.controller.ts -->
 import { Request, Response } from 'express';
-import { AccommodationService } from "../services/accomodation.service";
-import { CreateAccommodationRequest, UpdateAccommodationRequest } from "../interfaces/accomodation.interface";
-import { catchAsync } from "../utils/catchAsync";
+import { AccommodationService } from "../services/accommodation.service";
+import { CreateAccommodationRequest, UpdateAccommodationRequest } from "../interfaces/accommodation.interface";
+import { catchAsync } from "../utils/catchAsync.util";
 
 const getAccommodationsByPost = catchAsync(async (req: Request, res: Response) => {
   const { postId } = req.params;
@@ -105,14 +133,7 @@ const createAccommodation = catchAsync(async (req: Request, res: Response) => {
 const updateAccommodation = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const updateData: UpdateAccommodationRequest = req.body;
-  const userId = req.body.user_id;
-
-  // if (!userId) {
-  //   return res.status(401).json({
-  //     success: false,
-  //     message: 'User not authenticated'
-  //   });
-  // }
+  const userId = req.user?.id;
 
   const accommodation = await AccommodationService.updateAccommodation(id, updateData);
 
@@ -132,7 +153,7 @@ const updateAccommodation = catchAsync(async (req: Request, res: Response) => {
 
 const deleteAccommodation = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.body.user_id;
+  const userId = req.user?.id;
 
   // if (!userId) {
   //   return res.status(401).json({
@@ -165,20 +186,13 @@ export const AccommodationController = {
 };
 
 <!-- accomodation.service.ts -->
-import { createAccommodationModel } from "../models/accomodation.model"
-import { createPostModel } from '../models/post.model';
+import { accommodationModel } from "../repositories/accommodation.repository"
+import { postModel } from '../repositories/post.repository';
 import {
   Accommodation,
   CreateAccommodationRequest,
   UpdateAccommodationRequest
-} from "../interfaces/accomodation.interface"
-import KnexConnection from '../database/implementations/knex/KnexConnection';
-
-const knexConnection = new KnexConnection();
-await knexConnection.connect();
-
-const knexInstance = knexConnection.getClient();
-const accommodationModel = createAccommodationModel(knexInstance);
+} from "../interfaces/accommodation.interface"
 
 const getAccommodationsByPost = async (postId: string): Promise<Accommodation[]> => {
   return await accommodationModel.findByPostId(postId);
@@ -190,23 +204,12 @@ const getAccommodationById = async (accommodationId: string): Promise<Accommodat
 
 const createAccommodation = async (
   postId: string,
-//   userId: string,
   accommodationData: CreateAccommodationRequest
 ): Promise<Accommodation> => {
-
-//   const postModel = createPostModel(knexInstance);
-//   const post = await postModel.findById(postId);
-  
-//   if (!post || String(post.user_id) !== String(userId)) {
-//     throw new Error('Post not found or unauthorized');
-//   }
-
-  // Validate rating
   if (accommodationData.rating < 1 || accommodationData.rating > 5) {
     throw new Error('Rating must be between 1 and 5');
   }
 
-  // Validate dates
   const checkIn = new Date(accommodationData.check_in_date);
   const checkOut = new Date(accommodationData.check_out_date);
   
@@ -229,23 +232,15 @@ const createAccommodation = async (
 
 const updateAccommodation = async (
   accommodationId: string,
-  // userId: string,
   updateData: UpdateAccommodationRequest
 ): Promise<Accommodation | null> => {
-  // Verify user owns the post that this accommodation belongs to
   const accommodation = await accommodationModel.findById(accommodationId);
   if (!accommodation) {
     return null;
   }
 
-  const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(accommodation.post_id);
-  
-  // if (!post || String(post.user_id) !== String(userId)) {
-  //   return null;
-  // }
-
-  if (updateData.rating && (updateData.rating < 1 || updateData.rating > 5)) {
+  if (updateData.rating !== undefined && (updateData.rating < 1 || updateData.rating > 5)) {
     throw new Error('Rating must be between 1 and 5');
   }
 
@@ -267,14 +262,7 @@ const deleteAccommodation = async (accommodationId: string): Promise<boolean> =>
   if (!accommodation) {
     return false;
   }
-
-  const postModel = createPostModel(knexInstance);
   const post = await postModel.findById(accommodation.post_id);
-  
-  // if (!post || String(post.user_id) !== String(userId)) {
-  //   return false;
-  // }
-
   return await accommodationModel.delete(accommodationId);
 };
 
@@ -286,14 +274,52 @@ export const AccommodationService = {
   deleteAccommodation
 };
 
-
-<!-- accomodation.model.ts -->
-import { Accommodation } from "../interfaces/accomodation.interface"
+<!-- accomodation.repository.ts -->
+import { Accommodation } from "../interfaces/accommodation.interface";
+import { getConnection } from '../database';
 
 class AccommodationModel {
-  constructor(knex) {
-    this.knex = knex;
-    this.tableName = 'accommodation';
+  private tableName = 'accommodation';
+  
+  private get knex() {
+    const connection = getConnection();
+    if (!connection) {
+      throw new Error('Database connection is undefined');
+    }
+    return connection.getClient!();
+  }
+
+  private async findOrCreateLocation(locationData: {
+    name: string;
+    country?: string;
+    region?: string;
+    latitude: number;
+    longitude: number;
+    timezone?: string;
+  }): Promise<string> {
+    const existingLocation = await this.knex('locations')
+      .where('latitude', locationData.latitude)
+      .andWhere('longitude', locationData.longitude)
+      .first();
+
+    if (existingLocation) {
+      return existingLocation.id;
+    }
+
+    const [newLocation] = await this.knex('locations')
+      .insert({
+        id: this.knex.raw('uuid_generate_v4()'),
+        name: locationData.name,
+        country: locationData.country || null,
+        region: locationData.region || null,
+        latitude: locationData.latitude,
+        longitude: locationData.longitude,
+        timezone: locationData.timezone || 'UTC',
+        created_at: this.knex.fn.now() ,
+      })
+      .returning('*');
+
+    return newLocation.id;
   }
 
   async findByPostId(postId: string): Promise<Accommodation[]> {
@@ -310,20 +336,39 @@ class AccommodationModel {
     return accommodation || null;
   }
 
-  async create(accommodationData: any): Promise<string> {
+  async create(accommodationData: any & { location?: any }): Promise<string> {
+    let locationId = null;
+    if (accommodationData.location) {
+      locationId = await this.findOrCreateLocation(accommodationData.location);
+    }
+
+    const { location, ...accomFields } = accommodationData;
+
     const [accommodation] = await this.knex(this.tableName)
-      .insert(accommodationData)
+      .insert({
+        ...accomFields,
+        location_id: locationId,
+        // created_at: this.knex.fn.now(),
+      })
       .returning('id');
 
     return accommodation.id;
   }
 
-  async update(id: string, updateData: any): Promise<void> {
+  async update(id: string, updateData: any & { location?: any }): Promise<void> {
+    let locationId = null;
+    if (updateData.location) {
+      locationId = await this.findOrCreateLocation(updateData.location);
+    }
+
+    const { location, ...updateFields } = updateData;
+
     await this.knex(this.tableName)
       .where('id', id)
       .update({
-        ...updateData,
-        updated_at: this.knex.fn.now()
+        ...updateFields,
+        ...(locationId ? { location_id: locationId } : {}),
+        updated_at: this.knex.fn.now(),
       });
   }
 
@@ -336,5 +381,4 @@ class AccommodationModel {
   }
 }
 
-export const createAccommodationModel = (knex) => new AccommodationModel(knex);
-export { AccommodationModel };
+export const accommodationModel = new AccommodationModel();

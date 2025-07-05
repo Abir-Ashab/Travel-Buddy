@@ -19,13 +19,15 @@ import {
   FiTruck,
   FiHome,
   FiCamera,
-  FiCoffee
+  FiCoffee,
+  FiImage
 } from "react-icons/fi";
 
 import TransportDetails from "./transportDetails";
 import AccommodationDetails from "./accommodationDetails";
 import AttractionDetails from "./attractionDetails";
 import DiningDetails from "./diningDetails";
+import MediaDetails from "./mediaDetails";
 
 interface PostCreateProps {
   onPostCreated: () => void;
@@ -57,6 +59,7 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
   const [showAccommodationModal, setShowAccommodationModal] = useState(false);
   const [showAttractionModal, setShowAttractionModal] = useState(false);
   const [showDiningModal, setShowDiningModal] = useState(false);
+  const [showMediaModal, setShowMediaModal] = useState(false);
 
   const effortLevels = [
     { value: 1, label: "Very Easy", color: "bg-emerald-100 text-emerald-700", description: "Relaxing pace" },
@@ -210,7 +213,7 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
             
             <div className="border-t border-emerald-200 pt-4">
               <p className="text-emerald-700 text-sm mb-3 font-medium">Want to add more details to your adventure?</p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 <button
                   onClick={() => setShowTransportModal(true)}
                   className="flex items-center gap-2 px-3 py-2 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-colors text-sm font-medium text-emerald-700"
@@ -238,6 +241,13 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
                 >
                   <FiCoffee className="text-xs" />
                   Dining
+                </button>
+                <button
+                  onClick={() => setShowMediaModal(true)}
+                  className="flex items-center gap-2 px-3 py-2 bg-white border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-colors text-sm font-medium text-emerald-700"
+                >
+                  <FiImage className="text-xs" />
+                  Media
                 </button>
               </div>
               <div className="mt-4 flex justify-center">
@@ -528,6 +538,13 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
           <DiningDetails
             postId={createdPostId}
             onClose={() => setShowDiningModal(false)}
+          />
+        )}
+
+        {showMediaModal && createdPostId && (
+          <MediaDetails
+            postId={createdPostId}
+            onClose={() => setShowMediaModal(false)}
           />
         )}
       </div>
