@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { FiHome, FiPlusSquare, FiList, FiMap, FiInfo, FiUser, FiSettings, FiChevronDown } from "react-icons/fi";
+import { FiHome, FiGlobe, FiPlusSquare, FiList, FiMap, FiInfo, FiUser, FiSettings, FiChevronDown } from "react-icons/fi";
 
 interface User {
   name?: string;
@@ -22,6 +22,7 @@ export default function Navbar({ user, onToggleSidebar }: NavbarProps) {
     { path: "/wishlists", icon: <FiList size={20} />, label: "Wishlist", description: "Dream destinations" },
     { path: "/travel-plans", icon: <FiMap size={20} />, label: "Travel Plans", description: "Your itineraries" },
     { path: "/my-posts", icon: <FiInfo size={20} />, label: "My Posts", description: "My posts" },
+    { path: "/travel-places", icon: <FiGlobe size={20} />, label: "Travel Places", description: "Travel Places" }   
   ];
 
   return (
