@@ -70,7 +70,10 @@ class LocationModel {
     const [location] = await this.knex(this.tableName)
       .insert(locationData)
       .returning('id');
-
+          await this.knex.raw(
+      `UPDATE locations SET geom = ST_SetSRID(ST_MakePoint(longitude, latitude), 4326) WHERE id = ?`,
+        [location.id]
+      );
     return location.id;
   }
 

@@ -41,7 +41,10 @@ class DiningModel {
         created_at: this.knex.fn.now(),
       })
       .returning('*');
-
+      await this.knex.raw(
+        `UPDATE locations SET geom = ST_SetSRID(ST_MakePoint(longitude, latitude), 4326) WHERE id = ?`,
+        [newLocation.id]
+      );
     return newLocation.id;
   }
 

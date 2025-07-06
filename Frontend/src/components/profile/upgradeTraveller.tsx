@@ -40,7 +40,7 @@ const handleSubmit = async (data: any) => {
     };
     console.log("data: ", submitData);
     await api.put("/users/profile", submitData);
-    navigate("/posts", { state: { success: "Successfully upgraded to Traveler!" } });
+    navigate("/login", { state: { success: "Successfully upgraded to Traveler!" } });
   } catch (err: any) {
     setError(err.response?.data?.message || "Upgrade failed");
   } finally {
@@ -48,7 +48,7 @@ const handleSubmit = async (data: any) => {
   }
 };
 
-  return (
+return (
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Complete Your Profile To Be a Traveler</h1>
       {error && (
