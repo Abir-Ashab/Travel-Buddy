@@ -1,6 +1,6 @@
-// Update your AllRoutes.tsx
 import { Route, Routes } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
+import AdminLayout from '../components/layout/adminLayout'; // You'll need to create this
 import FrontPage from '../components/globalFiles/frontPage';
 import RegisterPage from '../components/auth/registerPage';
 import LoginPage from '../components/auth/loginPage';
@@ -18,6 +18,8 @@ import TripDetailsPage from '../components/trip/tripDetails';
 import ProximitySettings from '../components/profile/proximitySettings';
 import TravelExplorer from '../components/travelPlace/travelExplorer';
 import SavedLikedPosts from '../components/posts/savedLikedPosts';
+import AdminDashboard from '../components/admin/adminDashboard';
+import ProtectedRoute from '../components/auth/protectedRoute'; // You'll need to create this
 
 export default function AllRoutes() {
   return (
@@ -26,7 +28,8 @@ export default function AllRoutes() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/features" element={<FeaturedPosts />} />
-
+      
+      {/* Regular user routes */}
       <Route element={<Layout />}>
         <Route path="/posts" element={<PostsList />} />
         <Route path="/posts/:id" element={<PostDetails />} /> 
@@ -41,6 +44,17 @@ export default function AllRoutes() {
         <Route path='/proximity-settings' element={<ProximitySettings/>}/>
         <Route path="/travel-places" element={<TravelExplorer />} />
         <Route path="/saved-liked-posts" element={<SavedLikedPosts />} />
+      </Route>
+
+      <Route 
+        path="/admin" 
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<AdminDashboard />} />
       </Route>
     </Routes>
   );

@@ -20,13 +20,10 @@ interface SidebarProps {
 export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    try {
-      localStorage.removeItem("token");
-      navigate("/");
-    } catch (err) {
-      console.error("Logout failed", err);
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
   };
 
   const getRoleBadge = (role?: string) => {

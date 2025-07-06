@@ -6,6 +6,7 @@ const createAdminIntoDB = async (payload: TUser) => {
   const admin = await userModel.create(payload);
   return admin;
 };
+
 const updateUserStatus = async (_id: string, payload: TUser) => {
   const user = await userModel.updateById(_id, payload);
   return user;
@@ -30,6 +31,11 @@ const getUserProfile = async (userId: string) => {
 };
 
 const getTravelers = async () => {
+  const user = await userModel.findUsers();
+  return user;
+};
+
+const getAllUser = async () => {
   const user = await userModel.findTravelers();
   return user;
 };
@@ -43,6 +49,7 @@ export const UserServices = {
   updateUser,
   getUserProfile,
   getTravelers,
+  getAllUser,
   deleteUser,
   updateUserStatus
 };

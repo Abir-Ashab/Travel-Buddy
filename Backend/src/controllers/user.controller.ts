@@ -59,12 +59,22 @@ const getTravelers = catchAsync(async (req, res) => {
 });
 
 const deleteUser = catchAsync(async (req, res) => {
-  const user_id = req.user?.id;
+  const user_id = req.params.id
   await UserServices.deleteUser(user_id);
 
   res.status(200).json({
     success: true,
     message: "User deleted successfully!",
+  });
+});
+
+const getAllUser = catchAsync(async (req, res) => {
+  const result = await UserServices.getAllUser();
+
+  res.status(200).json({
+    success: true,
+    message: "all users!",
+    data: result,
   });
 });
 
@@ -74,5 +84,6 @@ export const userControllers = {
   updateUser,
   getUserProfile,
   deleteUser,
+  getAllUser,
   updateUserStatus
 };

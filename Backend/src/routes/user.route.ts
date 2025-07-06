@@ -51,10 +51,16 @@ router.get(
   userControllers.getTravelers
 );
 
+router.get(
+  "/all",
+  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN),
+  userControllers.getAllUser
+);
+
 router.delete(
-  "/profile",
+  "/:id",
   authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN),
   userControllers.deleteUser
-);
+)
 
 export const UserRoutes = router;

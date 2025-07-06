@@ -90,6 +90,11 @@ class User {
       .where({ role: 'traveler' });
   }
 
+  async findUsers() {
+    return this.knex(this.tableName)
+      .select('*')
+  }
+
   async deleteById(id : string) {
     console.log("Deleting user with ID:", id);
     return this.knex(this.tableName)
