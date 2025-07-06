@@ -435,7 +435,12 @@ class PostModel {
       .where('post_likes.user_id', userId)
       .where('posts.status', PostStatus.PUBLISHED);
 
-    const [{ count }] = await query.clone().count('posts.id as count');
+    const [{ count }] = await this.knex('post_likes')
+      .countDistinct('post_id as count')
+      .where('post_likes.user_id', userId)
+      .join('posts', 'posts.id', 'post_likes.post_id')
+      .where('posts.status', PostStatus.PUBLISHED);
+
     const total = parseInt(count.toString());
 
     const posts = await query
@@ -446,7 +451,12 @@ class PostModel {
     return { posts, total };
   }
 
-  async findUserSavedPosts(userId: string, limit: number, offset: number): Promise<{ posts: Post[]; total: number }> {
+
+  async findUserSavedPosts(
+    userId: string,
+    limit: number,
+    offset: number
+  ): Promise<{ posts: Post[]; total: number }> {
     const query = this.knex(this.tableName)
       .select([
         'posts.*',
@@ -462,7 +472,12 @@ class PostModel {
       .where('post_saves.user_id', userId)
       .where('posts.status', PostStatus.PUBLISHED);
 
-    const [{ count }] = await query.clone().count('posts.id as count');
+    const [{ count }] = await this.knex('post_saves')
+      .countDistinct('post_id as count')
+      .where('post_saves.user_id', userId)
+      .join('posts', 'posts.id', 'post_saves.post_id')
+      .where('posts.status', PostStatus.PUBLISHED);
+
     const total = parseInt(count.toString());
 
     const posts = await query
@@ -472,6 +487,7 @@ class PostModel {
 
     return { posts, total };
   }
+
 
   async findUserReport(postId: string, reporterId: string): Promise<any> {
     return await this.knex(this.reportsTableName)

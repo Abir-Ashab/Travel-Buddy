@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FiUser, FiLogOut, FiX, FiSettings, FiBell, FiHelpCircle } from "react-icons/fi";
+import { FiUser, FiLogOut, FiX, FiSettings, FiBell, FiHelpCircle, FiAward } from "react-icons/fi";
 import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
 
@@ -159,7 +159,21 @@ export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
             </div>
           </Link>
 
-          <button className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all duration-200 group">
+          <Link 
+            to="/saved-liked-posts" 
+            className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all duration-200 group"
+            onClick={onClose}
+          >
+            <div className="p-2 bg-slate-100 rounded-xl group-hover:bg-slate-200 transition-colors">
+              <FiAward className="text-slate-600" />
+            </div>
+            <div className="flex-1 text-left">
+              <div className="font-medium text-slate-800">Saved & Liked</div>
+              <div className="text-sm text-slate-500"> Your saved & liked posts</div>
+            </div>
+          </Link>
+
+          {/* <button className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all duration-200 group">
             <div className="p-2 bg-amber-100 rounded-xl group-hover:bg-amber-200 transition-colors">
               <FiBell className="text-amber-600" />
             </div>
@@ -167,7 +181,7 @@ export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
               <div className="font-medium text-slate-800">Notifications</div>
               <div className="text-sm text-slate-500">Manage alerts</div>
             </div>
-          </button>
+          </button> */}
         </nav>
 
         <div className="mt-auto p-6 border-t border-slate-200/60">

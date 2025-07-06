@@ -4,7 +4,6 @@ import api from "../../services/api";
 import { 
   FiAlertCircle, 
   FiUser, 
-  FiZap, 
   FiCalendar, 
   FiDollarSign, 
   FiTrendingUp, 
@@ -13,7 +12,9 @@ import {
   FiBookmark,
   FiFlag,
   FiShare2,
-  FiMoreVertical
+  FiMoreVertical,
+  FiGrid,
+  FiList
 } from "react-icons/fi";
 import { useOutletContext } from "react-router-dom";
 
@@ -39,27 +40,54 @@ interface User {
   email?: string;
 }
 
-export default function PostsList() {
+type TabType = 'saved' | 'liked';
+
+export default function SavedLikedPosts() {
   const navigate = useNavigate();
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [activeTab, setActiveTab] = useState<TabType>('saved');
+  const [savedPosts, setSavedPosts] = useState<Post[]>([]);
+  const [likedPosts, setLikedPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState<string | null>(null);
   const { user } = useOutletContext<{ user: User | null }>();
 
-  async function fetchPosts() {
+  const fetchSavedPosts = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/posts");
-      setPosts(res.data.data.posts);
+      const res = await api.get("/posts/user/saved-posts");
+      setSavedPosts(res.data.data.posts || []);
     } catch (err) {
-      console.error("Failed to fetch posts", err);
-      setError("Failed to load posts. Please try again.");
+      console.error("Failed to fetch saved posts", err);
+      setError("Failed to load saved posts. Please try again.");
     } finally {
       setLoading(false);
     }
-  }
+  };
+
+  const fetchLikedPosts = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get("/posts/user/liked-posts");
+      setLikedPosts(res.data.data.posts || []);
+    } catch (err) {
+      console.error("Failed to fetch liked posts", err);
+      setError("Failed to load liked posts. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    setError(null);
+    if (tab === 'saved' && savedPosts.length === 0) {
+      fetchSavedPosts();
+    } else if (tab === 'liked' && likedPosts.length === 0) {
+      fetchLikedPosts();
+    }
+  };
 
   const handleLike = async (postId: string, isLiked: boolean) => {
     if (!user) return;
@@ -72,19 +100,25 @@ export default function PostsList() {
         await api.post(`/posts/${postId}/like`);
       }
       
-      setPosts(prevPosts =>
-        prevPosts.map(post =>
-          post.id === postId
-            ? {
-                ...post,
-                is_liked: !isLiked,
-                likes_count: isLiked 
-                  ? (post.likes_count || 0) - 1 
-                  : (post.likes_count || 0) + 1
-              }
-            : post
-        )
-      );
+      // Update both arrays
+      const updatePost = (post: Post) => 
+        post.id === postId
+          ? {
+              ...post,
+              is_liked: !isLiked,
+              likes_count: isLiked 
+                ? (post.likes_count || 0) - 1 
+                : (post.likes_count || 0) + 1
+            }
+          : post;
+
+      setSavedPosts(prev => prev.map(updatePost));
+      setLikedPosts(prev => prev.map(updatePost));
+      
+      // If unliking from liked tab, remove from array
+      if (activeTab === 'liked' && isLiked) {
+        setLikedPosts(prev => prev.filter(post => post.id !== postId));
+      }
     } catch (err) {
       console.error("Failed to toggle like", err);
       setError("Failed to update like status. Please try again.");
@@ -104,13 +138,19 @@ export default function PostsList() {
         await api.post(`/posts/${postId}/save`);
       }
       
-      setPosts(prevPosts =>
-        prevPosts.map(post =>
-          post.id === postId
-            ? { ...post, is_saved: !isSaved }
-            : post
-        )
-      );
+      // Update both arrays
+      const updatePost = (post: Post) => 
+        post.id === postId
+          ? { ...post, is_saved: !isSaved }
+          : post;
+
+      setSavedPosts(prev => prev.map(updatePost));
+      setLikedPosts(prev => prev.map(updatePost));
+      
+      // If unsaving from saved tab, remove from array
+      if (activeTab === 'saved' && isSaved) {
+        setSavedPosts(prev => prev.filter(post => post.id !== postId));
+      }
     } catch (err) {
       console.error("Failed to toggle save", err);
       setError("Failed to update save status. Please try again.");
@@ -124,11 +164,9 @@ export default function PostsList() {
     try {
       await api.post(`/posts/${postId}/share`);
       
-      // Copy to clipboard
       const postUrl = `${window.location.origin}/posts/${postId}`;
       await navigator.clipboard.writeText(postUrl);
       
-      // Show success message (you might want to use a toast library)
       alert("Post link copied to clipboard!");
     } catch (err) {
       console.error("Failed to share post", err);
@@ -147,7 +185,7 @@ export default function PostsList() {
     const reportReasons = [
       { value: 'spam', label: 'Spam' },
       { value: 'inappropriate', label: 'Inappropriate Content' },
-      { value: 'false_info', label: 'False Information' }
+      { value: 'false_info', label: 'False Information' },
     ];
 
     const reason = prompt(
@@ -219,9 +257,23 @@ export default function PostsList() {
     return `${(count / 1000000).toFixed(1)}m`;
   };
 
+  const getCurrentPosts = () => {
+    return activeTab === 'saved' ? savedPosts : likedPosts;
+  };
+
+  const getCurrentPostsCount = () => {
+    return activeTab === 'saved' ? savedPosts.length : likedPosts.length;
+  };
+
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    
+    // Fetch saved posts by default
+    fetchSavedPosts();
+  }, [user, navigate]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -230,6 +282,10 @@ export default function PostsList() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       <div className="max-w-6xl mx-auto px-4 py-8">
@@ -237,17 +293,57 @@ export default function PostsList() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                Travel Stories
+                Saved & Liked
               </h1>
-              <p className="text-slate-600 mt-2">Discover amazing adventures from fellow travelers</p>
+              <p className="text-slate-600 mt-2">Your saved and liked travel stories</p>
             </div>
             <div className="flex items-center gap-4">
               <div className="px-4 py-2 bg-white rounded-full shadow-sm border border-slate-200">
                 <span className="text-sm font-medium text-slate-600">
-                  {posts.length} {posts.length === 1 ? "story" : "stories"}
+                  {getCurrentPostsCount()} {getCurrentPostsCount() === 1 ? "story" : "stories"}
                 </span>
               </div>
             </div>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex items-center gap-2 bg-white rounded-2xl p-2 shadow-sm border border-slate-200">
+            <button
+              onClick={() => handleTabChange('saved')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+                activeTab === 'saved'
+                  ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg'
+                  : 'text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <FiBookmark className="text-sm" />
+              Saved Posts
+              <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                activeTab === 'saved' 
+                  ? 'bg-white/20 text-white' 
+                  : 'bg-slate-100 text-slate-600'
+              }`}>
+                {savedPosts.length}
+              </span>
+            </button>
+            <button
+              onClick={() => handleTabChange('liked')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+                activeTab === 'liked'
+                  ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg'
+                  : 'text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <FiHeart className="text-sm" />
+              Liked Posts
+              <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                activeTab === 'liked' 
+                  ? 'bg-white/20 text-white' 
+                  : 'bg-slate-100 text-slate-600'
+              }`}>
+                {likedPosts.length}
+              </span>
+            </button>
           </div>
         </div>
 
@@ -257,7 +353,9 @@ export default function PostsList() {
               <div className="w-16 h-16 border-4 border-slate-200 rounded-full animate-spin"></div>
               <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
             </div>
-            <p className="text-slate-600 mt-4 font-medium">Loading amazing stories...</p>
+            <p className="text-slate-600 mt-4 font-medium">
+              Loading your {activeTab} stories...
+            </p>
           </div>
         ) : error ? (
           <div className="max-w-md mx-auto">
@@ -270,7 +368,7 @@ export default function PostsList() {
               <button 
                 onClick={() => {
                   setError(null);
-                  fetchPosts();
+                  activeTab === 'saved' ? fetchSavedPosts() : fetchLikedPosts();
                 }}
                 className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
               >
@@ -278,26 +376,42 @@ export default function PostsList() {
               </button>
             </div>
           </div>
-        ) : posts.length === 0 ? (
+        ) : getCurrentPosts().length === 0 ? (
           <div className="max-w-md mx-auto text-center py-20">
-            <div className="w-24 h-24 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
-              <FiZap className="text-blue-500 text-3xl" />
+            <div className={`w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 ${
+              activeTab === 'saved' 
+                ? 'bg-gradient-to-br from-blue-50 to-indigo-100' 
+                : 'bg-gradient-to-br from-red-50 to-pink-100'
+            }`}>
+              {activeTab === 'saved' ? (
+                <FiBookmark className="text-blue-500 text-3xl" />
+              ) : (
+                <FiHeart className="text-red-500 text-3xl" />
+              )}
             </div>
-            <h3 className="text-2xl font-bold text-slate-800 mb-3">No stories yet</h3>
+            <h3 className="text-2xl font-bold text-slate-800 mb-3">
+              No {activeTab} stories yet
+            </h3>
             <p className="text-slate-600 mb-6 leading-relaxed">
-              {user?.role === "traveler"
-                ? "Ready to share your first adventure? Your story could inspire someone's next journey!"
-                : "Upgrade to Traveler status to share your incredible experiences with the community"}
+              {activeTab === 'saved' 
+                ? "Start saving stories that inspire you! Use the bookmark button on any post to save it here."
+                : "Like posts that resonate with you! Use the heart button on any post to add it to your liked collection."
+              }
             </p>
-            {user?.role === "traveler" && (
-              <button className="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl">
-                Share Your Story
-              </button>
-            )}
+            <button 
+              onClick={() => navigate('/posts')}
+              className={`px-8 py-3 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl ${
+                activeTab === 'saved'
+                  ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700'
+                  : 'bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700'
+              }`}
+            >
+              Explore Stories
+            </button>
           </div>
         ) : (
           <div className="grid gap-6 md:gap-8">
-            {posts.map((post, index) => (
+            {getCurrentPosts().map((post, index) => (
               <article
                 key={post.id}
                 className="group bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200/50"
@@ -415,34 +529,30 @@ export default function PostsList() {
 
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                     <div className="flex items-center gap-4">
-                      {user && (
-                        <>
-                          <button
-                            onClick={() => handleLike(post.id, post.is_liked || false)}
-                            disabled={actionLoading === `like-${post.id}`}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 ${
-                              post.is_liked
-                                ? "bg-red-50 text-red-600 border border-red-200"
-                                : "bg-slate-50 text-slate-600 border border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
-                            }`}
-                          >
-                            <FiHeart className={`text-sm ${post.is_liked ? "fill-current" : ""}`} />
-                            <span>{formatLikesCount(post.likes_count)}</span>
-                          </button>
-                          <button
-                            onClick={() => handleSave(post.id, post.is_saved || false)}
-                            disabled={actionLoading === `save-${post.id}`}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 ${
-                              post.is_saved
-                                ? "bg-blue-50 text-blue-600 border border-blue-200"
-                                : "bg-slate-50 text-slate-600 border border-slate-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
-                            }`}
-                          >
-                            <FiBookmark className={`text-sm ${post.is_saved ? "fill-current" : ""}`} />
-                            <span>{post.is_saved ? "Saved" : "Save"}</span>
-                          </button>
-                        </>
-                      )}
+                      <button
+                        onClick={() => handleLike(post.id, post.is_liked || false)}
+                        disabled={actionLoading === `like-${post.id}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 ${
+                          post.is_liked
+                            ? "bg-red-50 text-red-600 border border-red-200"
+                            : "bg-slate-50 text-slate-600 border border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                        }`}
+                      >
+                        <FiHeart className={`text-sm ${post.is_liked ? "fill-current" : ""}`} />
+                        <span>{formatLikesCount(post.likes_count)}</span>
+                      </button>
+                      <button
+                        onClick={() => handleSave(post.id, post.is_saved || false)}
+                        disabled={actionLoading === `save-${post.id}`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 disabled:opacity-50 ${
+                          post.is_saved
+                            ? "bg-blue-50 text-blue-600 border border-blue-200"
+                            : "bg-slate-50 text-slate-600 border border-slate-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
+                        }`}
+                      >
+                        <FiBookmark className={`text-sm ${post.is_saved ? "fill-current" : ""}`} />
+                        <span>{post.is_saved ? "Saved" : "Save"}</span>
+                      </button>
                     </div>
                     <button
                       onClick={() => handleViewDetails(post.id)}

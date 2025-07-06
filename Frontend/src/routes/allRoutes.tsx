@@ -17,6 +17,7 @@ import TripPlansDashboard from '../components/trip/tripDashboard';
 import TripDetailsPage from '../components/trip/tripDetails';
 import ProximitySettings from '../components/profile/proximitySettings';
 import TravelExplorer from '../components/travelPlace/travelExplorer';
+import SavedLikedPosts from '../components/posts/savedLikedPosts';
 
 export default function AllRoutes() {
   return (
@@ -39,6 +40,7 @@ export default function AllRoutes() {
         <Route path="/travel-plans/:id" element={<TripDetailsPage />} />
         <Route path='/proximity-settings' element={<ProximitySettings/>}/>
         <Route path="/travel-places" element={<TravelExplorer />} />
+        <Route path="/saved-liked-posts" element={<SavedLikedPosts />} />
       </Route>
     </Routes>
   );
