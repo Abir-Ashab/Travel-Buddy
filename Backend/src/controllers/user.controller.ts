@@ -2,8 +2,7 @@ import { catchAsync } from '../utils/catchAsync.util';
 import { UserServices } from "../services/user.services";
 
 const createAdmin = catchAsync(async (req, res) => {
-  const user_id = req.user?.id;
-  const result = await UserServices.createAdminIntoDB({ ...req.body, user_id });
+  const result = await UserServices.createAdminIntoDB({ ...req.body});
 
   res.status(200).json({
     success: true,

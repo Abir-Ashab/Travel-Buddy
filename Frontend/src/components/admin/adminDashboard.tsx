@@ -12,7 +12,9 @@ import {
   Edit,
   Trash2,
   Star,
-  Flag
+  Flag,
+  Plus,
+  X
 } from 'lucide-react';
 import api from '../../services/api';
 
@@ -76,8 +78,15 @@ interface Report {
   };
 }
 
+interface CreateAdminForm {
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+}
+
 const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'posts' | 'reports'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'posts' | 'reports' | 'create-admin'>('overview');
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
     totalPosts: 0,
@@ -88,11 +97,22 @@ const AdminDashboard: React.FC = () => {
     featuredPosts: 0,
     pendingReports: 0
   });
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  
+  // Create admin form state
+  const [showCreateAdminForm, setShowCreateAdminForm] = useState(false);
+  const [createAdminForm, setCreateAdminForm] = useState<CreateAdminForm>({
+    name: '',
+    email: '',
+    password: '',
+    role: 'admin'
+  });
+  const [createAdminLoading, setCreateAdminLoading] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -194,6 +214,44 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+
+  const handleCreateAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreateAdminLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const response = await api.post('/users/create-admin', {
+        name: createAdminForm.name,
+        email: createAdminForm.email,
+        password: createAdminForm.password,
+        role: createAdminForm.role
+      });
+
+      if (response.data.success) {
+        setSuccess('Admin created successfully!');
+        setCreateAdminForm({
+          name: '',
+          email: '',
+          password: '',
+          role: 'admin'
+        });
+        setShowCreateAdminForm(false);
+        
+        // Refresh users list
+        await fetchUsers();
+      } else {
+        setError(response.data.message || 'Failed to create admin');
+      }
+    } catch (error: any) {
+      console.error('Error creating admin:', error);
+      setError(error.response?.data?.message || 'Failed to create admin');
+    } finally {
+      setCreateAdminLoading(false);
+    }
+  };
+
   const handleUserStatusToggle = async (userId: number, currentStatus: string) => {
     try {
       const newStatus = currentStatus === 'active' ? 'blocked' : 'active';
@@ -206,7 +264,7 @@ const AdminDashboard: React.FC = () => {
         setUsers(users.map(user => 
           user.id === userId ? { ...user, status: newStatus } : user
         ));
-        await fetchUsers(); // Refresh stats
+        await fetchUsers();
       }
     } catch (error) {
       console.error('Error updating user status:', error);
@@ -222,7 +280,7 @@ const AdminDashboard: React.FC = () => {
         setPosts(posts.map(post => 
           post.id === postId ? { ...post, is_featured: !currentFeatured } : post
         ));
-        await fetchPosts(); // Refresh stats
+        await fetchPosts();
       }
     } catch (error) {
       console.error('Error toggling post feature:', error);
@@ -238,7 +296,7 @@ const AdminDashboard: React.FC = () => {
       
       if (response.data.success) {
         setPosts(posts.filter(post => post.id !== postId));
-        await fetchPosts(); // Refresh stats
+        await fetchPosts();
       }
     } catch (error) {
       console.error('Error deleting post:', error);
@@ -263,7 +321,7 @@ const AdminDashboard: React.FC = () => {
         } else {
           setReports(reports.filter(report => report.id !== reportId));
         }
-        await fetchReports(); // Refresh stats
+        await fetchReports();
       }
     } catch (error) {
       console.error(`Error ${action}ing report:`, error);
@@ -300,6 +358,15 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Success Message */}
+      {success && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
+          {success}
+          <button onClick={() => setSuccess(null)} className="float-right">×</button>
+        </div>
+      )}
+
+      {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
           {error}
@@ -318,7 +385,7 @@ const AdminDashboard: React.FC = () => {
               { key: 'users', label: 'Users', icon: Users },
               { key: 'posts', label: 'Posts', icon: FileText },
               { key: 'reports', label: 'Reports', icon: AlertTriangle },
-            //   { key: 'locations', label: 'Locations', icon: MapPin }
+              { key: 'create-admin', label: 'Create Admin', icon: Plus }
             ].map(tab => (
               <button
                 key={tab.key}
@@ -550,9 +617,133 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
         )}
+
+        {activeTab === 'create-admin' && (
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-white shadow rounded-lg">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h2 className="text-lg font-medium text-gray-900">Create New Admin</h2>
+                <p className="text-sm text-gray-500 mt-1">Add a new administrator to the system</p>
+              </div>
+              
+              <form onSubmit={handleCreateAdmin} className="p-6 space-y-6">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    value={createAdminForm.name}
+                    onChange={(e) => setCreateAdminForm({ ...createAdminForm, name: e.target.value })}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter Full Name"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                    Email
+                  </label>
+                  <input
+                    type="text"
+                    id="email"
+                    value={createAdminForm.email}
+                    onChange={(e) => setCreateAdminForm({ ...createAdminForm, email: e.target.value })}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter email address"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    value={createAdminForm.password}
+                    onChange={(e) => setCreateAdminForm({ ...createAdminForm, password: e.target.value })}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter password"
+                    required
+                    minLength={6}
+                  />
+                  <p className="mt-1 text-sm text-gray-500">Password must be at least 6 characters long</p>
+                </div>
+
+                <div>
+                  <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                    Role
+                  </label>
+                  <select
+                    id="role"
+                    value={createAdminForm.role}
+                    onChange={(e) => setCreateAdminForm({ ...createAdminForm, role: e.target.value })}
+                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="admin">Admin</option>
+                    <option value="super_admin">Super Admin</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center justify-between pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCreateAdminForm({
+                        name: '',
+                        email: '',
+                        password: '',
+                        role: 'admin'
+                      });
+                    }}
+                    className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    Clear Form
+                  </button>
+                  
+                  <button
+                    type="submit"
+                    disabled={createAdminLoading}
+                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  >
+                    {createAdminLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create Admin
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Example Request Body */}
+            <div className="mt-6 bg-gray-50 rounded-lg p-4">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">API Request Preview</h3>
+              <pre className="text-xs text-gray-600 bg-white p-3 rounded border overflow-x-auto">
+                {JSON.stringify({
+                  name: createAdminForm.name || "Boss",
+                  email: createAdminForm.email || "boss.admin@gmail.com", 
+                  password: createAdminForm.password || "niloy@123",
+                  role: createAdminForm.role || "admin"
+                }, null, 2)}
+              </pre>
+              <p className="text-xs text-gray-500 mt-2">
+                <strong>Endpoint:</strong> POST /users/create-admin
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default AdminDashboard;
+export default AdminDashboard; 

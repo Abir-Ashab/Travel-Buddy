@@ -27,10 +27,12 @@ export default function Navbar({ user, onToggleSidebar }: NavbarProps) {
 
   return (
     <>
-      <nav className="hidden md:flex md:flex-col md:w-64 md:min-h-screen bg-white border-r border-slate-200/60 shadow-sm fixed left-0 top-0 z-30">
-        <div className="flex flex-col h-full">
-          <div className="p-6 border-b border-slate-100">
-            <div className="flex items-center gap-3 mb-6">
+      {/* Desktop Sidebar */}
+      <nav className="hidden md:flex md:flex-col md:w-64 h-screen bg-white border-r border-slate-200/60 shadow-sm fixed left-0 top-0 z-30">
+        <div className="flex flex-col h-full max-h-screen">
+          {/* Header - Fixed */}
+          <div className="flex-shrink-0 p-6 border-b border-slate-100">
+            <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <img src="compass.png" alt="" />
               </div>
@@ -41,7 +43,8 @@ export default function Navbar({ user, onToggleSidebar }: NavbarProps) {
             </div>
           </div>
 
-          <div className="flex-1 p-6 overflow-y-auto">
+          {/* Navigation Items */}
+          <div className="flex-1 p-6">
             <div className="space-y-2">
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
@@ -62,12 +65,12 @@ export default function Navbar({ user, onToggleSidebar }: NavbarProps) {
                     }`}>
                       {item.icon}
                     </div>
-                    <div className="flex-1">
-                      <div className="font-semibold">{item.label}</div>
-                      <div className="text-xs text-slate-500">{item.description}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold truncate">{item.label}</div>
+                      <div className="text-xs text-slate-500 truncate">{item.description}</div>
                     </div>
                     {isActive && (
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse flex-shrink-0"></div>
                     )}
                   </Link>
                 );
@@ -75,12 +78,13 @@ export default function Navbar({ user, onToggleSidebar }: NavbarProps) {
             </div>
           </div>
 
-          <div className="p-6 border-t border-slate-100">
+          {/* User Profile - Fixed */}
+          <div className="flex-shrink-0 p-6 border-t border-slate-100">
             <button
               onClick={onToggleSidebar}
               className="w-full flex items-center gap-3 p-4 rounded-2xl bg-gradient-to-r from-slate-50 to-slate-100 hover:from-slate-100 hover:to-slate-200 transition-all duration-300 hover:shadow-md group"
             >
-              <div className="relative">
+              <div className="relative flex-shrink-0">
                 {user?.profile_picture ? (
                   <img
                     src={user.profile_picture}
@@ -94,7 +98,7 @@ export default function Navbar({ user, onToggleSidebar }: NavbarProps) {
                 )}
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
               </div>
-              <div className="flex-1 text-left">
+              <div className="flex-1 text-left min-w-0">
                 <div className="font-semibold text-slate-800 truncate">
                   {user?.name || "Guest User"}
                 </div>
@@ -102,14 +106,15 @@ export default function Navbar({ user, onToggleSidebar }: NavbarProps) {
                   {user?.email || "guest@example.com"}
                 </div>
               </div>
-              <FiChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-all duration-300 group-hover:rotate-180" />
+              <FiChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-all duration-300 group-hover:rotate-180 flex-shrink-0" />
             </button>
           </div>
         </div>
       </nav>
 
+      {/* Mobile Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200/60 shadow-2xl">
-        <div className="flex justify-around items-center py-2">
+        <div className="flex justify-around items-center py-2 px-2">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
