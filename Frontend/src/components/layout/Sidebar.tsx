@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FiUser, FiLogOut, FiX, FiSettings, FiBell, FiHelpCircle, FiAward } from "react-icons/fi";
 import api from "../../services/api";
@@ -11,6 +11,13 @@ interface User {
   profile_picture?: string;
 }
 
+interface UserStats {
+  total_stories: number;
+  total_likes: number;
+  total_saved: number;
+  membership: string
+}
+
 interface SidebarProps {
   user: User | null;
   isOpen: boolean;
@@ -19,6 +26,62 @@ interface SidebarProps {
 
 export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
   const navigate = useNavigate();
+  const [userStats, setUserStats] = useState<UserStats>({
+    total_stories: 0,
+    total_likes: 0,
+    total_saved: 0,
+    membership: ''
+  });
+  const [statsLoading, setStatsLoading] = useState(false);
+
+  const fetchUserStats = async () => {
+    if (!user) return;
+    
+    setStatsLoading(true);
+    try {
+
+      const member = await api.get('/users/profile')
+      const membership = member.data.data.created_at;
+      const membershipDate = new Date(membership);
+      const formattedDate = membershipDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+      const statsResponse = await api.get('/posts');
+      const stats = statsResponse.data.data.posts;
+      const storiesCount = stats.length;
+      
+      const savedResponse = await api.get('/posts/user/saved-posts');
+      const savedCount = savedResponse.data.data.posts?.length || 0;
+     
+      const likedResponse = await api.get('/posts/user/liked-posts');
+      const likedCount = likedResponse.data.data.posts?.length || 0;
+      
+      setUserStats({
+        total_stories: storiesCount,
+        total_likes: likedCount,
+        total_saved: savedCount, 
+        membership: formattedDate
+      });
+    } catch (error) {
+      console.error('Failed to fetch user stats:', error);
+      setUserStats({
+        total_stories: 0,
+        total_likes: 0,
+        total_saved: 0,
+        membership: ''
+      });
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user && isOpen) {
+      fetchUserStats();
+    }
+  }, [user, isOpen]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -52,6 +115,12 @@ export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
         <span>{config.label}</span>
       </div>
     );
+  };
+
+  const formatCount = (count: number) => {
+    if (count < 1000) return count.toString();
+    if (count < 1000000) return `${(count / 1000).toFixed(1)}k`;
+    return `${(count / 1000000).toFixed(1)}m`;
   };
 
   return (
@@ -104,7 +173,7 @@ export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
               {getRoleBadge(user?.role)}
               <div className="text-right">
                 <p className="text-xs text-slate-500">Member since</p>
-                <p className="text-sm font-medium text-slate-700">Jan 2024</p>
+                <p className="text-sm font-medium text-slate-700">{userStats.membership}</p>
               </div>
             </div>
           </div>
@@ -113,15 +182,33 @@ export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
         <div className="p-6 border-b border-slate-200/60">
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-800">12</div>
+              <div className="text-2xl font-bold text-slate-800">
+                {statsLoading ? (
+                  <div className="w-8 h-8 border-2 border-slate-300 border-t-blue-500 rounded-full animate-spin mx-auto"></div>
+                ) : (
+                  formatCount(userStats.total_stories)
+                )}
+              </div>
               <div className="text-xs text-slate-500">Stories</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-800">45</div>
-              <div className="text-xs text-slate-500">Likes</div>
+              <div className="text-2xl font-bold text-slate-800">
+                {statsLoading ? (
+                  <div className="w-8 h-8 border-2 border-slate-300 border-t-red-500 rounded-full animate-spin mx-auto"></div>
+                ) : (
+                  formatCount(userStats.total_likes)
+                )}
+              </div>
+              <div className="text-xs text-slate-500">Liked</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-800">8</div>
+              <div className="text-2xl font-bold text-slate-800">
+                {statsLoading ? (
+                  <div className="w-8 h-8 border-2 border-slate-300 border-t-emerald-500 rounded-full animate-spin mx-auto"></div>
+                ) : (
+                  formatCount(userStats.total_saved)
+                )}
+              </div>
               <div className="text-xs text-slate-500">Saved</div>
             </div>
           </div>
@@ -166,19 +253,15 @@ export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
             </div>
             <div className="flex-1 text-left">
               <div className="font-medium text-slate-800">Saved & Liked</div>
-              <div className="text-sm text-slate-500"> Your saved & liked posts</div>
+              <div className="text-sm text-slate-500">
+                {statsLoading ? (
+                  "Loading..."
+                ) : (
+                  `${userStats.total_saved} saved, ${userStats.total_likes} liked`
+                )}
+              </div>
             </div>
           </Link>
-
-          {/* <button className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-all duration-200 group">
-            <div className="p-2 bg-amber-100 rounded-xl group-hover:bg-amber-200 transition-colors">
-              <FiBell className="text-amber-600" />
-            </div>
-            <div className="flex-1 text-left">
-              <div className="font-medium text-slate-800">Notifications</div>
-              <div className="text-sm text-slate-500">Manage alerts</div>
-            </div>
-          </button> */}
         </nav>
 
         <div className="mt-auto p-6 border-t border-slate-200/60">

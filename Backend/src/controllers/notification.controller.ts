@@ -25,7 +25,9 @@ const getNotificationsByUser = catchAsync(async (req: Request, res: Response) =>
 });
 
 const getNotificationById = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id  = req.user?.id;
+  console.log("user id: ", id);
+  
   const notification = await NotificationService.getNotificationById(id);
 
   if (!notification) {
@@ -43,7 +45,8 @@ const getNotificationById = catchAsync(async (req: Request, res: Response) => {
 
 const createNotification = catchAsync(async (req: Request, res: Response) => {
   const notificationData: CreateNotificationRequest = req.body;
-
+  const user_id = req.user?.id;
+  notificationData.user_id = user_id;
   const notificationId = await NotificationService.createNotification(notificationData);
 
   res.status(201).json({

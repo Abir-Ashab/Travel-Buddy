@@ -9,7 +9,7 @@ const router = Router();
 
 const roles = [USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER];
 
-router.get('/user/:userId', authMiddleware(...roles), NotificationController.getNotificationsByUser);
+router.get('/user', authMiddleware(...roles), NotificationController.getNotificationsByUser);
 router.get('/:id', authMiddleware(...roles), NotificationController.getNotificationById);
 router.post(
     '/',

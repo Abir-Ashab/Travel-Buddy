@@ -20,7 +20,7 @@ import TravelExplorer from '../components/travelPlace/travelExplorer';
 import SavedLikedPosts from '../components/posts/savedLikedPosts';
 import AdminDashboard from '../components/admin/adminDashboard';
 import ProtectedRoute from '../components/auth/protectedRoute'; // You'll need to create this
-
+import Notifications from '../components/notifications/fetchNotification';
 export default function AllRoutes() {
   return (
     <Routes>
@@ -39,6 +39,7 @@ export default function AllRoutes() {
         <Route path="/upgrade" element={<UpgradeTraveler />} />
         <Route path='/edit-profile' element={<EditProfile/>}/>
         <Route path="/wishlists" element={<WishlistDashboard />} />
+        <Route path="/notifications" element={<Notifications />} />
         <Route path="/travel-plans" element={<TripPlansDashboard />} />
         <Route path="/travel-plans/:id" element={<TripDetailsPage />} />
         <Route path='/proximity-settings' element={<ProximitySettings/>}/>

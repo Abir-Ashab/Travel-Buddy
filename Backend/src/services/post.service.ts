@@ -1,4 +1,6 @@
 import { postModel } from '../repositories/post.repository';
+import { userModel } from '../repositories/user.repository';
+import { notificationModel } from '../repositories/notification.repository';
 import {
   Post,
   CreatePostRequest,
@@ -74,6 +76,7 @@ const likePost = async (postId: string, userId: string): Promise<{ message: stri
   if (!post) {
     throw new Error('Post not found');
   }
+  
   const existingLike = await postModel.findLike(postId, userId);
   if (existingLike) {
     return {
@@ -81,8 +84,32 @@ const likePost = async (postId: string, userId: string): Promise<{ message: stri
       likes_count: post.likes_count
     };
   }
+  
   await postModel.createLike(postId, userId);
   const updatedPost = await postModel.incrementLikesCount(postId);
+  
+  // Create notification (with error handling)
+  if (post.user_id.toString() !== userId.toString()) {
+    try {
+      const liker = await userModel.findById(userId);
+      
+      await notificationModel.create({
+        user_id: post.user_id,
+        title: 'New Like!',
+        message: `${liker.name || 'Someone'} liked your post "${post.title}"`,
+        type: 'like',
+        metadata: {
+          post_id: postId,
+          liker_id: userId,
+          liker_name: liker.name || 'Unknown',
+          post_title: post.title
+        },
+      });
+    } catch (notificationError) {
+      console.error('Failed to create notification:', notificationError);
+    }
+  }
+  
   return {
     message: 'Post liked successfully',
     likes_count: updatedPost.likes_count

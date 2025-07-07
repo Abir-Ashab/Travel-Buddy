@@ -123,12 +123,10 @@ export default function PostsList() {
     setActionLoading(`share-${postId}`);
     try {
       await api.post(`/posts/${postId}/share`);
-      
-      // Copy to clipboard
+
       const postUrl = `${window.location.origin}/posts/${postId}`;
       await navigator.clipboard.writeText(postUrl);
-      
-      // Show success message (you might want to use a toast library)
+
       alert("Post link copied to clipboard!");
     } catch (err) {
       console.error("Failed to share post", err);

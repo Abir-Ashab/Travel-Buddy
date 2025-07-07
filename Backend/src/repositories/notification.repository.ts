@@ -2,7 +2,7 @@ import { Notification, CreateNotificationRequest, UpdateNotificationRequest } fr
 import { getConnection } from "../database";
 
 class NotificationModel {
-  private tableName = 'locations';
+  private tableName = 'notifications';
   
   private get knex() {
     const connection = getConnection();
