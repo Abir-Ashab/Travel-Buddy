@@ -60,15 +60,24 @@ const WishlistDetails: React.FC<WishlistDetailsProps> = ({
   const [initialLoading, setInitialLoading] = useState(!initialWishlist);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch wishlist data if not provided or if we only have an ID
+  const refreshWishlist = async () => {
+    if (!wishlistId && !wishlist?.id) return;
+    
+    try {
+      setError(null);
+      const id = wishlistId || wishlist?.id;
+      const fetchedWishlist = await wishlistApi.getWishlistById(id!);
+      setWishlist(fetchedWishlist);
+      setItems(fetchedWishlist.items || []);
+    } catch (err) {
+      console.error('Failed to refresh wishlist:', err);
+      setError('Failed to refresh wishlist. Please try again.');
+    }
+  };
+
   useEffect(() => {
     const fetchWishlist = async () => {
-      if (initialWishlist && initialWishlist.items) {
-        setItems(initialWishlist.items);
-        setInitialLoading(false);
-        return;
-      }
-
+      // If no wishlist ID available, show error
       if (!wishlistId && !initialWishlist?.id) {
         setError('No wishlist ID provided');
         setInitialLoading(false);
@@ -90,8 +99,9 @@ const WishlistDetails: React.FC<WishlistDetailsProps> = ({
       }
     };
 
+    // Always fetch from API to get latest data
     fetchWishlist();
-  }, [initialWishlist, wishlistId]);
+  }, [wishlistId, initialWishlist?.id]);
 
   const handleAddItem = async (formData: WishlistItemFormData) => {
     if (!wishlist) return;
@@ -117,9 +127,26 @@ const WishlistDetails: React.FC<WishlistDetailsProps> = ({
       };
 
       const newItem = await wishlistApi.addWishlistItem(wishlist.id, apiPayload);
-      setItems(prev => [...prev, newItem]);
+      
+      // Update items state optimistically
+      setItems(prev => {
+        const updatedItems = [...prev, newItem];
+        console.log('Items updated:', updatedItems);
+        return updatedItems;
+      });
+      
+      // Update wishlist state to reflect the new item
+      setWishlist(prev => prev ? {
+        ...prev,
+        items: [...(prev.items || []), newItem]
+      } : null);
+      
       setShowAddForm(false);
-      onUpdate(); // Notify parent of update
+      
+      // Refresh from server to ensure consistency
+      await refreshWishlist();
+      
+      onUpdate();
     } catch (error) {
       console.error('Failed to add item:', error);
       setError('Failed to add item. Please try again.');
@@ -152,11 +179,26 @@ const WishlistDetails: React.FC<WishlistDetailsProps> = ({
       };
 
       const updatedItem = await wishlistApi.updateWishlistItem(editingItem.id, apiPayload);
+      
+      // Update items state optimistically
       setItems(prev => prev.map(item => 
         item.id === editingItem.id ? updatedItem : item
       ));
+      
+      // Update wishlist state
+      setWishlist(prev => prev ? {
+        ...prev,
+        items: prev.items?.map(item => 
+          item.id === editingItem.id ? updatedItem : item
+        )
+      } : null);
+      
       setEditingItem(null);
-      onUpdate(); // Notify parent of update
+      
+      // Refresh from server to ensure consistency
+      await refreshWishlist();
+      
+      onUpdate(); 
     } catch (error) {
       console.error('Failed to update item:', error);
       setError('Failed to update item. Please try again.');
@@ -172,8 +214,20 @@ const WishlistDetails: React.FC<WishlistDetailsProps> = ({
       setLoading(true);
       setError(null);
       await wishlistApi.deleteWishlistItem(itemId);
+      
+      // Update items state optimistically
       setItems(prev => prev.filter(item => item.id !== itemId));
-      onUpdate(); // Notify parent of update
+      
+      // Update wishlist state
+      setWishlist(prev => prev ? {
+        ...prev,
+        items: prev.items?.filter(item => item.id !== itemId)
+      } : null);
+      
+      // Refresh from server to ensure consistency
+      await refreshWishlist();
+      
+      onUpdate();
     } catch (error) {
       console.error('Failed to delete item:', error);
       setError('Failed to delete item. Please try again.');
@@ -270,7 +324,6 @@ const WishlistDetails: React.FC<WishlistDetailsProps> = ({
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Error banner */}
       {error && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-red-700 text-sm">{error}</p>
@@ -355,26 +408,22 @@ const WishlistDetails: React.FC<WishlistDetailsProps> = ({
               <div className="p-4">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
                   <MapPin className="h-5 w-5 mr-2 text-gray-500" />
-                  {item.location.name}
+                  {item.location?.name || ''}
                 </h3>
                 
                 <div className="text-sm text-gray-600 mb-3">
-                  {item.location.region && (
+                  {item.location?.region && (
                     <span className="inline-block bg-gray-100 px-2 py-1 rounded mr-2 mb-1">
                       {item.location.region}
                     </span>
                   )}
                   <span className="inline-block bg-gray-100 px-2 py-1 rounded mr-2 mb-1">
-                    {item.location.country}
+                    {item.location?.country || ''}
                   </span>
                 </div>
-
-                {/* Notes */}
                 {item.notes && (
                   <p className="text-gray-600 text-sm mb-3 line-clamp-3">{item.notes}</p>
                 )}
-                
-                {/* Details */}
                 <div className="space-y-2 mb-4">
                   {item.estimated_budget && (
                     <div className="flex items-center text-sm text-green-600 font-medium">
@@ -403,8 +452,6 @@ const WishlistDetails: React.FC<WishlistDetailsProps> = ({
                     </div>
                   )}
                 </div>
-
-                {/* Actions */}
                 <div className="flex justify-end space-x-2 pt-3 border-t">
                   <button
                     onClick={() => setEditingItem(item)}

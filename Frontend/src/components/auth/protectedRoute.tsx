@@ -24,8 +24,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
 
   const user = getUserData();
   const token = getToken();
-  console.log("user: ", user);
-  console.log("token: ", token)
   
   if (!token || !user) {
     return <Navigate to="/login" state={{ from: location }} replace />;

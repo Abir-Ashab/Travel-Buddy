@@ -37,10 +37,6 @@ const updateUserProfileValidation = z.object({
     current_latitude: z.number().nullable().optional(),
     current_longitude: z.number().nullable().optional(),
     location_updated_at: z.string().nullable().optional(),
-    geom: z.object({
-      type: z.string().optional(),
-      coordinates: z.array(z.number()).optional(),
-    }).nullable().optional(),
   }),
 });
 

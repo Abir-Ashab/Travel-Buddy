@@ -219,25 +219,22 @@ const NearbyWishlistComponent: React.FC = () => {
     }
   };
 
-const handleAddToWishlist = async (wishlistId: string, item: WishlistItem) => {
-  // Helper function to extract date in YYYY-MM-DD format
+const handleAddToWishlist = async (wishlistId: string, item: any) => {
   const formatDateForAPI = (dateString: string): string => {
     try {
       const date = new Date(dateString);
-      return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
+      return date.toISOString().split('T')[0]; 
     } catch (error) {
       console.error('Error formatting date:', error);
-      return dateString.split('T')[0]; // Fallback: just split on 'T'
+      return dateString.split('T')[0]; 
     }
   };
-
-  // Use the data from the backend response to create the wishlist item
-  const wishlistItemData: WishlistItemFormData = {
+  console.log("item is: ", item);
+  
+  const wishlistItemData: any = {
     priority_level: item.priority_level,
     notes: item.notes,
-    // Convert estimated_budget to number or empty string
     estimated_budget: item.estimated_budget !== null && item.estimated_budget !== undefined ? Number(item.estimated_budget) : "",
-    // Format dates to YYYY-MM-DD
     preferred_start_date: formatDateForAPI(item.preferred_start_date),
     preferred_end_date: formatDateForAPI(item.preferred_end_date),
     location: {
@@ -249,7 +246,7 @@ const handleAddToWishlist = async (wishlistId: string, item: WishlistItem) => {
       timezone: item.location.timezone
     }
   };
-
+  console.log("final item: ", wishlistItemData);
   await wishlistApi.addWishlistItem(wishlistId, wishlistItemData);
 };
 

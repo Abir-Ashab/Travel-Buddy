@@ -13,7 +13,8 @@ import {
   FiBookmark,
   FiFlag,
   FiShare2,
-  FiMoreVertical
+  FiMoreVertical,
+  FiImage
 } from "react-icons/fi";
 import { useOutletContext } from "react-router-dom";
 
@@ -31,6 +32,8 @@ interface Post {
   is_liked?: boolean;
   is_saved?: boolean;
   is_featured?: boolean;
+  featured_image?: string;
+  image_gallery?: string[];
 }
 
 interface User {
@@ -46,13 +49,32 @@ export default function PostsList() {
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState<string | null>(null);
+  const [imageLoadErrors, setImageLoadErrors] = useState<Set<string>>(new Set());
   const { user } = useOutletContext<{ user: User | null }>();
+
+  const generateTravelImage = (postId: string, index: number = 0) => {
+    const travelCategories = [
+      'travel', 'landscape', 'city', 'beach', 'mountain', 'forest', 
+      'architecture', 'culture', 'food', 'adventure', 'nature', 'sunset'
+    ];
+    const category = travelCategories[Math.floor(Math.random() * travelCategories.length)];
+    return `https://picsum.photos/600/400?random=${postId}-${index}&${category}`;
+  };
+
+  const generateImageGallery = (postId: string, count: number = 3) => {
+    return Array.from({ length: count }, (_, i) => generateTravelImage(postId, i + 1));
+  };
 
   async function fetchPosts() {
     setLoading(true);
     try {
       const res = await api.get("/posts");
-      setPosts(res.data.data.posts);
+      const postsWithImages = res.data.data.posts.map((post: Post) => ({
+        ...post,
+        featured_image: generateTravelImage(post.id),
+        image_gallery: generateImageGallery(post.id, Math.floor(Math.random() * 4) + 2)
+      }));
+      setPosts(postsWithImages);
     } catch (err) {
       console.error("Failed to fetch posts", err);
       setError("Failed to load posts. Please try again.");
@@ -60,6 +82,10 @@ export default function PostsList() {
       setLoading(false);
     }
   }
+
+  const handleImageError = (imageUrl: string) => {
+    setImageLoadErrors(prev => new Set(prev).add(imageUrl));
+  };
 
   const handleLike = async (postId: string, isLiked: boolean) => {
     if (!user) return;
@@ -158,7 +184,7 @@ export default function PostsList() {
 
     const reasonIndex = parseInt(reason) - 1;
     if (reasonIndex < 0 || reasonIndex >= reportReasons.length) {
-      alert("Please enter a valid number between 1 and 4.");
+      alert("Please enter a valid number between 1 and 3.");
       return;
     }
 
@@ -221,7 +247,6 @@ export default function PostsList() {
     fetchPosts();
   }, []);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = () => setShowDropdown(null);
     document.addEventListener("click", handleClickOutside);
@@ -230,8 +255,8 @@ export default function PostsList() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="mb-8">
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="flex items-center gap-4 mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
@@ -304,6 +329,71 @@ export default function PostsList() {
                   animation: 'fadeInUp 0.6s ease-out forwards'
                 }}
               >
+                {/* Featured Image Section */}
+                <div className="relative h-64 md:h-80 overflow-hidden">
+                  {post.featured_image && !imageLoadErrors.has(post.featured_image) ? (
+                    <img
+                      src={post.featured_image}
+                      alt={post.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={() => handleImageError(post.featured_image!)}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
+                      <FiImage className="text-slate-400 text-4xl" />
+                    </div>
+                  )}
+                  
+                  {/* Image Gallery Preview */}
+                  {post.image_gallery && post.image_gallery.length > 0 && (
+                    <div className="absolute bottom-4 left-4 flex gap-2">
+                      {post.image_gallery.slice(0, 3).map((img, imgIndex) => (
+                        <div
+                          key={imgIndex}
+                          className="w-12 h-12 rounded-lg overflow-hidden border-2 border-white shadow-sm opacity-80 hover:opacity-100 transition-opacity"
+                        >
+                          {!imageLoadErrors.has(img) ? (
+                            <img
+                              src={img}
+                              alt={`Gallery ${imgIndex + 1}`}
+                              className="w-full h-full object-cover"
+                              onError={() => handleImageError(img)}
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-slate-200 flex items-center justify-center">
+                              <FiImage className="text-slate-400 text-xs" />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      {post.image_gallery.length > 3 && (
+                        <div className="w-12 h-12 rounded-lg bg-black bg-opacity-50 flex items-center justify-center text-white text-xs font-bold border-2 border-white">
+                          +{post.image_gallery.length - 3}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Featured Badge */}
+                  {post.is_featured && (
+                    <div className="absolute top-4 left-4">
+                      <span className="px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs font-bold rounded-full shadow-lg">
+                        FEATURED
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Cost Badge */}
+                  {post.total_cost && (
+                    <div className="absolute top-4 right-4">
+                      <div className="flex items-center gap-1 px-3 py-1 bg-white bg-opacity-90 rounded-full shadow-lg">
+                        <FiDollarSign className="text-emerald-600 text-sm" />
+                        <span className="font-bold text-emerald-700">${post.total_cost}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className="p-8">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
@@ -324,11 +414,6 @@ export default function PostsList() {
                       <div>
                         <div className="flex items-center gap-2">
                           <p className="font-semibold text-slate-800">{post.user_name || "Anonymous Traveler"}</p>
-                          {post.is_featured && (
-                            <span className="px-2 py-1 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs font-bold rounded-full">
-                              FEATURED
-                            </span>
-                          )}
                         </div>
                         {post.created_at && (
                           <div className="flex items-center gap-1 text-slate-500">
@@ -338,48 +423,40 @@ export default function PostsList() {
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      {post.total_cost && (
-                        <div className="flex items-center gap-1 px-4 py-2 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-full border border-emerald-200">
-                          <FiDollarSign className="text-emerald-600 text-sm" />
-                          <span className="font-bold text-emerald-700">${post.total_cost}</span>
+                    <div className="relative">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowDropdown(showDropdown === post.id ? null : post.id);
+                        }}
+                        className="p-2 rounded-full hover:bg-slate-100 transition-colors"
+                      >
+                        <FiMoreVertical className="text-slate-500" />
+                      </button>
+                      {showDropdown === post.id && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-10">
+                          <div className="py-2">
+                            <button
+                              onClick={() => handleShare(post.id)}
+                              disabled={actionLoading === `share-${post.id}`}
+                              className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-slate-50 transition-colors disabled:opacity-50"
+                            >
+                              <FiShare2 className="text-slate-500" />
+                              <span className="text-slate-700">Share</span>
+                            </button>
+                            {user && (user.role === "admin" || user.role === "traveler") && (
+                              <button
+                                onClick={() => handleReport(post.id)}
+                                disabled={actionLoading === `report-${post.id}`}
+                                className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-red-50 transition-colors disabled:opacity-50"
+                              >
+                                <FiFlag className="text-red-500" />
+                                <span className="text-red-700">Report</span>
+                              </button>
+                            )}
+                          </div>
                         </div>
                       )}
-                      <div className="relative">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowDropdown(showDropdown === post.id ? null : post.id);
-                          }}
-                          className="p-2 rounded-full hover:bg-slate-100 transition-colors"
-                        >
-                          <FiMoreVertical className="text-slate-500" />
-                        </button>
-                        {showDropdown === post.id && (
-                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-10">
-                            <div className="py-2">
-                              <button
-                                onClick={() => handleShare(post.id)}
-                                disabled={actionLoading === `share-${post.id}`}
-                                className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-slate-50 transition-colors disabled:opacity-50"
-                              >
-                                <FiShare2 className="text-slate-500" />
-                                <span className="text-slate-700">Share</span>
-                              </button>
-                              {user && (user.role === "admin" || user.role === "traveler") && (
-                                <button
-                                  onClick={() => handleReport(post.id)}
-                                  disabled={actionLoading === `report-${post.id}`}
-                                  className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-red-50 transition-colors disabled:opacity-50"
-                                >
-                                  <FiFlag className="text-red-500" />
-                                  <span className="text-red-700">Report</span>
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
                     </div>
                   </div>
 
@@ -451,8 +528,6 @@ export default function PostsList() {
                     </button>
                   </div>
                 </div>
-
-                {/* Hover Effect Bar */}
                 <div className="h-1 bg-gradient-to-r from-blue-500 to-indigo-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
               </article>
             ))}

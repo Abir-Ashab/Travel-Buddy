@@ -2,10 +2,11 @@ import bcryptjs from "bcryptjs";
 import config from "../config";
 import { USER_STATUS } from "../interfaces/user.interface";
 import { getConnection } from "../database";
+import { profile } from "console";
 
 class User {
   private tableName = 'users';
-  
+
   private get knex() {
     const connection = getConnection();
     if (!connection) {
@@ -42,9 +43,12 @@ class User {
     
     if (!includePassword) {
       query.select('*').select(this.knex.raw('NULL as password'));
-    }
-    
+    }   
     return query.first();
+  }
+
+  async createProfilePicture(mediaUrl: string): Promise<void> {
+    await this.knex(this.tableName).insert({profile_picture: mediaUrl});
   }
 
   async findByEmailWithPassword(email: string) {
@@ -55,18 +59,46 @@ class User {
 
   async updateById(id: string, updateData: Record<string, any>) {
     const userId = id;
+    
     if (updateData.password) {
       updateData.password = await bcryptjs.hash(updateData.password, Number(config.salt_round));
       updateData.passwordChangedAt = new Date();
     }
 
+    const hasLocationUpdate = updateData.current_latitude !== undefined || 
+                            updateData.current_longitude !== undefined;
+
+    if (hasLocationUpdate) {
+      if (updateData.current_latitude !== null && updateData.current_longitude !== null) {
+        const lat = parseFloat(updateData.current_latitude);
+        const lng = parseFloat(updateData.current_longitude);
+        
+        if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+          throw new Error('Invalid coordinates provided');
+        }
+      }
+      
+      updateData.location_updated_at = new Date();
+    }
+    const { geom, ...dataWithoutGeom } = updateData;
+
     const [updatedUser] = await this.knex(this.tableName)
       .where({ id: userId })
       .update({
-        ...updateData,
+        ...dataWithoutGeom,
         updated_at: new Date()
       })
       .returning('*');
+
+    if (hasLocationUpdate && updatedUser && 
+        updatedUser.current_latitude !== null && 
+        updatedUser.current_longitude !== null) {  
+        await this.knex.raw(
+          `UPDATE ${this.tableName} SET geom = ST_SetSRID(ST_MakePoint(?, ?), 4326)::geography WHERE id = ?`,
+          [updatedUser.current_longitude, updatedUser.current_latitude, userId]
+        );
+    }
+
     if (updatedUser) {
       const { password, ...userWithoutPassword } = updatedUser;
       return userWithoutPassword;

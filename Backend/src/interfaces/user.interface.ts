@@ -15,6 +15,7 @@ export type TUser = {
   role: typeof USER_Role[keyof typeof USER_Role];
   email: string;
   password: string;
+  profile_picture: string
   status: typeof USER_STATUS[keyof typeof USER_STATUS];
   passwordChangedAt?: Date;
 };

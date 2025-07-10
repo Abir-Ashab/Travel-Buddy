@@ -1,9 +1,7 @@
-// migrations/proximity_settings.js
 export async function up(knex) {
   await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
   await knex.raw('CREATE EXTENSION IF NOT EXISTS postgis');
 
-  // Create proximity settings table
   await knex.schema.createTable('proximity_settings', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
     table.uuid('user_id').references('id').inTable('users').onDelete('CASCADE').unique();
@@ -32,11 +30,9 @@ export async function up(knex) {
     });
   }
 
-  // Create indexes for spatial queries
   await knex.raw(`CREATE INDEX IF NOT EXISTS idx_users_current_location ON users USING GIST (geom)`);
   await knex.raw(`CREATE INDEX IF NOT EXISTS idx_locations_geom ON locations USING GIST (geom)`);
   
-  // Create trigger to update geom when location changes
   await knex.raw(`
     CREATE OR REPLACE FUNCTION update_user_geom()
     RETURNS TRIGGER AS $$
@@ -57,7 +53,6 @@ export async function up(knex) {
       EXECUTE FUNCTION update_user_geom();
   `);
 
-  // Update existing records
   await knex.raw(`
     UPDATE users
     SET geom = ST_SetSRID(ST_MakePoint(current_longitude, current_latitude), 4326)

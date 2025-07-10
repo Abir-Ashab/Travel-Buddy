@@ -36,7 +36,6 @@ export default function LocationSearch({
         setIsOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -115,7 +114,6 @@ export default function LocationSearch({
         const { latitude, longitude } = position.coords;
         
         try {
-          // Reverse geocoding to get address
           const response = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=en`
           );

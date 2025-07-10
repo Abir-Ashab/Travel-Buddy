@@ -1,11 +1,10 @@
-// components/travelPlans/TripInvites.tsx
 import { useEffect, useState } from 'react';
 import { type InviteResponse } from '../../types';
 import api from '../../services/api';
 import { Calendar, Users, MapPin, DollarSign, Clock, MessageSquare, Plus, Eye, UserPlus, Check, X, Send } from 'lucide-react';
 
 const TripInvitesComponent: React.FC = () => {
-  const [invites, setInvites] = useState<InviteResponse[]>([]);
+  const [invites, setInvites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

@@ -75,7 +75,6 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
         const response = await api.get("/users/profile");
         const userRole = response.data.data.role;
         const userId = response.data.data.id;
-        console.log("user role: ", userRole)
         setRole(userRole)
         setID(userId)
       } catch (err) {
@@ -95,9 +94,6 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
 
     try {
       const userId = id; 
-      const userRole = role;
-      console.log("user role: ", userRole)
-      console.log("id: ", id)
       const response = await api.post("/posts", {
         title,
         description,

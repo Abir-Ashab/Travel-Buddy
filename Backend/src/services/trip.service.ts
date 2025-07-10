@@ -1,4 +1,6 @@
 import { tripModel } from "../repositories/trip.repository";
+import { notificationModel } from "../repositories/notification.repository";
+import { userModel } from "../repositories/user.repository";
 import {
   TravelPlan,
   TravelParticipant,
@@ -160,7 +162,7 @@ const inviteParticipants = async (
   tripId: string,
   userId: string,
   inviteData: InviteParticipantsRequest
-): Promise<void> => {
+): Promise<{ message: string; invited_count: number }> => {
   const isCreator = await tripModel.isUserCreator(tripId, userId);
   if (!isCreator) {
     throw new Error('Only trip creator can invite participants');
@@ -173,13 +175,15 @@ const inviteParticipants = async (
 
   const currentCount = await tripModel.getParticipantCount(tripId);
   const newTotalCount = currentCount + inviteData.user_ids.length;
-  
+
   if (newTotalCount > trip.max_participants) {
-    throw new Error(`Cannot invite ${inviteData.user_ids.length} users. Would exceed maximum participants limit.`);
+    throw new Error(
+      `Cannot invite ${inviteData.user_ids.length} users. Would exceed maximum participants limit.`
+    );
   }
 
   const existingParticipants = await tripModel.getParticipants(tripId);
-  const existingUserIds = existingParticipants.map(p => p.user_id);
+  const existingUserIds = existingParticipants.map(p => p.user_id.toString());
   const newUserIds = inviteData.user_ids.filter(id => !existingUserIds.includes(id));
 
   if (newUserIds.length === 0) {
@@ -187,7 +191,38 @@ const inviteParticipants = async (
   }
 
   await tripModel.addParticipants(tripId, newUserIds);
+
+  // Create notifications for new participants
+  for (const invitedUserId of newUserIds) {
+    if (invitedUserId.toString() === userId.toString()) {
+      continue; // Don't notify the creator if they somehow invited themselves
+    }
+
+    try {
+      const inviter = await userModel.findById(userId);
+
+      await notificationModel.create({
+        user_id: invitedUserId,
+        title: 'Trip Invitation!',
+        message: `${inviter.name || 'Someone'} invited you to join the trip"`,
+        type: 'trip_invite',
+        metadata: {
+          trip_id: tripId,
+          inviter_id: userId,
+          inviter_name: inviter.name || 'Unknown',
+        },
+      });
+    } catch (notificationError) {
+      console.error(`Failed to create invitation notification for user ${invitedUserId}:`, notificationError);
+    }
+  }
+
+  return {
+    message: 'Participants invited successfully',
+    invited_count: newUserIds.length
+  };
 };
+
 
 const updateParticipantStatus = async (
   tripId: string,

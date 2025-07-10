@@ -1,10 +1,10 @@
 import { z } from 'zod';
-const triggerTypes = z.enum(['wishlist_location', 'trip_participant', 'featured_post', 'attraction', 'accommodation', 'dining']);
+const triggerTypes = z.enum(['nearby_wishlist_location', 'trip_participant', 'featured_post', 'attraction', 'accommodation', 'dining']);
 
 const createProximitySettingsValidation = z.object({
   body: z.object({
     user_id: z.string().uuid("Invalid user ID"),
-    proximity_radius_km: z.number().min(0.1).max(100, "Radius must be between 0.1 and 100 km").optional(),
+    proximity_radius_km: z.number().optional(),
     enable_wishlist_alerts: z.boolean().optional(),
     enable_trip_participant_alerts: z.boolean().optional(),
     enable_featured_post_alerts: z.boolean().optional(),

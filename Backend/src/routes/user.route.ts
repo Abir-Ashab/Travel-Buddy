@@ -5,6 +5,7 @@ import { USER_Role } from "../interfaces/user.interface";
 import { userControllers } from "../controllers/user.controller";
 import { UserValidations } from "../validations/user.validation";
 import { PostController } from '../controllers/post.controller';
+import { uploadMiddleware } from "../middlewares/upload.middleware";
 
 const router = express.Router();
 
@@ -34,10 +35,12 @@ router.put(
 
 router.put(
   "/profile",
-  validateRequest(UserValidations.updateUserProfileValidation),
   authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+  uploadMiddleware.single('image'), 
+  // validateRequest(UserValidations.updateUserProfileValidation),
   userControllers.updateUser
 );
+
 
 router.get(
   "/profile",
@@ -47,7 +50,7 @@ router.get(
 
 router.get(
   "/travelers",
-  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+  // authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
   userControllers.getTravelers
 );
 

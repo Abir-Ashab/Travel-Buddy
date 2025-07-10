@@ -7,7 +7,7 @@ export async function up(knex) {
     table.uuid('target_user_id').nullable();
     table.uuid('location_id').notNullable();
     table.enum('trigger_type', [
-      'wishlist_location', 
+      'nearby_wishlist_location', 
       'trip_participant', 
       'featured_post'
     ]).notNullable();

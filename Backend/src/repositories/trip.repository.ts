@@ -44,6 +44,11 @@ class TripModel {
         created_at: this.knex.fn.now(),
       })
       .returning('*');
+    
+      await this.knex.raw(
+        `UPDATE locations SET geom = ST_SetSRID(ST_MakePoint(latitude, longitude), 4326) WHERE id = ?`,
+        [newLocation.id]
+      );
 
     return newLocation.id;
   }
@@ -230,7 +235,15 @@ async findByUserId(userId: string, page: number = 1, limit: number = 10): Promis
 
   async getUserInvites(userId: string): Promise<any[]> {
     return await this.knex(this.participantsTable)
-      .select("*")
+      .select(
+        'travel_participants.id as participant_id',
+        'travel_participants.trip_plan_id',
+        'travel_plan.trip_name',
+        'travel_plan.start_date',
+        'travel_plan.end_date',
+        'users.name as creator_name',
+        'locations.name as location_name'
+      )
       .join('travel_plan', 'travel_participants.trip_plan_id', 'travel_plan.id')
       .join('users', 'travel_plan.creator_id', 'users.id')
       .join('locations', 'travel_plan.location_id', 'locations.id')

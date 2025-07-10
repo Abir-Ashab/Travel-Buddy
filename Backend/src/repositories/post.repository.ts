@@ -200,25 +200,33 @@ class PostModel {
       media, transport, accommodation, dining, attraction
     };  
   }
-  // add 
 
   async create(postData: any): Promise<string> {
     return await this.knex.transaction(async (trx) => {
       let locationId = postData.location_id;
-
-      // If location data is included as an object (not just an ID), insert it first
       if (postData.location && typeof postData.location === 'object') {
+        console.log("data: ", postData.location)
         const locationData = postData.location;
-        delete postData.location; // Remove it so it doesn't interfere
+        delete postData.location; 
 
         const [location] = await trx('locations')
           .insert(locationData)
           .returning('id');
 
         locationId = location.id;
+        
+        const latitude : string = locationData.latitude;
+        const longitude: string = locationData.longitude;
+        console.log("lat: ", latitude);
+        console.log("long: ", longitude);
+        
+        await trx.raw(
+          `UPDATE locations 
+          SET geom = ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)
+          WHERE id = ?`,
+          [locationId]
+        );
       }
-
-      // Insert post with the linked locationId (either passed or newly created)
       const [post] = await trx(this.tableName)
         .insert({
           ...postData,
@@ -234,18 +242,13 @@ class PostModel {
 
   async update(id: string, updateData: any): Promise<void> {
     await this.knex.transaction(async (trx) => {
-      // Fetch current post to get location_id
       const post = await trx(this.tableName).where('id', id).first();
 
       if (!post) throw new Error(`Post with id ${id} not found`);
-
-      // Check if location data is provided as object
       if (updateData.location && typeof updateData.location === 'object') {
         const locationData = updateData.location;
-        delete updateData.location; // Remove from updateData so it doesn't interfere
-
+        delete updateData.location; 
         if (post.location_id) {
-          // Update existing location record
           await trx('locations')
             .where('id', post.location_id)
             .update({
@@ -253,7 +256,6 @@ class PostModel {
               updated_at: trx.fn.now()
             });
         } else {
-          // Insert new location and update post with location_id
           const [newLocation] = await trx('locations')
             .insert(locationData)
             .returning('id');
@@ -261,8 +263,6 @@ class PostModel {
           updateData.location_id = newLocation.id;
         }
       }
-
-      // Finally update the post
       await trx(this.tableName)
         .where('id', id)
         .update({

@@ -1,6 +1,6 @@
 import { Calendar, Users, MapPin, DollarSign, Clock, MessageSquare, Plus, Eye, UserPlus, Check, X, Send } from 'lucide-react';
 import api from "../../services/api";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { useParams } from "react-router-dom";
 import type { TravelPlan, TravelParticipant, Message } from '../../types';
 import InviteTravelersComponent from './inviteTravelers';
@@ -12,6 +12,7 @@ export default function TripDetailsComponent() {
   const [newMessage, setNewMessage] = useState('');
   const [trip, setTrip] = useState<TravelPlan | null>(null);
   const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
 
@@ -36,6 +37,22 @@ export default function TripDetailsComponent() {
       ]);
 
       const participantsData = participantsRes.data.data;
+      console.log(participantsData);
+
+      const data : any = localStorage.getItem("user")
+      const user = JSON.parse(data);
+      
+      const loggedInUserId = user?.id;
+      const loggedInParticipant = participantsData.find(
+        (participant : TravelParticipant) => participant.user_id === loggedInUserId
+      );
+
+
+      const loggedInUserStatus = loggedInParticipant ? loggedInParticipant.status : null;
+
+      if(loggedInUserStatus === "joined") setStatus(true)
+
+      
       setParticipants(
         Array.isArray(participantsData) ? participantsData :
         participantsData?.participants || []
@@ -79,7 +96,6 @@ export default function TripDetailsComponent() {
   };
 
   const handleInviteSuccess = () => {
-    // Refresh participants after successful invite
     fetchTripDetails();
   };
 
@@ -169,13 +185,15 @@ export default function TripDetailsComponent() {
               <Users className="h-5 w-5 mr-2 text-blue-600" />
               Participants
             </h2>
-            <button 
+            {status && (
+              <button 
               onClick={() => setShowInviteModal(true)}
               className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
               title="Invite Travelers"
             >
               <UserPlus className="h-5 w-5" />
-            </button>
+            </button>)
+            }
           </div>
           
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -183,12 +201,14 @@ export default function TripDetailsComponent() {
               <div className="text-center py-8">
                 <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-500">No participants yet</p>
-                <button
+                {
+                status && (<button
                   onClick={() => setShowInviteModal(true)}
                   className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
                 >
                   Invite Travelers
-                </button>
+                </button>)
+                }
               </div>
             ) : (
               participants.map((participant) => (
@@ -214,8 +234,8 @@ export default function TripDetailsComponent() {
             )}
           </div>
         </div>
-
-        <div className="flex-1 flex flex-col">
+        { status && (
+                  <div className="flex-1 flex flex-col">
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900 flex items-center">
               <MessageSquare className="h-5 w-5 mr-2 text-blue-600" />
@@ -291,9 +311,10 @@ export default function TripDetailsComponent() {
             </div>
           </div>
         </div>
+        )
+        }
       </div>
 
-      {/* Invite Travelers Modal */}
       {showInviteModal && (
         <InviteTravelersComponent
           tripId={id!}

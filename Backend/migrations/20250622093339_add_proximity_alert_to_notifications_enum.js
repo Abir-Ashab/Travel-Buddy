@@ -18,6 +18,4 @@ export async function up(knex) {
 }
 
 export async function down(knex) {
-  // Note: Postgres does not support removing a value from an ENUM.
-  // You can leave this empty or optionally recreate the enum without the new value.
 }

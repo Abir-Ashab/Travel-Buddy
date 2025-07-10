@@ -1,5 +1,7 @@
 import { proximityModel } from "../repositories/proximity.repository";
 import { notificationModel } from "../repositories/notification.repository";
+import { userModel } from "../repositories/user.repository";
+import { wishlistModel } from "../repositories/wishlist.repository";
 import {
   ProximitySettings,
   ProximityAlert,
@@ -104,6 +106,7 @@ const deleteProximityAlert = async (alertId: string, userId: string): Promise<bo
 
 const getNearbyWishlistLocations = async (userId: string): Promise<NearbyItem[]> => {
   const settings = await getProximitySettings(userId);
+  
   if (!settings?.enable_wishlist_alerts) {
     return [];
   }
@@ -159,140 +162,84 @@ const getNearbyDining = async (userId: string): Promise<NearbyItem[]> => {
 const processProximityAlerts = async (userId: string): Promise<void> => {
   const settings = await proximityModel.findSettingsByUserId(userId);
   if (!settings) {
+    console.log(`No proximity settings found for user ${userId}`);
     return;
   }
 
   const userLocation = await getUserLocation(userId);
   if (!userLocation) {
+    console.log(`No location found for user ${userId}`);
     return;
   }
 
-  const alerts: ProximityNotificationPayload[] = [];
-  const handleAlert = async (
-    locationObj: any,
-    type: string,
-    title: string,
-    messageTemplate: string,
-    metadataExtras: any = {},
-    logExtras: any = {}
-  ) => {
-    const locId = locationObj.location?.id;
-    if (!locId) return;
-
-    const message = messageTemplate
-        .replace('{name}', locationObj.name)
-        .replace('{distance}', locationObj.distance_km.toFixed(1))
-        .replace('{location}', locationObj.location?.name || 'somewhere');
-
-    alerts.push({
-        user_id: userId,
-        title,
-        message,
-        type: 'proximity_alert',
-        metadata: {
-        trigger_type: type,
-        location_id: locId,
-        location_name: locationObj.location?.name,
-        distance_km: locationObj.distance_km,
-        ...metadataExtras,
-        },
-    });
-
-    await proximityModel.logProximityEvent({
-        user_id: userId,
-        location_id: locId,
-        trigger_type: type,
-        distance_km: locationObj.distance_km,
-        ...logExtras,
-    });
-  };
-
+  console.log("settings: ", settings);
+  
   if (settings.enable_wishlist_alerts) {
-    const nearby = await getNearbyWishlistLocations(userId);
-    for (const item of nearby) {
-      await handleAlert(
-        item,
-        'wishlist_location',
-        'Wishlist Location Nearby!',
-        "You're {distance}km away from {name} from your wishlist"
-      );
-    }
-  }
-
-  if (settings.enable_trip_participant_alerts) {
-    const nearby = await getNearbyTripParticipants(userId);
-    for (const item of nearby) {
-      await handleAlert(
-        item,
-        'trip_participant',
-        'Trip Buddy Nearby!',
-        "{name} is {distance}km away in {location}",
-        { target_user_id: item.id },
-        { target_user_id: item.id }
-      );
-    }
-  }
-
-  if (settings.enable_featured_post_alerts) {
-    const nearby = await getNearbyFeaturedPosts(userId);
-    for (const item of nearby) {
-      await handleAlert(
-        item,
-        'featured_post',
-        'Featured Post Nearby!',
-        `Check out "{name}" - a featured post {distance}km away in {location}`
-      );
-    }
-  }
-
-  if (settings.enable_attraction_alerts) {
-    const nearby = await getNearbyAttractions(userId);
-    for (const item of nearby) {
-      await handleAlert(
-        item,
-        'attraction',
-        'Attraction Nearby!',
-        "You're {distance}km away from {name} in {location}"
-      );
-    }
-  }
-
-  if (settings.enable_accommodation_alerts) {
-    const nearby = await getNearbyAccommodations(userId);
-    for (const item of nearby) {
-      await handleAlert(
-        item,
-        'accommodation',
-        'Accommodation Nearby!',
-        `An accommodation "{name}" is {distance}km away in {location}`
-      );
-    }
-  }
-
-  if (settings.enable_dining_alerts) {
-    const nearby = await getNearbyDining(userId);
-    for (const item of nearby) {
-      await handleAlert(
-        item,
-        'dining',
-        'Dining Nearby!',
-        `You're near "{name}" - just {distance}km away in {location}`
-      );
-    }
-  }
-
-  for (const alert of alerts) {
     try {
-      await notificationModel.create({
-        user_id: alert.user_id,
-        title: alert.title,
-        message: alert.message,
-        type: alert.type, 
-        metadata: alert.metadata,
-      });
+      const userWishlistItems = await wishlistModel.getUserWishlistItemsWithLocations(userId);
+      console.log(`User ${userId} wishlist items:`, userWishlistItems);
+      
+      if (!userWishlistItems || userWishlistItems.length === 0) {
+        console.log(`No wishlist items found for user ${userId}`);
+        return;
+      }
+      
+      const nearbyLocations = await getNearbyWishlistLocations(userId);
+      console.log(`Found ${nearbyLocations?.length || 0} nearby locations for user ${userId}`);
+      
+      if (!nearbyLocations || nearbyLocations.length === 0) {
+        console.log(`No nearby locations found for user ${userId}`);
+        return;
+      }
+
+      for (const wishlistItem of userWishlistItems) {
+        const matchingLocation = nearbyLocations.find(location => 
+          location.id === wishlistItem.location_id ||
+          location.name === wishlistItem.location_name ||
+          location.id === wishlistItem.location?.id
+        );
+        
+        if (matchingLocation) {
+          try {
+            const existingNotification = await notificationModel.findDuplicateProximityAlert(
+              userId,
+              matchingLocation.id,
+              'nearby_wishlist_location',
+              24 
+            );
+
+            if (existingNotification) {
+              console.log(`Duplicate notification exists for user ${userId}, location ${matchingLocation.id}`);
+              continue;
+            }
+
+            const notificationId = await notificationModel.create({
+              user_id: userId,
+              title: 'Wishlist Location Nearby!',
+              message: `You're ${matchingLocation.distance_km}km away from ${matchingLocation.name} from your wishlist`,
+              type: 'nearby_wishlist_location', 
+              metadata: {
+                trigger_type: 'nearby_wishlist_location',
+                location_id: matchingLocation.id,
+                location_name: matchingLocation.name,
+                distance_km: matchingLocation.distance_km,
+                wishlist_item_id: wishlistItem.id,
+                wishlist_item_name: wishlistItem.name,
+              },
+            });
+
+            console.log(`Created wishlist notification ${notificationId} for user ${userId} - wishlist item: ${wishlistItem.name}`);
+            
+          } catch (notificationError) {
+            console.error(`Failed to create wishlist notification for user ${userId}, item ${wishlistItem.id}:`, notificationError);
+          }
+        }
+      }
     } catch (error) {
-      console.error(" Failed to create notification:", error);
+      console.error(`Error processing wishlist alerts for user ${userId}:`, error);
     }
+  } else {
+    console.log(`Wishlist alerts disabled for user ${userId}`);
   }
 };
 

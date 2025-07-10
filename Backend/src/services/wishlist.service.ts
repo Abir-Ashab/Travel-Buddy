@@ -78,7 +78,6 @@ const addWishlistItem = async (
         await locationModel.update(locationId, locationData);
       }
     } catch (error) {
-      // console.error("Failed to create location:", error);
       return null;
     }
   }
@@ -116,8 +115,10 @@ const deleteWishlistItem = async (id: string, userId: string): Promise<boolean> 
   return await wishlistModel.deleteItem(id);
 };
 
-const getWishlistItem = async (id: string, userId: string): Promise<WishlistItem| null> => {
-  return await wishlistModel.findItemById(id);
+const getWishlistItem = async (userId: string): Promise<any | null> => {
+  console.log("call hocche........", userId);
+  
+  return await wishlistModel.getUserWishlistItemsWithLocations(userId)
 };
 
 const shareWishlist = async (id: string, userId: string): Promise<WishlistShareResponse | null> => {

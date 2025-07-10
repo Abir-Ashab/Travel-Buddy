@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FiUser, FiMapPin, FiDollarSign, FiSun, FiCamera, FiPhone, FiNavigation } from "react-icons/fi";
+import { FiUser, FiMapPin, FiDollarSign, FiSun, FiCamera, FiPhone, FiNavigation, FiX } from "react-icons/fi";
 import LocationSearch from "../globalFiles/locationSearch";
 
 interface TravelPreferences {
@@ -18,7 +18,7 @@ interface ProfileFormState {
   number: string | null;
   bio: string;
   status: string;
-  profile_picture: string;
+  profile_picture: File | null;
   travel_preferences: TravelPreferences;
   proximity_notifications_enabled: boolean;
   proximity_radius_km: number | null;
@@ -46,7 +46,7 @@ export default function ProfileForm({
     number: initialData?.number ?? null,
     bio: initialData?.bio || '',
     status: initialData?.status || 'active',
-    profile_picture: initialData?.profile_picture || '',
+    profile_picture: null, 
     travel_preferences: {
       budget: initialData?.travel_preferences?.budget || 'medium',
       preferred_climate: initialData?.travel_preferences?.preferred_climate || 'temperate',
@@ -64,16 +64,26 @@ export default function ProfileForm({
   const [showManualLocation, setShowManualLocation] = useState(false);
 
   const handleAddInterest = () => {
-    if (currentInterest && !formData.travel_preferences.interests.includes(currentInterest)) {
+    if (currentInterest.trim() && !formData.travel_preferences.interests.includes(currentInterest.trim())) {
       setFormData({
         ...formData,
         travel_preferences: {
           ...formData.travel_preferences,
-          interests: [...formData.travel_preferences.interests, currentInterest]
+          interests: [...formData.travel_preferences.interests, currentInterest.trim()]
         }
       });
       setCurrentInterest('');
     }
+  };
+
+  const handleRemoveInterest = (interestToRemove: string) => {
+    setFormData({
+      ...formData,
+      travel_preferences: {
+        ...formData.travel_preferences,
+        interests: formData.travel_preferences.interests.filter(interest => interest !== interestToRemove)
+      }
+    });
   };
 
   const handleLocationSelect = (latitude: number, longitude: number, displayName: string) => {
@@ -84,7 +94,7 @@ export default function ProfileForm({
       location_updated_at: new Date().toISOString(),
       geom: {
         type: "Point",
-        coordinates: [latitude, longitude]
+        coordinates: [longitude, latitude] 
       }
     }));
   };
@@ -103,7 +113,7 @@ export default function ProfileForm({
           typeof newData.current_longitude === 'number') {
         newData.geom = {
           type: "Point",
-          coordinates: [newData.current_latitude, newData.current_longitude]
+          coordinates: [newData.current_longitude, newData.current_latitude] 
         };
       } else {
         newData.geom = null;
@@ -113,25 +123,29 @@ export default function ProfileForm({
     });
   };
 
+  // Transform data to ensure correct types before submission
+  const transformFormData = (data: ProfileFormState) => {
+    return {
+      ...data,
+      // Ensure boolean type
+      proximity_notifications_enabled: Boolean(data.proximity_notifications_enabled),
+      // Ensure number types or null
+      proximity_radius_km: data.proximity_radius_km !== null ? Number(data.proximity_radius_km) : null,
+      current_latitude: data.current_latitude !== null ? Number(data.current_latitude) : null,
+      current_longitude: data.current_longitude !== null ? Number(data.current_longitude) : null,
+    };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const submitData: ProfileFormState = {
-      ...formData,
-      travel_preferences: {
-        budget: formData.travel_preferences.budget || 'medium',
-        preferred_climate: formData.travel_preferences.preferred_climate || 'temperate',
-        interests: formData.travel_preferences.interests || []
-      },
-      geom: (formData.current_latitude !== null && formData.current_longitude !== null) 
-        ? {
-            type: "Point",
-            coordinates: [ formData.current_latitude, formData.current_longitude]
-          }
-        : null
-    };
-
-    await onSubmit(submitData);
+    try {
+      // Transform data before sending
+      const transformedData = transformFormData(formData);
+      await onSubmit(transformedData);
+    } catch (error) {
+      console.error('Form submission error:', error);
+    }
   };
 
   return (
@@ -143,6 +157,7 @@ export default function ProfileForm({
           </h2>
           <p className="text-gray-600">Fill in your details to connect with fellow travelers</p>
         </div>
+
         <div className="bg-gray-50 p-6 rounded-lg">
           <h3 className="text-lg font-semibold mb-4 flex items-center">
             <FiUser className="mr-2" /> Basic Information
@@ -184,14 +199,16 @@ export default function ProfileForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div>
               <label className="block text-sm font-medium mb-2 flex items-center">
-                <FiCamera className="mr-2 text-gray-500" /> Profile Picture URL
+                <FiCamera className="mr-2 text-gray-500" /> Profile Picture
               </label>
               <input
-                type="url"
-                value={formData.profile_picture}
-                onChange={(e) => setFormData({...formData, profile_picture: e.target.value})}
+                type="file"
+                accept="image/*"
+                onChange={(e) => setFormData({
+                  ...formData,
+                  profile_picture: e.target.files?.[0] || null
+                })}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                placeholder="https://example.com/profile.jpg"
               />
             </div>
 
@@ -221,7 +238,7 @@ export default function ProfileForm({
             />
           </div>
         </div>
-
+        
         <div className="bg-blue-50 p-6 rounded-lg">
           <h3 className="text-lg font-semibold mb-4 flex items-center">
             <FiNavigation className="mr-2" /> Current Location
@@ -237,6 +254,7 @@ export default function ProfileForm({
               className="w-full"
             />
           </div>
+
           {formData.current_latitude !== null && formData.current_longitude !== null && (
             <div className="bg-white p-4 rounded-lg border border-blue-200">
               <div className="flex items-center justify-between mb-2">
@@ -369,63 +387,17 @@ export default function ProfileForm({
                   {interest}
                   <button
                     type="button"
-                    onClick={() => setFormData({
-                      ...formData,
-                      travel_preferences: {
-                        ...formData.travel_preferences,
-                        interests: formData.travel_preferences.interests.filter((i: string) => i !== interest)
-                      }
-                    })}
+                    onClick={() => handleRemoveInterest(interest)}
                     className="ml-2 text-gray-500 hover:text-red-500 transition-colors duration-200"
                   >
-                    ×
+                    <FiX size={14} />
                   </button>
                 </span>
               ))}
             </div>
           </div>
         </div>
-
-        <div className="bg-purple-50 p-6 rounded-lg">
-          <h3 className="text-lg font-semibold mb-4">Notification Settings</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="proximity-notifications"
-                checked={formData.proximity_notifications_enabled}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  proximity_notifications_enabled: e.target.checked
-                })}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-              />
-              <label htmlFor="proximity-notifications" className="ml-3 text-sm font-medium text-gray-700">
-                Enable Proximity Notifications
-              </label>
-            </div>
-            
-            {formData.proximity_notifications_enabled && (
-              <div>
-                <label className="block text-sm font-medium mb-2">Notification Radius (km)</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="1000"
-                  value={formData.proximity_radius_km ?? ''}
-                  onChange={(e) => setFormData({
-                      ...formData,
-                      proximity_radius_km: e.target.value ? parseInt(e.target.value) : null
-                  })}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Enter radius in kilometers"
-                />
-              </div>
-            )}
-          </div>
-        </div>
-
+        
         <div className="flex justify-center pt-6">
           <button
             type="submit"

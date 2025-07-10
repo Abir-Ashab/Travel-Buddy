@@ -4,7 +4,7 @@ import { CreateLocationRequest, UpdateLocationRequest } from "../interfaces/loca
 import { catchAsync } from '../utils/catchAsync.util';
 
 const getAllLocations = catchAsync(async (req: Request, res: Response) => {
-  const { page = 1, limit = 10, country, region } = req.query;
+  const { page, limit, country, region } = req.query;
   
   const locations = await LocationService.getAllLocations({
     page: Number(page),

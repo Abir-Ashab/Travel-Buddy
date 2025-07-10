@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiMapPin, FiBell, FiSave, FiArrowLeft, FiLoader } from "react-icons/fi";
 import api from "../../services/api";
@@ -34,9 +34,15 @@ export default function ProximitySettings() {
   const [isNewSettings, setIsNewSettings] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch proximity settings on mount
-  useEffect(() => {
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {  
     fetchProximitySettings();
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, []);
 
   const fetchProximitySettings = async () => {
@@ -52,13 +58,11 @@ export default function ProximitySettings() {
         });
         setIsNewSettings(false);
       } else {
-        // No settings found, user needs to create new ones
         setIsNewSettings(true);
       }
     } catch (err: any) {
       console.error("Failed to fetch proximity settings", err);
       if (err.response?.status === 404) {
-        // Settings don't exist yet
         setIsNewSettings(true);
       } else {
         setError("Failed to load proximity settings");
@@ -119,12 +123,18 @@ export default function ProximitySettings() {
     }));
   };
 
+  const handleWishlistAlertsChange = (checked: boolean) => {
+    handleInputChange('enable_wishlist_alerts', checked);
+    // No need to call callProcessRoute here - the useEffect will handle starting/stopping the interval
+  };
+
   const alertOptions = [
     {
       key: 'enable_wishlist_alerts',
       label: 'Wishlist Alerts',
       description: 'Get notified when someone nearby has similar wishlist items',
-      icon: '💝'
+      icon: '💝',
+      special: true 
     },
     {
       key: 'enable_trip_participant_alerts',
@@ -212,7 +222,6 @@ export default function ProximitySettings() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Proximity Radius */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-blue-100 rounded-xl">
@@ -232,7 +241,7 @@ export default function ProximitySettings() {
               <input
                 type="range"
                 min="1"
-                max="100"
+                max="1000"
                 step="1"
                 value={settings.proximity_radius_km}
                 onChange={(e) => handleInputChange('proximity_radius_km', parseInt(e.target.value))}
@@ -242,12 +251,13 @@ export default function ProximitySettings() {
                 <span>1 km</span>
                 <span>50 km</span>
                 <span>100 km</span>
+                <span>500 km</span>
+                <span>1000 km</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Alert Types */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
             <div className="p-2 bg-amber-100 rounded-xl">
@@ -271,13 +281,26 @@ export default function ProximitySettings() {
                         <input
                           type="checkbox"
                           checked={settings[option.key as keyof ProximitySettings] as boolean}
-                          onChange={(e) => handleInputChange(option.key as keyof ProximitySettings, e.target.checked)}
+                          onChange={(e) => {
+                            if (option.key === 'enable_wishlist_alerts') {
+                              handleWishlistAlertsChange(e.target.checked);
+                            } else {
+                              handleInputChange(option.key as keyof ProximitySettings, e.target.checked);
+                            }
+                          }}
                           className="sr-only peer"
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                       </label>
                     </div>
-                    <p className="text-sm text-slate-500 mt-1">{option.description}</p>
+                    <p className="text-sm text-slate-500 mt-1">
+                      {option.description}
+                      {option.key === 'enable_wishlist_alerts' && settings.enable_wishlist_alerts && (
+                        <span className="block text-xs text-green-600 mt-1">
+                          ✓ Auto-processing every 10 seconds
+                        </span>
+                      )}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -285,7 +308,6 @@ export default function ProximitySettings() {
           </div>
         </div>
 
-        {/* Submit Button */}
         <div className="flex gap-4">
           <button
             type="button"
@@ -314,7 +336,6 @@ export default function ProximitySettings() {
         </div>
       </form>
 
-      {/* Debug Info */}
       <div className="mt-8 p-4 bg-gray-50 rounded-lg">
         <h3 className="font-medium mb-2">Debug Info</h3>
         <details>
@@ -323,6 +344,11 @@ export default function ProximitySettings() {
             {JSON.stringify(settings, null, 2)}
           </pre>
         </details>
+        {settings.enable_wishlist_alerts && (
+          <div className="mt-2 text-xs text-green-600">
+            🟢 Wishlist processing is active (every 10 seconds)
+          </div>
+        )}
       </div>
     </div>
   );

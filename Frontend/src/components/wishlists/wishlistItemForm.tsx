@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, DollarSign, Calendar, Star } from 'lucide-react';
+import LocationSearch from "../globalFiles/locationSearch";
+
+import { 
+  FiMapPin, 
+  FiGlobe, 
+  FiClock,
+  FiType,
+  FiNavigation,
+} from "react-icons/fi";
 
 interface WishlistItemFormData {
   priority_level: number;
@@ -135,6 +144,7 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
       alert('Location name is required');
       return;
     }
+    
     const submitData: WishlistItemFormData = {
       ...formData,
       notes: formData.notes.trim(),
@@ -156,6 +166,26 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
     { value: 3, label: '★★★ High Priority', color: 'text-red-500' }
   ];
 
+  const handleLocationSelect = (lat: number, lon: number, displayName: string) => {
+    const parts = displayName.split(', ');
+    const name = parts[0] || '';
+    const region = parts.length > 1 ? parts[1] : '';
+    const country = parts.length > 2 ? parts[parts.length - 1] : '';
+
+    setFormData(prev => ({
+      ...prev,
+      location: {
+        ...prev.location,
+        name: name,
+        country: country,
+        region: region,
+        timezone: 'UTC', // or use a real timezone if available
+        latitude: lat,
+        longitude: lon
+      }
+    }));
+  };
+
   return (
     <div className="bg-gray-50 rounded-lg p-6 mb-6">
       <h3 className="text-xl font-semibold mb-4 flex items-center">
@@ -163,7 +193,6 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
       </h3>
       
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Priority and Budget Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -202,7 +231,6 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
           </div>
         </div>
 
-        {/* Date Range */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -233,107 +261,127 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
           </div>
         </div>
 
-        {/* Location Section */}
-        <div className="border-t pt-4">
-          <h4 className="text-lg font-medium text-gray-800 mb-3 flex items-center">
-            <MapPin className="h-5 w-5 mr-2" />
-            Location Details
-          </h4>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Location Name *
-              </label>
-              <input
-                type="text"
-                name="location.name"
-                value={formData.location.name}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., Hills, Cox's Bazar, Dhaka"
-                required
-              />
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200/50 p-8">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-amber-100 rounded-2xl flex items-center justify-center">
+              <FiMapPin className="text-amber-600" />
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Region
-              </label>
-              <input
-                type="text"
-                name="location.region"
-                value={formData.location.region}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., ctg, dhk, syl"
-              />
-            </div>
+            <h2 className="text-xl font-bold text-slate-800">Location Details</h2>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Country
-              </label>
-              <input
-                type="text"
-                name="location.country"
-                value={formData.location.country}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+
+          <div className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                  <FiMapPin className="inline mr-1" />
+                  Search Location
+                </label>
+                <LocationSearch 
+                  onLocationSelect={handleLocationSelect}
+                  placeholder="Search for a location (e.g., Everest)"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                  Location Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  name="location.name"
+                  value={formData.location.name}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
+                  placeholder="e.g., Mount Everest"
+                />
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                  <FiGlobe className="inline mr-1" />
+                  Country
+                </label>
+                <input
+                  type="text"
+                  name="location.country"
+                  value={formData.location.country}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
+                  placeholder="e.g., Nepal"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                  Region
+                </label>
+                <input
+                  type="text"
+                  name="location.region"
+                  value={formData.location.region}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
+                  placeholder="e.g., South Asia"
+                />
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                  <FiClock className="inline mr-1" />
+                  Timezone
+                </label>
+                <input
+                  type="text"
+                  name="location.timezone"
+                  value={formData.location.timezone}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
+                  placeholder="e.g., Asia/Kathmandu"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                  <FiNavigation className="inline mr-1" />
+                  Latitude
+                </label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  name="location.latitude"
+                  value={formData.location.latitude}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
+                  placeholder="e.g., 27.9881"
+                />
+              </div>
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Latitude
-              </label>
-              <input
-                type="number"
-                name="location.latitude"
-                value={formData.location.latitude}
-                onChange={handleInputChange}
-                step="any"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., 25.8311"
-              />
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                  <FiNavigation className="inline mr-1" />
+                  Longitude
+                </label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  name="location.longitude"
+                  value={formData.location.longitude}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
+                  placeholder="e.g., 86.9250"
+                />
+              </div>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Longitude
-              </label>
-              <input
-                type="number"
-                name="location.longitude"
-                value={formData.location.longitude}
-                onChange={handleInputChange}
-                step="any"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., 93.3686"
-              />
-            </div>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Timezone
-            </label>
-            <select
-              name="location.timezone"
-              value={formData.location.timezone}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="Asia/Dhaka">Asia/Dhaka</option>
-              <option value="Asia/Kolkata">Asia/Kolkata</option>
-              <option value="UTC">UTC</option>
-            </select>
           </div>
         </div>
 
-        {/* Notes */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Notes
@@ -348,7 +396,6 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
           />
         </div>
 
-        {/* Form Actions */}
         <div className="flex justify-end space-x-3 pt-4 border-t">
           <button
             type="button"

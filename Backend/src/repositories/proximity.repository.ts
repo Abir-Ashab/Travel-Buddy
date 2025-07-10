@@ -94,6 +94,11 @@ class ProximityModel {
         location_updated_at: this.knex.fn.now(),
         updated_at: this.knex.fn.now()
       });
+
+    await this.knex.raw(
+      `UPDATE users SET geom = ST_SetSRID(ST_MakePoint(?, ?), 4326) WHERE id = ?`,
+      [longitude, latitude, userId]
+    );
   }
 
   async getUserLocation(userId: string): Promise<UserLocation | null> {
@@ -201,45 +206,57 @@ class ProximityModel {
   }
 
   async findNearbyWishlistLocations(userId: string, radiusKm: number | string): Promise<NearbyItem[]> {
-  const normalizedRadius = this.normalizeRadius(radiusKm);
-  const radiusMeters = this.radiusToMeters(normalizedRadius);
+    const normalizedRadius = this.normalizeRadius(radiusKm);
+    const radiusMeters = this.radiusToMeters(normalizedRadius);
+    
+    const query = `
+      SELECT DISTINCT
+        wi.priority_level,
+        wi.notes,
+        wi.estimated_budget,
+        wi.preferred_start_date,
+        wi.preferred_end_date,
+        l.id,
+        l.name AS location_name,
+        l.country,
+        l.region,
+        l.latitude,
+        l.longitude,
+        l.timezone,
+        ROUND(CAST(ST_Distance(u.geom, l.geom) / 1000.0 AS NUMERIC), 3) as distance_km
+      FROM ${this.locationsTable} l
+      JOIN ${this.wishlistItemsTable} wi ON wi.location_id = l.id
+      JOIN ${this.wishlistsTable} w ON wi.wishlist_id = w.id
+      JOIN ${this.usersTable} u ON u.id = ?
+      WHERE w.is_public = true
+        AND u.geom IS NOT NULL
+        AND l.geom IS NOT NULL
+        AND ST_DWithin(u.geom, l.geom, ?)
+      ORDER BY distance_km ASC
+    `;
 
-  const query = `
-    SELECT DISTINCT
-      l.id,
-      l.name,
-      l.country,
-      l.region,
-      l.latitude,
-      l.longitude,
-      ROUND(CAST(ST_Distance(u.geom, l.geom) / 1000.0 AS NUMERIC), 3) as distance_km
-    FROM ${this.locationsTable} l
-    JOIN ${this.wishlistItemsTable} wi ON wi.location_id = l.id
-    JOIN ${this.wishlistsTable} w ON wi.wishlist_id = w.id
-    JOIN ${this.usersTable} u ON u.id = ?
-    WHERE w.is_public = true
-      AND u.geom IS NOT NULL
-      AND l.geom IS NOT NULL
-      AND ST_DWithin(u.geom, l.geom, ?)
-    ORDER BY distance_km ASC
-  `;
-
-  const results = await this.knex.raw(query, [userId, radiusMeters]);
-
-  return results.rows.map((row: any) => ({
-    id: row.id,
-    name: row.name,
-    location: {
+    const results = await this.knex.raw(query, [userId, radiusMeters]);
+    
+    return results.rows.map((row: any) => ({
       id: row.id,
-      name: row.name,
-      country: row.country,
-      region: row.region,
-      latitude: parseFloat(row.latitude),
-      longitude: parseFloat(row.longitude)
-    },
-    distance_km: parseFloat(row.distance_km)
-  }));
-}
+      name: row.location_name,
+      priority_level: row.priority_level,
+      notes: row.notes,
+      estimated_budget: row.estimated_budget,
+      preferred_start_date: row.preferred_start_date,
+      preferred_end_date: row.preferred_end_date,
+      location: {
+        id: row.id,
+        name: row.location_name,
+        country: row.country,
+        region: row.region,
+        latitude: parseFloat(row.latitude),
+        longitude: parseFloat(row.longitude),
+        timezone: row.timezone ?? '' // fallback if null
+      },
+      distance_km: parseFloat(row.distance_km)
+    }));
+  }
 
   async findNearbyTripParticipants(userId: string, radiusKm: number | string): Promise<NearbyItem[]> {
     const normalizedRadius = this.normalizeRadius(radiusKm);
@@ -253,6 +270,7 @@ class ProximityModel {
         l.region,
         l.latitude,
         l.longitude,
+        l.timezone,
         ROUND(CAST(ST_Distance(u.geom, l.geom) / 1000.0 AS NUMERIC), 3) as distance_km
       FROM ${this.locationsTable} l
       JOIN ${this.wishlistItemsTable} wi ON wi.location_id = l.id
@@ -271,12 +289,13 @@ class ProximityModel {
       id: row.id,
       name: row.name,
       location: {
-        id: row.location_id,
-        name: row.location_name,
+        id: row.id,
+        name: row.name,
         country: row.country,
         region: row.region,
         latitude: parseFloat(row.latitude),
-        longitude: parseFloat(row.longitude)
+        longitude: parseFloat(row.longitude),
+        timezone: row.timezone ?? ''
       },
       distance_km: parseFloat(row.distance_km)
     }));
@@ -296,6 +315,7 @@ class ProximityModel {
         l.region,
         l.latitude,
         l.longitude,
+        l.timezone,
         ROUND(CAST(ST_Distance(u.geom, l.geom) / 1000.0 AS NUMERIC), 3) as distance_km
       FROM ${this.postsTable} p
       JOIN ${this.locationsTable} l ON p.location_id = l.id
@@ -320,7 +340,8 @@ class ProximityModel {
         country: row.country,
         region: row.region,
         latitude: parseFloat(row.latitude),
-        longitude: parseFloat(row.longitude)
+        longitude: parseFloat(row.longitude),
+        timezone: row.timezone ?? ''
       },
       distance_km: parseFloat(row.distance_km)
     }));
@@ -342,6 +363,7 @@ class ProximityModel {
         l.region,
         l.latitude,
         l.longitude,
+        l.timezone,
         ROUND(CAST(ST_Distance(u.geom, l.geom) / 1000.0 AS NUMERIC), 3) as distance_km
       FROM ${this.attractionsTable} a
       JOIN ${this.locationsTable} l ON a.location_id = l.id
@@ -364,7 +386,8 @@ class ProximityModel {
         country: row.country,
         region: row.region,
         latitude: parseFloat(row.latitude),
-        longitude: parseFloat(row.longitude)
+        longitude: parseFloat(row.longitude),
+        timezone: row.timezone ?? ''
       },
       distance_km: parseFloat(row.distance_km)
     }));
@@ -384,6 +407,7 @@ class ProximityModel {
         l.region,
         l.latitude,
         l.longitude,
+        l.timezone,
         ROUND(CAST(ST_Distance(u.geom, l.geom) / 1000.0 AS NUMERIC), 3) as distance_km
       FROM ${this.accommodationTable} acc
       JOIN ${this.locationsTable} l ON acc.location_id = l.id
@@ -406,7 +430,8 @@ class ProximityModel {
         country: row.country,
         region: row.region,
         latitude: parseFloat(row.latitude),
-        longitude: parseFloat(row.longitude)
+        longitude: parseFloat(row.longitude),
+        timezone: row.timezone ?? ''
       },
       distance_km: parseFloat(row.distance_km)
     }));
@@ -426,6 +451,7 @@ class ProximityModel {
         l.region,
         l.latitude,
         l.longitude,
+        l.timezone,
         ROUND(CAST(ST_Distance(u.geom, l.geom) / 1000.0 AS NUMERIC), 3) as distance_km
       FROM ${this.diningTable} d
       JOIN ${this.locationsTable} l ON d.location_id = l.id
@@ -448,7 +474,8 @@ class ProximityModel {
         country: row.country,
         region: row.region,
         latitude: parseFloat(row.latitude),
-        longitude: parseFloat(row.longitude)
+        longitude: parseFloat(row.longitude),
+        timezone: row.timezone ?? ''
       },
       distance_km: parseFloat(row.distance_km)
     }));

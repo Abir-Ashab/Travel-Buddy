@@ -38,8 +38,6 @@ export const authMiddleware = (...requiredRoles: (typeof USER_Role)[keyof typeof
         role: user.role,
         status: user.status
     };
-
-    console.log("user", user);
     if (!user) {
       throw new AppError(401, "User not found");
     }

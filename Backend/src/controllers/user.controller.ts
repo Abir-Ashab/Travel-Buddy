@@ -24,10 +24,8 @@ const updateUserStatus = catchAsync(async (req, res) => {
 
 const updateUser = catchAsync(async (req, res) => {
   const user_id = req.user?.id;
-  console.log("user id: ", user_id);
-  console.log("body: ", req.body);
-  
-  const result = await UserServices.updateUser(user_id, req.body);
+  const profile_picture = req.file
+  const result = await UserServices.updateUser(user_id, req.body, profile_picture!);
 
   res.status(200).json({
     success: true,

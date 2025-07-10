@@ -7,6 +7,12 @@ import validateRequest from '../middlewares/validateRequest';
 
 const router = Router();
 
+router.get(
+    '/items',
+    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+    WishlistController.getWishlistItem
+);
+
 router.post(
     '/',
     validateRequest(WishlistValidations.createWishlistValidation),
@@ -75,10 +81,6 @@ router.delete(
     WishlistController.deleteWishlistItem
 );
 
-router.get(
-    '/items/:itemId',
-    authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
-    WishlistController.getWishlistItem
-);
+
 
 export { router as wishlistRoutes };

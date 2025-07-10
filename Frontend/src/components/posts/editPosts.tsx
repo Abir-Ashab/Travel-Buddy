@@ -84,12 +84,13 @@ export default function EditPost() {
       console.log("id: ", id);
       
       const response = await api.get(`/posts/${id}`);
-      const postData = response.data;
+      const postData = response.data.data;
+      console.log(postData)
       setPost({
         id: postData.id,
         title: postData.title || "",
         description: postData.description || "",
-        total_cost: postData.total_cost || undefined,
+        total_cost: parseInt(postData.total_cost) || undefined,
         duration_days: postData.duration_days || undefined,
         effort_level: postData.effort_level || 1,
         is_featured: postData.is_featured || false,
@@ -108,10 +109,12 @@ export default function EditPost() {
 
     setSaving(true);
     try {
+      console.log("post is: ", post);
+      
       await api.put(`/posts/${id}`, {
         title: post.title.trim(),
         description: post.description.trim(),
-        total_cost: post.total_cost || null,
+        total_cost: post.total_cost ? Number(post.total_cost) : undefined,
         duration_days: post.duration_days || null,
         effort_level: post.effort_level,
         is_featured: post.is_featured,
@@ -131,7 +134,6 @@ export default function EditPost() {
 
   const handleInputChange = (field: keyof PostData, value: any) => {
     setPost(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
     }
@@ -188,7 +190,6 @@ export default function EditPost() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <button
@@ -231,7 +232,6 @@ export default function EditPost() {
           </div>
         </div>
 
-        {/* Error Alert */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
             <FiAlertCircle className="text-red-500 flex-shrink-0" />
@@ -245,16 +245,13 @@ export default function EditPost() {
           </div>
         )}
 
-        {/* Form */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-8 space-y-8">
-            {/* Basic Information */}
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-3">
                 Basic Information
               </h2>
               
-              {/* Title */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   Story Title *
@@ -279,7 +276,6 @@ export default function EditPost() {
                 </p>
               </div>
 
-              {/* Description */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   Description *
@@ -305,14 +301,12 @@ export default function EditPost() {
               </div>
             </div>
 
-            {/* Trip Details */}
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-slate-800 border-b border-slate-200 pb-3">
                 Trip Details
               </h2>
               
               <div className="grid md:grid-cols-3 gap-6">
-                {/* Total Cost */}
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     <FiDollarSign className="inline mr-1" size={16} />

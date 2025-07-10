@@ -26,7 +26,6 @@ const getNotificationsByUser = catchAsync(async (req: Request, res: Response) =>
 
 const getNotificationById = catchAsync(async (req: Request, res: Response) => {
   const id  = req.user?.id;
-  console.log("user id: ", id);
   
   const notification = await NotificationService.getNotificationById(id);
 

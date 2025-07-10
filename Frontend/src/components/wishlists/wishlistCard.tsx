@@ -19,7 +19,7 @@ const WishlistCard: React.FC<WishlistCardProps> = ({
 }) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-      <div className="flex justify-between items-start mb-4">
+      <div className="flex  justify-between items-start mb-4">
         <div>
           <h3 className="text-xl font-semibold text-gray-800">{wishlist.name}</h3>
           {wishlist.description && (
@@ -40,13 +40,10 @@ const WishlistCard: React.FC<WishlistCardProps> = ({
       </div>
 
       <div className="flex justify-between items-center">
-        <span className="text-sm text-gray-500">
-          {wishlist.itemCount || wishlist.items?.length || 0} items
-        </span>
-        <div className="flex space-x-2">
+        <div className="flex">
           <button
             onClick={() => onView(wishlist)}
-            className="flex items-center px-3 py-1 text-blue-600 hover:bg-blue-50 rounded"
+            className="flex items-center px-2 py-1 text-blue-600 hover:bg-blue-50 rounded"
           >
             <Eye className="h-4 w-4 mr-1" />
             View
@@ -55,14 +52,14 @@ const WishlistCard: React.FC<WishlistCardProps> = ({
             <>
               <button
                 onClick={() => onShare && onShare(wishlist.id)}
-                className="flex items-center px-3 py-1 text-green-600 hover:bg-green-50 rounded"
+                className="flex items-center px-2 py-1 text-green-600 hover:bg-green-50 rounded"
               >
                 <Share2 className="h-4 w-4 mr-1" />
                 Share
               </button>
               <button
                 onClick={() => onDelete && onDelete(wishlist.id)}
-                className="flex items-center px-3 py-1 text-red-600 hover:bg-red-50 rounded"
+                className="flex items-center px-2 py-1 text-red-600 hover:bg-red-50 rounded"
               >
                 <Trash2 className="h-4 w-4 mr-1" />
                 Delete

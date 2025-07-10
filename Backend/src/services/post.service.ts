@@ -44,9 +44,11 @@ const createPost = async (userId: string, postData: CreatePostRequest): Promise<
     user_id: userId,
     ...postData
   });
+  
   if (postData.media_urls && postData.media_urls.length > 0) {
     await postModel.createMediaRecords(postId, postData.media_urls);
   }
+
   const createdPost = await postModel.findById(postId);
   if (!createdPost) {
     throw new Error('Post not found after creation');

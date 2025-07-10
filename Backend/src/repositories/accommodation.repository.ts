@@ -77,6 +77,7 @@ class AccommodationModel {
         // created_at: this.knex.fn.now(),
       })
       .returning('id');
+      
 
     return accommodation.id;
   }

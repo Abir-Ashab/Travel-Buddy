@@ -47,7 +47,6 @@ export default function LoginPage() {
 
     if (fetchedUser) {
       localStorage.setItem('user', JSON.stringify(fetchedUser));
-      console.log("user: ", fetchedUser);
 
       if (fetchedUser.role === 'admin' || fetchedUser.role === 'super_admin') {
         navigate('/admin');

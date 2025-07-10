@@ -175,7 +175,7 @@ class WishlistModel {
       locationId = newLocation.id;
 
       await this.knex.raw(
-        `UPDATE locations SET geom = ST_SetSRID(ST_MakePoint(longitude, latitude), 4326) WHERE id = ?`,
+        `UPDATE locations SET geom = ST_SetSRID(ST_MakePoint(latitude, longitude), 4326) WHERE id = ?`,
         [locationId]
       );
     }
@@ -239,6 +239,58 @@ class WishlistModel {
       .first();
     return !!existing;
   }
+
+async getUserWishlistItemsWithLocations(userId: string): Promise<any[]> {
+  console.log("items are: ");
+  
+  const items = await this.knex('wishlist_items')
+    .join('wishlists', 'wishlist_items.wishlist_id', 'wishlists.id')
+    .join('locations', 'wishlist_items.location_id', 'locations.id')
+    .where('wishlists.user_id', userId)
+    .select(
+      'wishlist_items.id',
+      'wishlist_items.wishlist_id',
+      'wishlist_items.location_id',
+      'wishlist_items.notes',
+      'wishlist_items.estimated_budget',
+      'wishlist_items.priority_level',
+      'wishlist_items.preferred_start_date',
+      'wishlist_items.preferred_end_date',
+      'wishlist_items.created_at',
+      'wishlist_items.updated_at',
+      'locations.name as location_name',
+      'locations.country as location_country',
+      'locations.region as location_region',
+      'locations.latitude as location_latitude',
+      'locations.longitude as location_longitude',
+      'locations.timezone as location_timezone'
+    )
+    .orderBy('wishlist_items.priority_level', 'asc');
+
+  console.log(items);
+  
+  return items.map(item => ({
+    id: item.id,
+    wishlist_id: item.wishlist_id,
+    location_id: item.location_id,
+    notes: item.notes,
+    estimated_budget: item.estimated_budget,
+    priority_level: item.priority_level,
+    preferred_start_date: item.preferred_start_date,
+    preferred_end_date: item.preferred_end_date,
+    created_at: item.created_at,
+    updated_at: item.updated_at,
+    location: {
+      id: item.location_id,
+      name: item.location_name,
+      country: item.location_country,
+      region: item.location_region,
+      latitude: parseFloat(item.location_latitude),
+      longitude: parseFloat(item.location_longitude),
+      timezone: item.location_timezone
+    }
+  }));
+}
 }
 
 export const wishlistModel = new WishlistModel();

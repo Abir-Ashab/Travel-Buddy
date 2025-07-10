@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { FiUser, FiMail, FiLock, FiArrowRight } from 'react-icons/fi'
-import { register } from '../../services/auth'
+import { register, login } from '../../services/auth'
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
+import api from '../../services/api'
 
 interface FormData {
   name: string
@@ -19,6 +20,17 @@ export default function RegisterPage() {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
+  const fetchUser = async () => {
+    try {
+      const res = await api.get("/users/profile");
+      console.log("response: ", res);
+      return res.data.data;
+    } catch (err) {
+      console.error("Failed to fetch user", err);
+      return null;
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -31,8 +43,27 @@ export default function RegisterPage() {
     
     try {
       await register(form)
-      toast.success('Registration successful! Please login.')
-      navigate('/login')
+      toast.success('Registration successful!')
+      const loginRes = await login({
+        email: form.email,
+        password: form.password
+      })
+      
+      console.log("Login response: ", loginRes);
+      localStorage.setItem('token', loginRes.data.accessToken);
+      const fetchedUser = await fetchUser();
+      
+      if (fetchedUser) {
+        localStorage.setItem('user', JSON.stringify(fetchedUser));
+        if (fetchedUser.role === 'admin' || fetchedUser.role === 'super_admin') {
+          navigate('/admin');
+        } else {
+          navigate('/posts');
+        }
+      } else {
+        navigate('/posts');
+      }
+      
     } catch (err) {
       toast.error('Registration failed. Email may already be in use.')
       console.error(err)

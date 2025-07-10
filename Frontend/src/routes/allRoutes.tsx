@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
-import AdminLayout from '../components/layout/adminLayout'; // You'll need to create this
+import AdminLayout from '../components/layout/adminLayout'; 
 import FrontPage from '../components/globalFiles/frontPage';
 import RegisterPage from '../components/auth/registerPage';
 import LoginPage from '../components/auth/loginPage';
@@ -19,8 +19,10 @@ import ProximitySettings from '../components/profile/proximitySettings';
 import TravelExplorer from '../components/travelPlace/travelExplorer';
 import SavedLikedPosts from '../components/posts/savedLikedPosts';
 import AdminDashboard from '../components/admin/adminDashboard';
-import ProtectedRoute from '../components/auth/protectedRoute'; // You'll need to create this
+import ProtectedRoute from '../components/auth/protectedRoute';
 import Notifications from '../components/notifications/fetchNotification';
+import TripInvitesComponent from '../components/trip/tripInvites';
+import CommunityMembers from '../components/globalFiles/communityMembers';
 export default function AllRoutes() {
   return (
     <Routes>
@@ -28,8 +30,8 @@ export default function AllRoutes() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/features" element={<FeaturedPosts />} />
-      
-      {/* Regular user routes */}
+      <Route path="/community" element={< CommunityMembers/>} />
+
       <Route element={<Layout />}>
         <Route path="/posts" element={<PostsList />} />
         <Route path="/posts/:id" element={<PostDetails />} /> 
@@ -44,6 +46,7 @@ export default function AllRoutes() {
         <Route path="/travel-plans/:id" element={<TripDetailsPage />} />
         <Route path='/proximity-settings' element={<ProximitySettings/>}/>
         <Route path="/travel-places" element={<TravelExplorer />} />
+        <Route path="/travel-places/invites" element={<TripInvitesComponent />} />
         <Route path="/saved-liked-posts" element={<SavedLikedPosts />} />
       </Route>
 

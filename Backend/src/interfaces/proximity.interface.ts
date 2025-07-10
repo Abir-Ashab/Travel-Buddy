@@ -4,7 +4,7 @@ export interface ProximityAlert {
   user_id: string;
   target_user_id?: string;
   location_id: string;
-  trigger_type: 'wishlist_location' | 'trip_participant' | 'featured_post' | 'attraction' | 'accommodation'| 'dining';
+  trigger_type: 'nearby_wishlist_location' | 'trip_participant' | 'featured_post' | 'attraction' | 'accommodation'| 'dining';
   distance_km: number;
   created_at: Date;
   updated_at: Date;
@@ -70,7 +70,7 @@ export interface ProximityNotificationPayload {
 }
 
 export interface GetProximityAlertsRequest {
-  trigger_type?: 'wishlist_location' | 'trip_participant' | 'featured_post' | 'attraction' | 'accommodation'| 'dining';
+  trigger_type?: 'nearby_wishlist_location' | 'trip_participant' | 'featured_post' | 'attraction' | 'accommodation'| 'dining';
   limit?: number;
   offset?: number;
 }
