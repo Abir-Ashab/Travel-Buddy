@@ -97,9 +97,16 @@ export default function Navbar({ user, onToggleSidebar }: NavbarProps) {
 
   useEffect(() => {
     if (user) {
-      runProcess()
-      const interval = setInterval(runProcess, 100000);
-      return () => clearInterval(interval);
+      let interval: NodeJS.Timeout;
+      const timeout = setTimeout(() => {
+        runProcess();
+        interval = setInterval(runProcess, 100000);
+      }, 10000);
+      
+      return () => {
+        clearTimeout(timeout);
+        if (interval) clearInterval(interval);
+      };
     }
   }, [user]);
 
