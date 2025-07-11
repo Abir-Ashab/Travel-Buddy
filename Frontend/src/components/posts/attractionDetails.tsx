@@ -1,7 +1,23 @@
 import { useState } from "react";
-import { FiCamera, FiPlus, FiTrash2, FiSave, FiX, FiMapPin, FiStar, FiClock } from "react-icons/fi";
+import { FiHome, FiPlus, FiTrash2, FiSave, FiX, FiMapPin, FiStar } from "react-icons/fi";
 import api from "../../services/api";
 import LocationSearch from "../globalFiles/locationSearch";
+import { 
+  FiEdit3, 
+  FiDollarSign, 
+  FiCalendar, 
+  FiTrendingUp, 
+  FiGlobe, 
+  FiClock,
+  FiNavigation,
+  FiCheck,
+  FiAlertCircle,
+  FiLoader,
+  FiTruck,
+  FiCamera,
+  FiCoffee,
+  FiImage
+} from "react-icons/fi";
 
 interface Attraction {
   attraction_name: string;
@@ -415,97 +431,122 @@ export default function AttractionDetails({ postId, onClose }: AttractionDetails
                         />
                       </div>
                     </div>
-
-                    {/* Location Details */}
-                    <div>
-                      <h4 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
-                        <FiMapPin className="text-purple-600" />
-                        Location Details
-                      </h4>
-                      <div className="grid md:grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-semibold text-slate-700 mb-3">
-                            <FiMapPin className="inline mr-1" />
-                            Search Location
-                            </label>
-                            <LocationSearch 
-                            onLocationSelect={handleLocationSelect}
-                            placeholder="Search for a location (e.g., Everest Base Camp, Nepal)"
-                            />
-                            {(() => {
-                                addLocation(index);
-                                return null; 
-                            })()}
+                        <div className="bg-white rounded-3xl shadow-sm border border-slate-200/50 p-8">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 bg-amber-100 rounded-2xl flex items-center justify-center">
+                              <FiMapPin className="text-amber-600" />
+                            </div>
+                            <h2 className="text-xl font-bold text-slate-800">Location Details</h2>
+                          </div>
+              
+                          <div className="space-y-6">
+                            <div>
+                              <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                                  <FiMapPin className="inline mr-1" />
+                                  Search Location
+                                  </label>
+                                  <LocationSearch 
+                                  onLocationSelect={handleLocationSelect}
+                                  placeholder="Search for a location (e.g., Everest Base Camp, Nepal)"
+                                  />
+                                  {(() => {
+                                      addLocation(index);
+                                      return null; 
+                                  })()}
+                              </div>
+                            </div>
+              
+                            <div >
+                              <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                                  <FiGlobe className="inline mr-1" />
+                                  Name
+                                </label>
+                                <input
+                                  type="text"
+                                  required
+                                  value={location.name}
+                                  onChange={(e) => setLocation({...location, name: e.target.value})}
+                                  className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
+                                  placeholder="e.g., hotel sunshine"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                                  <FiGlobe className="inline mr-1" />
+                                  Country
+                                </label>
+                                <input
+                                  type="text"
+                                  required
+                                  value={location.country}
+                                  onChange={(e) => setLocation({...location, country: e.target.value})}
+                                  className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
+                                  placeholder="e.g., Nepal"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                                  Region
+                                </label>
+                                <input
+                                  type="text"
+                                  value={location.region}
+                                  onChange={(e) => setLocation({...location, region: e.target.value})}
+                                  className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
+                                  placeholder="e.g., South Asia"
+                                />
+                              </div>
+              
+                              <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                                  <FiClock className="inline mr-1" />
+                                  Timezone
+                                </label>
+                                <input
+                                  type="text"
+                                  value={location.timezone}
+                                  onChange={(e) => setLocation({...location, timezone: e.target.value})}
+                                  className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
+                                  placeholder="e.g., Asia/Kathmandu"
+                                />
+                              </div>
+                            </div>
+              
+                            <div className="grid md:grid-cols-2 gap-6">
+                              <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                                  <FiNavigation className="inline mr-1" />
+                                  Latitude
+                                </label>
+                                <input
+                                  type="number"
+                                  step="0.0001"
+                                  value={location.latitude}
+                                  onChange={(e) => setLocation({...location, latitude: parseFloat(e.target.value)})}
+                                  className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
+                                  placeholder="e.g., 27.9881"
+                                />
+                              </div>
+              
+                              <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                                  <FiNavigation className="inline mr-1" />
+                                  Longitude
+                                </label>
+                                <input
+                                  type="number"
+                                  step="0.0001"
+                                  value={location.longitude}
+                                  onChange={(e) => setLocation({...location, longitude: parseFloat(e.target.value)})}
+                                  className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
+                                  placeholder="e.g., 86.9250"
+                                />
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-2">
-                            Country *
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            value={location.country}
-                            onChange={(e) => updateAttraction(index, 'location.country', e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
-                            placeholder="e.g., UK"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-2">
-                            Region
-                          </label>
-                          <input
-                            type="text"
-                            value={location.region}
-                            onChange={(e) => updateAttraction(index, 'location.region', e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
-                            placeholder="e.g., Europe"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-2">
-                            Latitude
-                          </label>
-                          <input
-                            type="number"
-                            step="0.0001"
-                            value={location.latitude}
-                            onChange={(e) => updateAttraction(index, 'location.latitude', parseFloat(e.target.value))}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
-                            placeholder="51.5074"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-2">
-                            Longitude
-                          </label>
-                          <input
-                            type="number"
-                            step="0.0001"
-                            value={location.longitude}
-                            onChange={(e) => updateAttraction(index, 'location.longitude', parseFloat(e.target.value))}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
-                            placeholder="0.1278"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-700 mb-2">
-                            Timezone
-                          </label>
-                          <input
-                            type="text"
-                            value={location.timezone}
-                            onChange={(e) => updateAttraction(index, 'location.timezone', e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
-                            placeholder="Europe/London"
-                          />
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               ))}

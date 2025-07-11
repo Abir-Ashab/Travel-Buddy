@@ -75,6 +75,8 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
     }
   });
 
+  // Remove the separate location state - we'll use formData.location instead
+
   useEffect(() => {
     if (isEditing && editingItem) {
       setFormData({
@@ -135,6 +137,17 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
             : value
       }));
     }
+  };
+
+  // Add a specific handler for location fields
+  const handleLocationFieldChange = (field: string, value: string | number) => {
+    setFormData(prev => ({
+      ...prev,
+      location: {
+        ...prev.location,
+        [field]: value
+      }
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -270,7 +283,7 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
           </div>
 
           <div className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
+            <div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-3">
                   <FiMapPin className="inline mr-1" />
@@ -281,24 +294,9 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
                   placeholder="Search for a location (e.g., Everest)"
                 />
               </div>
-              
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-3">
-                  Location Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  name="location.name"
-                  value={formData.location.name}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
-                  placeholder="e.g., Mount Everest"
-                />
-              </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-3">
                   <FiGlobe className="inline mr-1" />
@@ -306,30 +304,26 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
                 </label>
                 <input
                   type="text"
-                  name="location.country"
-                  value={formData.location.country}
-                  onChange={handleInputChange}
+                  required
+                  value={formData.location.country} // Fixed: use formData.location
+                  onChange={(e) => handleLocationFieldChange('country', e.target.value)} // Fixed: use new handler
                   className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
                   placeholder="e.g., Nepal"
                 />
               </div>
-              
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-3">
                   Region
                 </label>
                 <input
                   type="text"
-                  name="location.region"
-                  value={formData.location.region}
-                  onChange={handleInputChange}
+                  value={formData.location.region} // Fixed: use formData.location
+                  onChange={(e) => handleLocationFieldChange('region', e.target.value)} // Fixed: use new handler
                   className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
                   placeholder="e.g., South Asia"
                 />
               </div>
-            </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-3">
                   <FiClock className="inline mr-1" />
@@ -337,14 +331,15 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
                 </label>
                 <input
                   type="text"
-                  name="location.timezone"
-                  value={formData.location.timezone}
-                  onChange={handleInputChange}
+                  value={formData.location.timezone} // Fixed: use formData.location
+                  onChange={(e) => handleLocationFieldChange('timezone', e.target.value)} // Fixed: use new handler
                   className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
                   placeholder="e.g., Asia/Kathmandu"
                 />
               </div>
-              
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-3">
                   <FiNavigation className="inline mr-1" />
@@ -353,16 +348,13 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
                 <input
                   type="number"
                   step="0.0001"
-                  name="location.latitude"
-                  value={formData.location.latitude}
-                  onChange={handleInputChange}
+                  value={formData.location.latitude} // Fixed: use formData.location
+                  onChange={(e) => handleLocationFieldChange('latitude', e.target.value === '' ? '' : parseFloat(e.target.value))} // Fixed: use new handler
                   className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
                   placeholder="e.g., 27.9881"
                 />
               </div>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-6">
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-3">
                   <FiNavigation className="inline mr-1" />
@@ -371,9 +363,8 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
                 <input
                   type="number"
                   step="0.0001"
-                  name="location.longitude"
-                  value={formData.location.longitude}
-                  onChange={handleInputChange}
+                  value={formData.location.longitude} // Fixed: use formData.location
+                  onChange={(e) => handleLocationFieldChange('longitude', e.target.value === '' ? '' : parseFloat(e.target.value))} // Fixed: use new handler
                   className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
                   placeholder="e.g., 86.9250"
                 />

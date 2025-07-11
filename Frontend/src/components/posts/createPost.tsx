@@ -125,7 +125,6 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
   }
 
   const handleLocationSelect = (lat: number, lon: number, displayName: string) => {
-    // Parse the display name to extract components
     const parts = displayName.split(', ');
     const name = parts[0] || '';
     const region = parts.length > 1 ? parts[1] : '';
@@ -135,7 +134,7 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
       name: name,
       country: country,
       region: region,
-      timezone: 'UTC', // Default, can be updated with timezone API if needed
+      timezone: 'UTC',
       latitude: lat,
       longitude: lon
     });
@@ -393,7 +392,7 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
             </div>
 
             <div className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
+              <div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-3">
                     <FiMapPin className="inline mr-1" />
@@ -404,6 +403,9 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
                     placeholder="Search for a location (e.g., Everest)"
                   />
                 </div>
+              </div>
+
+              <div >
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-3">
                     <FiGlobe className="inline mr-1" />
@@ -418,9 +420,6 @@ export default function CreatePost({ onPostCreated }: PostCreateProps) {
                     placeholder="e.g., Nepal"
                   />
                 </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-3">
                     Region
