@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../config";
-import AppError from "../errors/AppError";
 import { USER_Role, USER_STATUS } from "../interfaces/user.interface";
 import { catchAsync } from "../utils/catchAsync.util";
 import { userModel } from "../repositories/user.repository";
+import { UnauthorizedError } from "../errors/UnauthorizedError";
+import { NotFoundError } from "../errors/NotFoundError";
+import { ForbiddenError } from "../errors/ForbiddenError";
 
 declare global {
   namespace Express {
@@ -19,36 +21,42 @@ export const authMiddleware = (...requiredRoles: (typeof USER_Role)[keyof typeof
     const accessToken = req.headers.authorization;
 
     if (!accessToken) {
-      throw new AppError(401, "You are not authorized to access this route");
+      throw new UnauthorizedError("Access token missing. You must be logged in.");
     }
 
-    const verfiedToken = jwt.verify(
-      accessToken as string,
-      config.jwt_access_secret as string
-    );
+    let verfiedToken: JwtPayload;
+    try {
+      verfiedToken = jwt.verify(
+        accessToken as string,
+        config.jwt_access_secret as string
+      ) as JwtPayload;
+    } catch (err) {
+      throw new UnauthorizedError("Invalid or expired token. Please log in again.");
+    }
 
-    console.log("verfiedToken", verfiedToken);
+    const { role, email, user_id } = verfiedToken;
 
-    const { role, email, user_id } = verfiedToken as JwtPayload;
-    console.log(email, role, user_id);
     const user = await userModel.findByEmail(email);
-    req.user = {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        status: user.status
-    };
+
     if (!user) {
-      throw new AppError(401, "User not found");
+      throw new NotFoundError("User not found");
     }
 
     if (user.status === USER_STATUS.BLOCKED) {
-      throw new AppError(401, "User is blocked");
+      throw new ForbiddenError("Your account is blocked. Contact support.");
     }
 
     if (!requiredRoles.includes(role)) {
-      throw new AppError(401, "You are not authorized to access this route");
+      throw new ForbiddenError("You do not have permission to access this resource.");
     }
+
+    req.user = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      status: user.status
+    };
+
     next();
   });
 };

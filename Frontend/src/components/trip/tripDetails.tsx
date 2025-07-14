@@ -37,7 +37,6 @@ export default function TripDetailsComponent() {
       ]);
 
       const participantsData = participantsRes.data.data;
-      console.log(participantsData);
 
       const data : any = localStorage.getItem("user")
       const user = JSON.parse(data);

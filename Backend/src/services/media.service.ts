@@ -2,13 +2,18 @@ import { mediaModel } from "../repositories/media.repository";
 import { postModel } from '../repositories/post.repository';
 import { Media } from "../interfaces/media.interface";
 import { CloudinaryService } from "../services/cloudinary.service"
+import { NotFoundError } from "../errors/NotFoundError";
 
 const getMediaByPost = async (postId: string): Promise<Media[]> => {
   return await mediaModel.findByPostId(postId);
 };
 
 const getMediaById = async (mediaId: string): Promise<Media | null> => {
-  return await mediaModel.findById(mediaId);
+  const media =  await mediaModel.findById(mediaId);
+  if(!media) {
+    throw new NotFoundError("Media not found");
+  }
+  return media;
 };
 
 const createMedia = async (
@@ -40,8 +45,8 @@ const updateMedia = async (
   file: Express.Multer.File
 ): Promise<Media | null> => {
   const media = await mediaModel.findById(mediaId);
-  if (!media) {
-    return null;
+  if(!media) {
+    throw new NotFoundError("Media not found");
   }
 
   await CloudinaryService.deleteImage(media.image_url);
@@ -56,8 +61,8 @@ const updateMedia = async (
 
 const deleteMedia = async (mediaId: string): Promise<boolean> => {
   const media = await mediaModel.findById(mediaId);
-  if (!media) {
-    return false;
+  if(!media) {
+    throw new NotFoundError("Media not found");
   }
   await CloudinaryService.deleteImage(media.image_url);
 

@@ -10,6 +10,7 @@ import {
   ReportReason,
   ReportStatus
 } from '../interfaces/post.interface';
+import { NotFoundError } from '../errors/NotFoundError';
 
 const getPosts = async (filters: PostFilters, page: number, limit: number): Promise<PostsResponse> => {
   const offset = (page - 1) * limit;
@@ -30,7 +31,7 @@ const getFeaturedPosts = async (limit: number): Promise<Post[]> => {
 const getPostById = async (postId: string): Promise<Post | null> => {
   const post = await postModel.findById(postId);
   if (!post) {
-    throw new Error('Post not found');
+    throw new NotFoundError("Post not found")
   }
   return post;
 };
@@ -51,7 +52,7 @@ const createPost = async (userId: string, postData: CreatePostRequest): Promise<
 
   const createdPost = await postModel.findById(postId);
   if (!createdPost) {
-    throw new Error('Post not found after creation');
+    throw new NotFoundError('Post not found after creation');
   }
   return createdPost;
 };
@@ -67,8 +68,8 @@ const updatePost = async (postId: string, userId: string, updateData: UpdatePost
 
 const deletePost = async (postId: string, userId: string): Promise<boolean> => {
   const post = await postModel.findById(postId);
-  if (!post || String(post.user_id) !== String(userId)) {
-    return false;
+  if (!post) {
+    throw new NotFoundError("Post not found")
   }
   return await postModel.delete(postId);
 };
@@ -76,7 +77,7 @@ const deletePost = async (postId: string, userId: string): Promise<boolean> => {
 const likePost = async (postId: string, userId: string): Promise<{ message: string; likes_count: number }> => {
   const post = await postModel.findById(postId);
   if (!post) {
-    throw new Error('Post not found');
+    throw new NotFoundError("Post not found")
   }
   
   const existingLike = await postModel.findLike(postId, userId);
@@ -90,7 +91,6 @@ const likePost = async (postId: string, userId: string): Promise<{ message: stri
   await postModel.createLike(postId, userId);
   const updatedPost = await postModel.incrementLikesCount(postId);
   
-  // Create notification (with error handling)
   if (post.user_id.toString() !== userId.toString()) {
     try {
       const liker = await userModel.findById(userId);
@@ -121,7 +121,7 @@ const likePost = async (postId: string, userId: string): Promise<{ message: stri
 const unlikePost = async (postId: string, userId: string): Promise<{ message: string; likes_count: number }> => {
   const post = await postModel.findById(postId);
   if (!post) {
-    throw new Error('Post not found');
+    throw new NotFoundError("Post not found")
   }
   const existingLike = await postModel.findLike(postId, userId);
   if (!existingLike) {
@@ -141,7 +141,7 @@ const unlikePost = async (postId: string, userId: string): Promise<{ message: st
 const savePost = async (postId: string, userId: string): Promise<{ message: string; saves_count: number }> => {
   const post = await postModel.findById(postId);
   if (!post) {
-    throw new Error('Post not found');
+    throw new NotFoundError("Post not found")
   }
   const existingSave = await postModel.findSave(postId, userId);
   if (existingSave) {
@@ -181,7 +181,7 @@ const unsavePost = async (postId: string, userId: string): Promise<{ message: st
 const sharePost = async (postId: string, userId: string, platform?: string): Promise<{ shares_count: number }> => {
   const post = await postModel.findById(postId);
   if (!post) {
-    throw new Error('Post not found');
+    throw new NotFoundError("Post not found")
   }
   await postModel.createShare(postId, userId, platform);
   const updatedPost = await postModel.incrementSharesCount(postId);
@@ -247,10 +247,14 @@ const reportPost = async (
 const toggleFeaturePost = async (postId: string): Promise<Post | null> => {
   const post = await postModel.findById(postId);
   if (!post) {
-    return null;
+    throw new NotFoundError("Post not found")
   }
   await postModel.update(postId, { is_featured: !post.is_featured });
-  return await postModel.findById(postId);
+  const featured = await postModel.findById(postId);
+  if(!featured) {
+    throw new NotFoundError("Post not found");
+  }
+  return featured;
 };
 
 const getReports = async (page: number, limit: number, status?: string): Promise<any> => {
@@ -259,13 +263,17 @@ const getReports = async (page: number, limit: number, status?: string): Promise
 };
 
 const resolveReport = async (reportId: string): Promise<any> => {
-  return await postModel.updateReport(reportId, { status: ReportStatus.RESOLVED });
+  const report = await postModel.updateReport(reportId, { status: ReportStatus.RESOLVED });
+  if (!report) {
+      throw new NotFoundError("Report not found")
+  }
+  return report;
 };
 
 const deleteReportedPost = async (reportId: string): Promise<boolean> => {
   const report = await postModel.findReportById(reportId);
   if (!report) {
-    throw new Error('Report not found');
+    throw new NotFoundError('Report not found');
   }
   const postId = report.post_id;
   const deleted = await postModel.delete(postId);

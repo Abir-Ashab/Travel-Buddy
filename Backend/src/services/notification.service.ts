@@ -6,6 +6,7 @@ import {
   NotificationStats,
   ProximityNotificationPayload
 } from "../interfaces/notification.interface";
+import { NotFoundError } from "../errors/NotFoundError";
 
 const getNotificationsByUser = async (
   userId: string, 
@@ -17,7 +18,11 @@ const getNotificationsByUser = async (
 };
 
 const getNotificationById = async (notificationId: string): Promise<Notification | null> => {
-  return await notificationModel.findById(notificationId);
+  const notification = await notificationModel.findById(notificationId); 
+  if (!notification) {
+    throw new NotFoundError("Notification not found")
+  }
+  return notification;
 };
 
 const createNotification = async (notificationData: CreateNotificationRequest): Promise<string> => {
@@ -56,8 +61,8 @@ const updateNotification = async (
 ): Promise<Notification | null> => {
 
   const notification = await notificationModel.findById(notificationId);
-  if (!notification || notification.user_id !== userId) {
-    return null;
+  if (!notification) {
+    throw new NotFoundError("Notification not found");
   }
   if (updateData.type) {
     const validTypes = ['like', 'save', 'trip_invite', 'match_found', 'wishlist_share', 'proximity_alert'];
@@ -71,15 +76,27 @@ const updateNotification = async (
 };
 
 const deleteNotification = async (notificationId: string, userId: string): Promise<boolean> => {
-  return await notificationModel.delete(notificationId, userId);
+  const notification = notificationModel.delete(notificationId, userId); 
+  if (!notification) {
+    throw new NotFoundError("Notification not found")
+  }
+  return notification;
 };
 
 const markAsRead = async (notificationId: string, userId: string): Promise<boolean> => {
-  return await notificationModel.markAsRead(notificationId, userId);
+  const notification = await notificationModel.markAsRead(notificationId, userId);
+  if (!notification) {
+    throw new NotFoundError("Notification not found")
+  }
+  return notification;
 };
 
 const markAllAsRead = async (userId: string): Promise<number> => {
-  return await notificationModel.markAllAsRead(userId);
+  const notification = await notificationModel.markAllAsRead(userId);
+    if (!notification) {
+    throw new NotFoundError("Notification not found")
+  }
+  return notification;
 };
 
 const getUnreadCount = async (userId: string): Promise<number> => {

@@ -13,20 +13,26 @@ const updateUserStatus = async (_id: string, payload: TUser) => {
   return user;
 };
 
-const updateUser = async (_id: string, payload: TUser, file: Express.Multer.File) => {
+const updateUser = async (_id: string, payload: TUser, file?: Express.Multer.File) => {
   const user = await userModel.findById(_id);
   if (!user) {
     throw new Error("User not found");
   }
+
   if (user.role === USER_Role.EXPLORER || user.role === USER_Role.TRAVELER) {
     const { status, ...rest } = payload;
     payload = rest as TUser;
   }
-  const uploadResult = await CloudinaryService.uploadImage(file);
-  payload.profile_picture = uploadResult.secure_url
+
+  if (file) {
+    const uploadResult = await CloudinaryService.uploadImage(file);
+    payload.profile_picture = uploadResult.secure_url;
+  }
+
   const updatedUser = await userModel.updateById(_id, payload);
   return updatedUser;
 };
+
 
 const getUserProfile = async (userId: string) => {
   const user = await userModel.findById(userId);

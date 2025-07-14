@@ -16,13 +16,6 @@ const getAccommodationById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const accommodation = await AccommodationService.getAccommodationById(id);
 
-  if (!accommodation) {
-    return res.status(404).json({
-      success: false,
-      message: 'Accommodation not found'
-    });
-  }
-
   res.json({
     success: true,
     data: accommodation
@@ -45,16 +38,7 @@ const createAccommodation = catchAsync(async (req: Request, res: Response) => {
 const updateAccommodation = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const updateData: UpdateAccommodationRequest = req.body;
-  const userId = req.user?.id;
-
   const accommodation = await AccommodationService.updateAccommodation(id, updateData);
-
-  if (!accommodation) {
-    return res.status(404).json({
-      success: false,
-      message: 'Accommodation not found or unauthorized'
-    });
-  }
 
   res.json({
     success: true,
@@ -65,16 +49,8 @@ const updateAccommodation = catchAsync(async (req: Request, res: Response) => {
 
 const deleteAccommodation = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.user?.id;
 
   const success = await AccommodationService.deleteAccommodation(id);
-
-  if (!success) {
-    return res.status(404).json({
-      success: false,
-      message: 'Accommodation not found or unauthorized'
-    });
-  }
 
   res.json({
     success: true,

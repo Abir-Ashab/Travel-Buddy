@@ -13,9 +13,14 @@ import {
   GetProximityAlertsRequest,
   ProximityNotificationPayload
 } from "../interfaces/proximity.interface";
+import { UnauthorizedError } from "../errors/UnauthorizedError";
+import { NotFoundError } from "../errors/NotFoundError";
 
 
 const getProximitySettings = async (userId: string): Promise<ProximitySettings | null> => {
+  if (!userId) {
+    throw new UnauthorizedError("User not authenticated");
+  }
   let settings = await proximityModel.findSettingsByUserId(userId);
   
   if (!settings) {
@@ -29,6 +34,9 @@ const createProximitySettings = async (
   userId: string,
   settingsData: CreateProximitySettingsRequest
 ): Promise<ProximitySettings> => {
+  if (!userId) {
+    throw new UnauthorizedError("User not authenticated");
+  }
   const defaultSettings = {
     proximity_radius_km: 5.0,
     enable_wishlist_alerts: true,
@@ -57,6 +65,9 @@ const updateProximitySettings = async (
   userId: string,
   updateData: CreateProximitySettingsRequest
 ): Promise<ProximitySettings | null> => {
+  if (!userId) {
+    throw new UnauthorizedError("User not authenticated");
+  }
   const existingSettings = await proximityModel.findSettingsByUserId(userId);
   
   if (!existingSettings) {
@@ -64,13 +75,20 @@ const updateProximitySettings = async (
   }
 
   await proximityModel.updateSettings(existingSettings.id, updateData);
-  return await proximityModel.findSettingsById(existingSettings.id);
+  const settings = await proximityModel.findSettingsById(existingSettings.id);
+  if(!settings) {
+    throw new NotFoundError("Proximity settings not found")
+  }
+  return settings;
 };
 
 const updateUserLocation = async (
   userId: string,
   locationData: UpdateLocationRequest
 ): Promise<UserLocation> => {
+  if (!userId) {
+    throw new UnauthorizedError("User not authenticated");
+  }
   await proximityModel.updateUserLocation(userId, locationData);
   
   const updatedLocation = await proximityModel.getUserLocation(userId);
@@ -82,13 +100,20 @@ const updateUserLocation = async (
 };
 
 const getUserLocation = async (userId: string): Promise<UserLocation | null> => {
-  return await proximityModel.getUserLocation(userId);
+  const location = await proximityModel.getUserLocation(userId);
+  if(!location) {
+    throw new NotFoundError("User location not found");
+  }
+  return location;
 };
 
 const getProximityAlerts = async (
   userId: string,
   queryParams: GetProximityAlertsRequest
 ): Promise<ProximityMatch[]> => {
+  if (!userId) {
+    throw new UnauthorizedError("User not authenticated");
+  }
   return await proximityModel.findAlertsByUserId(userId, queryParams);
 };
 
@@ -97,14 +122,27 @@ const getProximityHistory = async (
   limit: number = 50,
   offset: number = 0
 ): Promise<ProximityAlert[]> => {
+  if (!userId) {
+    throw new UnauthorizedError("User not authenticated");
+  }
   return await proximityModel.findAlertHistory(userId, limit, offset);
 };
 
 const deleteProximityAlert = async (alertId: string, userId: string): Promise<boolean> => {
-  return await proximityModel.deleteAlert(alertId, userId);
+  if (!userId) {
+    throw new UnauthorizedError("User not authenticated");
+  }
+  const proximity = await proximityModel.deleteAlert(alertId, userId);
+  if(!proximity) {
+    throw new NotFoundError("Proximity alert not found")
+  }
+  return proximity;
 };
 
 const getNearbyWishlistLocations = async (userId: string): Promise<NearbyItem[]> => {
+  if (!userId) {
+    throw new UnauthorizedError("User not authenticated");
+  }
   const settings = await getProximitySettings(userId);
   
   if (!settings?.enable_wishlist_alerts) {
@@ -115,6 +153,9 @@ const getNearbyWishlistLocations = async (userId: string): Promise<NearbyItem[]>
 };
 
 const getNearbyTripParticipants = async (userId: string): Promise<NearbyItem[]> => {
+  if (!userId) {
+    throw new UnauthorizedError("User not authenticated");
+  }
   const settings = await getProximitySettings(userId);
   if (!settings?.enable_trip_participant_alerts) {
     return [];
@@ -124,6 +165,9 @@ const getNearbyTripParticipants = async (userId: string): Promise<NearbyItem[]> 
 };
 
 const getNearbyFeaturedPosts = async (userId: string): Promise<NearbyItem[]> => {
+  if (!userId) {
+    throw new UnauthorizedError("User not authenticated");
+  }
   const settings = await getProximitySettings(userId);
   if (!settings?.enable_featured_post_alerts) {
     return [];
@@ -133,6 +177,9 @@ const getNearbyFeaturedPosts = async (userId: string): Promise<NearbyItem[]> => 
 };
 
 const getNearbyAttractions = async (userId: string): Promise<NearbyItem[]> => {
+  if (!userId) {
+    throw new UnauthorizedError("User not authenticated");
+  }
   const settings = await getProximitySettings(userId);
   if (!settings?.enable_attraction_alerts) {
     return [];
@@ -142,6 +189,9 @@ const getNearbyAttractions = async (userId: string): Promise<NearbyItem[]> => {
 };
 
 const getNearbyAccommodations = async (userId: string): Promise<NearbyItem[]> => {
+  if (!userId) {
+    throw new UnauthorizedError("User not authenticated");
+  }
   const settings = await getProximitySettings(userId);
   if (!settings?.enable_accommodation_alerts) {
     return [];
@@ -151,6 +201,9 @@ const getNearbyAccommodations = async (userId: string): Promise<NearbyItem[]> =>
 };
 
 const getNearbyDining = async (userId: string): Promise<NearbyItem[]> => {
+  if (!userId) {
+    throw new UnauthorizedError("User not authenticated");
+  }
   const settings = await getProximitySettings(userId);
   if (!settings?.enable_dining_alerts) {
     return [];
@@ -160,6 +213,9 @@ const getNearbyDining = async (userId: string): Promise<NearbyItem[]> => {
 };
 
 const processProximityAlerts = async (userId: string): Promise<void> => {
+  if (!userId) {
+    throw new UnauthorizedError("User not authenticated");
+  }
   const settings = await proximityModel.findSettingsByUserId(userId);
   if (!settings) {
     console.log(`No proximity settings found for user ${userId}`);

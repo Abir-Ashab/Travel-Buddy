@@ -5,6 +5,9 @@ import { TLoginUser } from "../interfaces/auth.interface";
 import jwt from "jsonwebtoken";
 import config from "../config";
 import { userModel } from "../repositories/user.repository";
+import { USER_STATUS } from "../interfaces/user.interface";
+import { NotFoundError } from "../errors/NotFoundError";
+import { UnauthorizedError } from "../errors/UnauthorizedError";
 
 const register = async (payload: TUser): Promise<any> => {
   const email = payload.email;
@@ -12,7 +15,7 @@ const register = async (payload: TUser): Promise<any> => {
   if (user) {
     throw new Error("User already exists");
   }
-  payload.role = USER_Role.EXPLORER; // Default role for registration
+  payload.role = USER_Role.EXPLORER; 
 
   const newUser = await userModel.create(payload);
 
@@ -23,11 +26,11 @@ const login = async (payload: TLoginUser) => {
   const email = payload.email;
   const user = await userModel.findByEmailWithPassword(email);
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError("User not found");
   }
 
-  if (user.status === "blocked") {
-    throw new Error("User is blocked");
+  if (user.status === USER_STATUS.BLOCKED) {
+    throw new UnauthorizedError("User is blocked");
   }
 
   const passwordMatch = await isPasswordMatched(
@@ -36,7 +39,7 @@ const login = async (payload: TLoginUser) => {
   );
 
   if (!passwordMatch) {
-    throw new Error("Password not matched");
+    throw new UnauthorizedError("Password not matched");
   }
 
   const jwtPayload = {
@@ -61,7 +64,7 @@ const login = async (payload: TLoginUser) => {
 
 const refreshToken = async (token: string): Promise<{ accessToken: string }> => {
   if (!token) {
-    throw new Error("No refresh token provided");
+    throw new UnauthorizedError("No refresh token provided");
   }
 
   try {
@@ -74,7 +77,7 @@ const refreshToken = async (token: string): Promise<{ accessToken: string }> => 
 
     return { accessToken: newAccessToken };
   } catch (error) {
-    throw new Error("Invalid refresh token");
+    throw new UnauthorizedError("Invalid refresh token");
   }
 };
 

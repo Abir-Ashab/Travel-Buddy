@@ -194,7 +194,6 @@ const NearbyWishlistComponent: React.FC = () => {
       setLoading(true);
       setError(null);
       const response = await api.get('proximity/nearby/wishlists');
-      console.log("nearby wishlists: ", response);
       
       if (response.data.success && Array.isArray(response.data.data)) {
         setWishlistItems(response.data.data);

@@ -4,6 +4,7 @@ import { register, login } from '../../services/auth'
 import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import api from '../../services/api'
+import axios from 'axios'
 
 interface FormData {
   name: string
@@ -23,10 +24,17 @@ export default function RegisterPage() {
   const fetchUser = async () => {
     try {
       const res = await api.get("/users/profile");
-      console.log("response: ", res);
       return res.data.data;
-    } catch (err) {
-      console.error("Failed to fetch user", err);
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        const { status, data } = error.response;
+        const { message, errorSources } = data;
+
+        console.error("Status:", status);
+        console.error("Message:", message);
+        console.error("Sources:", errorSources);
+        alert(message)
+      }
       return null;
     }
   }
@@ -64,9 +72,16 @@ export default function RegisterPage() {
         navigate('/posts');
       }
       
-    } catch (err) {
-      toast.error('Registration failed. Email may already be in use.')
-      console.error(err)
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        const { status, data } = error.response;
+        const { message, errorSources } = data;
+
+        console.error("Status:", status);
+        console.error("Message:", message);
+        console.error("Sources:", errorSources);
+        alert(message)
+      }
     } finally {
       setLoading(false)
     }

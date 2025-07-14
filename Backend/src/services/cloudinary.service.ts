@@ -26,7 +26,6 @@ export class CloudinaryService {
         }
       );
 
-      // Convert buffer to stream
       const bufferStream = new Readable();
       bufferStream.push(file.buffer);
       bufferStream.push(null);
@@ -36,7 +35,6 @@ export class CloudinaryService {
 
   static async deleteImage(imageUrl: string): Promise<void> {
     try {
-      // Extract public_id from URL
       const publicId = this.extractPublicId(imageUrl);
       if (publicId) {
         await cloudinary.uploader.destroy(publicId);

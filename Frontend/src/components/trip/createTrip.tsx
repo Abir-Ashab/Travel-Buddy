@@ -1,11 +1,11 @@
-// components/travelPlans/CreateTripModal.tsx
 import { useState } from 'react';
 import api from '../../services/api';
 import { type CreateTripRequest } from '../../types';
 import LocationSearch from '../globalFiles/locationSearch';
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import {FiUser, FiPlus} from "react-icons/fi";
+import {FiUser} from "react-icons/fi";
+import axios from 'axios';
 
 interface CreateTripModalProps {
   onClose: () => void;
@@ -85,8 +85,15 @@ const [loading, setLoading] = useState(false);
         alert('Failed to create trip');
       }
     } catch (error) {
-      console.error('Error creating trip:', error);
-      alert('Error creating trip');
+      if (axios.isAxiosError(error) && error.response) {
+        const { status, data } = error.response;
+        const { message, errorSources } = data;
+
+        console.error("Status:", status);
+        console.error("Message:", message);
+        console.error("Sources:", errorSources);
+        alert(message)
+      }
     } finally {
       setLoading(false);
     }
@@ -113,7 +120,6 @@ const [loading, setLoading] = useState(false);
   };
 
     const handleLocationSelect = (lat: number, lon: number, displayName: string) => {
-    // Parse the display name to extract components
     const parts = displayName.split(', ');
     const name = parts[0] || '';
     const region = parts.length > 1 ? parts[1] : '';
@@ -127,7 +133,7 @@ const [loading, setLoading] = useState(false);
         region: region,
         latitude: lat.toString(),
         longitude: lon.toString(),
-        timezone: 'UTC' // Default, can be updated with timezone API if needed
+        timezone: 'UTC' 
       }
     }));
   };
@@ -173,20 +179,6 @@ const [loading, setLoading] = useState(false);
             required
           />
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Status ID</label>
-          <input
-            type="text"
-            name="status_id"
-            value={formData.status_id}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter status ID"
-            required
-          />
-        </div>
-
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>

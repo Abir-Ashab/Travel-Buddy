@@ -30,13 +30,6 @@ const getPostById = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
     const post = await PostService.getPostById(id);
 
-    if (!post) {
-        return res.status(404).json({
-            success: false,
-            message: 'Post not found'
-        });
-    }
-
     res.status(200).json({
         success: true,
         data: post
@@ -46,13 +39,6 @@ const getPostById = catchAsync(async (req: Request, res: Response) => {
 const getPostWithDetails = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
     const post = await PostService.getPostWithDetails(id);
-
-    if (!post) {
-        return res.status(404).json({
-            success: false,
-            message: 'Post not found'
-        });
-    }
 
     res.status(200).json({
         success: true,
@@ -78,14 +64,6 @@ const updatePost = catchAsync(async (req: Request, res: Response) => {
     const updateData: UpdatePostRequest = req.body;
 
     const post = await PostService.updatePost(id, userId, updateData);
-
-    if (!post) {
-        return res.status(404).json({
-            success: false,
-            message: 'Post not found or unauthorized'
-        });
-    }
-
     res.status(200).json({
         success: true,
         message: 'Post updated successfully',
@@ -96,15 +74,7 @@ const updatePost = catchAsync(async (req: Request, res: Response) => {
 const deletePost = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
     const userId = req.user?.id;
-
     const deleted = await PostService.deletePost(id, userId);
-
-    if (!deleted) {
-        return res.status(404).json({
-            success: false,
-            message: 'Post not found or unauthorized'
-        });
-    }
 
     res.status(200).json({
         success: true,
@@ -261,12 +231,6 @@ const resolveReport = catchAsync(async (req: Request, res: Response) => {
     const { reportId } = req.params;
     const report = await PostService.resolveReport(reportId);
 
-    if (!report) {
-        return res.status(404).json({
-            success: false,
-            message: 'Report not found'
-        });
-    }
     res.status(200).json({
         success: true,
         message: 'Report resolved successfully',
@@ -277,14 +241,7 @@ const resolveReport = catchAsync(async (req: Request, res: Response) => {
 const deleteReportedPost = catchAsync(async (req: Request, res: Response) => {
     const { reportId } = req.params;
     const deleted = await PostService.deleteReportedPost(reportId);
-
-    if (!deleted) {
-        return res.status(404).json({
-            success: false,
-            message: 'Reported post not found or already deleted'
-        });
-    }
-
+    
     res.status(200).json({
         success: true,
         message: 'Reported post deleted successfully'

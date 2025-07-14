@@ -20,15 +20,7 @@ const getAllLocations = catchAsync(async (req: Request, res: Response) => {
 });
 
 const searchLocations = catchAsync(async (req: Request, res: Response) => {
-  const { q } = req.query;
-  
-  if (!q) {
-    return res.status(400).json({
-      success: false,
-      message: 'Search query is required'
-    });
-  }
-  
+  const { q } = req.query; 
   const locations = await LocationService.searchLocations(q as string);
   
   res.json({
@@ -40,13 +32,6 @@ const searchLocations = catchAsync(async (req: Request, res: Response) => {
 const getLocationById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const location = await LocationService.getLocationById(id);
-
-  if (!location) {
-    return res.status(404).json({
-      success: false,
-      message: 'Location not found'
-    });
-  }
 
   res.json({
     success: true,
@@ -69,15 +54,7 @@ const createLocation = catchAsync(async (req: Request, res: Response) => {
 const updateLocation = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const updateData: UpdateLocationRequest = req.body;
-
   const location = await LocationService.updateLocation(id, updateData);
-
-  if (!location) {
-    return res.status(404).json({
-      success: false,
-      message: 'Location not found'
-    });
-  }
 
   res.json({
     success: true,
@@ -88,15 +65,7 @@ const updateLocation = catchAsync(async (req: Request, res: Response) => {
 
 const deleteLocation = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-
   const success = await LocationService.deleteLocation(id);
-
-  if (!success) {
-    return res.status(404).json({
-      success: false,
-      message: 'Location not found'
-    });
-  }
 
   res.json({
     success: true,

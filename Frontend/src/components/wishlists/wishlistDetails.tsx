@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, Edit, Trash2, MapPin, DollarSign, Calendar, Star, Loader2 } from 'lucide-react';
 import { wishlistApi, type Wishlist } from './wishlistApi';
 import WishlistItemForm from './wishlistItemForm';
-import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
 interface WishlistItem {
   id: string;
@@ -134,22 +134,27 @@ const WishlistDetails: React.FC<WishlistDetailsProps> = ({
         console.log('Items updated:', updatedItems);
         return updatedItems;
       });
-      
-      // Update wishlist state to reflect the new item
+
       setWishlist(prev => prev ? {
         ...prev,
         items: [...(prev.items || []), newItem]
       } : null);
       
       setShowAddForm(false);
-      
-      // Refresh from server to ensure consistency
+
       await refreshWishlist();
       
       onUpdate();
     } catch (error) {
-      console.error('Failed to add item:', error);
-      setError('Failed to add item. Please try again.');
+      if (axios.isAxiosError(error) && error.response) {
+        const { status, data } = error.response;
+        const { message, errorSources } = data;
+
+        console.error("Status:", status);
+        console.error("Message:", message);
+        console.error("Sources:", errorSources);
+        alert(message)
+      }
     } finally {
       setLoading(false);
     }
@@ -179,13 +184,11 @@ const WishlistDetails: React.FC<WishlistDetailsProps> = ({
       };
 
       const updatedItem = await wishlistApi.updateWishlistItem(editingItem.id, apiPayload);
-      
-      // Update items state optimistically
+
       setItems(prev => prev.map(item => 
         item.id === editingItem.id ? updatedItem : item
       ));
-      
-      // Update wishlist state
+
       setWishlist(prev => prev ? {
         ...prev,
         items: prev.items?.map(item => 
@@ -194,8 +197,7 @@ const WishlistDetails: React.FC<WishlistDetailsProps> = ({
       } : null);
       
       setEditingItem(null);
-      
-      // Refresh from server to ensure consistency
+
       await refreshWishlist();
       
       onUpdate(); 

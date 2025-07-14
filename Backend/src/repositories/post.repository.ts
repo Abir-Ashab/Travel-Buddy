@@ -177,7 +177,6 @@ class PostModel {
       .select('*')
       .where('post_id', id);
     
-    // add accomodation, attraction, dining, transport as like media
 
     const transport = await this.knex(this.transportsTableName)
       .select('*')

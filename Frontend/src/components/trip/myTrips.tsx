@@ -16,7 +16,6 @@ const MyTripsComponent: React.FC = () => {
   const fetchMyTrips = async () => {
     try {
       const response = await api.get('/trips/my-trips');
-      console.log("get trip: ", response)
       const tripsData = response.data.data.trips;
       if (Array.isArray(tripsData)) {
         setTrips(tripsData);

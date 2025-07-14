@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { MapPin, Heart, Plus, Check, X, Search, Filter, Loader, Star, DollarSign, Calendar, TrendingUp, User, Image, Home, Coffee, Truck, Camera, Globe, Navigation } from 'lucide-react'
 import api from '../../services/api'
 import { wishlistApi, type Wishlist } from '../wishlists/wishlistApi'
+import axios from 'axios'
 
 interface Location {
   id: string
@@ -109,7 +110,15 @@ const AddToWishlistModal: React.FC<AddToWishlistModalProps> = ({
         await onAdd(wishlistId, wishlistItemData)
         successfulAdds.push(wishlistId)
       } catch (error) {
-        console.error(`Failed to add to wishlist ${wishlistId}:`, error)
+        if (axios.isAxiosError(error) && error.response) {
+          const { status, data } = error.response;
+          const { message, errorSources } = data;
+
+          console.error("Status:", status);
+          console.error("Message:", message);
+          console.error("Sources:", errorSources);
+          alert(message)
+        }
       }
     }
 
@@ -307,8 +316,6 @@ export default function TravelDashboard() {
     try {
       setLoading(true)
       const response = await api.get('/locations')
-      console.log("response: ", response)
-      
       if (response.data.success) {
         const locationsWithStats = response.data.data.map((location: Location) => ({
           ...location,

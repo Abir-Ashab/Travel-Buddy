@@ -15,7 +15,6 @@ const TripInvitesComponent: React.FC = () => {
     try {
       const response = await api.get('/trips/invites');
       const invitesData = response.data.data
-      console.log("invitesData: ", invitesData)
       if (Array.isArray(invitesData)) {
         setInvites(invitesData);
       } else if (invitesData && Array.isArray(invitesData.invites)) {

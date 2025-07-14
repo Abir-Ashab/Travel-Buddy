@@ -4,6 +4,8 @@ import {
   CreateLocationRequest,
   UpdateLocationRequest
 } from "../interfaces/location.interface"
+import { NotFoundError } from "../errors/NotFoundError";
+import { BadRequestError } from "../errors/BadRequestError";
 
 interface GetAllLocationsOptions {
   page: number;
@@ -16,12 +18,19 @@ const getAllLocations = async (options: GetAllLocationsOptions): Promise<Locatio
   return await locationModel.findAll(options);
 };
 
-const searchLocations = async (query: string): Promise<Location[]> => {
+const searchLocations = async (query: string): Promise<Location[]> => { 
+  if (!query) {
+    throw new BadRequestError("Search query is required")
+  }
   return await locationModel.search(query);
 };
 
 const getLocationById = async (locationId: string): Promise<Location | null> => {
-  return await locationModel.findById(locationId);
+  const location =  await locationModel.findById(locationId);
+  if(!location) {
+    throw new NotFoundError("Location not found");
+  }
+  return location;
 };
 
 const createLocation = async (locationData: CreateLocationRequest): Promise<Location> => {
@@ -56,8 +65,8 @@ const updateLocation = async (
   updateData: UpdateLocationRequest
 ): Promise<Location | null> => {
   const location = await locationModel.findById(locationId);
-  if (!location) {
-    return null;
+  if(!location) {
+    throw new NotFoundError("Location not found");
   }
 
   if (updateData.latitude !== undefined && (updateData.latitude < -90 || updateData.latitude > 90)) {
@@ -84,8 +93,8 @@ const updateLocation = async (
 
 const deleteLocation = async (locationId: string): Promise<boolean> => {
   const location = await locationModel.findById(locationId);
-  if (!location) {
-    return false;
+  if(!location) {
+    throw new NotFoundError("Location not found");
   }
 
   return await locationModel.delete(locationId);

@@ -5,13 +5,18 @@ import {
   CreateTransportRequest,
   UpdateTransportRequest
 } from '../interfaces/transport.interface';
+import { NotFoundError } from "../errors/NotFoundError";
 
 const getTransportsByPost = async (postId: string): Promise<Transport[]> => {
   return await transportModel.findByPostId(postId);
 };
 
 const getTransportById = async (transportId: string): Promise<Transport | null> => {
-  return await transportModel.findById(transportId);
+  const transport = await transportModel.findById(transportId);
+  if(!transport) {
+    throw new NotFoundError("Transport not found")
+  }
+  return transport;
 };
 
 const createTransport = async (
@@ -39,8 +44,8 @@ const updateTransport = async (
   updateData: UpdateTransportRequest
 ): Promise<Transport | null> => {
   const transport = await transportModel.findById(transportId);
-  if (!transport) {
-    return null;
+  if(!transport) {
+    throw new NotFoundError("Transport not found")
   }
   const post = await postModel.findById(transport.post_id);
   await transportModel.update(transportId, updateData);
@@ -49,8 +54,8 @@ const updateTransport = async (
 
 const deleteTransport = async (transportId: string): Promise<boolean> => {
   const transport = await transportModel.findById(transportId);
-  if (!transport) {
-    return false;
+  if(!transport) {
+    throw new NotFoundError("Transport not found")
   }
   const post = await postModel.findById(transport.post_id);
   return await transportModel.delete(transportId);

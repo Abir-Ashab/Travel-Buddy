@@ -69,8 +69,6 @@ export default function Navbar({ user, onToggleSidebar }: NavbarProps) {
   const runProcess = async () => {
     try {
       const response = await api.post("/proximity/process");
-      console.log(response);
-      
     } catch (err: any) {
       console.error("Failed to fetch proximity settings", err);
     } 

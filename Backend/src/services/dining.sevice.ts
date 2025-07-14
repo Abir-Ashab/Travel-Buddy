@@ -5,13 +5,18 @@ import {
   CreateDiningRequest,
   UpdateDiningRequest
 } from '../interfaces/dining.interface';
+import { NotFoundError } from '../errors/NotFoundError';
 
 const getDiningsByPost = async (postId: string): Promise<Dining[]> => {
   return await diningModel.findByPostId(postId);
 };
 
 const getDiningById = async (diningId: string): Promise<Dining | null> => {
-  return await diningModel.findById(diningId);
+  const dining =  await diningModel.findById(diningId);
+  if (!dining) {
+    throw new NotFoundError("Dining experience not found")
+  }
+  return dining;
 };
 
 const createDining = async (
@@ -43,7 +48,7 @@ const updateDining = async (
 ): Promise<Dining | null> => {
   const dining = await diningModel.findById(diningId);
   if (!dining) {
-    return null;
+    throw new NotFoundError("Dining experience not found")
   }
   const post = await postModel.findById(dining.post_id);
   if (updateData.rating !== undefined && (updateData.rating < 1 || updateData.rating > 5)) {
@@ -57,7 +62,7 @@ const updateDining = async (
 const deleteDining = async (diningId: string): Promise<boolean> => {
   const dining = await diningModel.findById(diningId);
   if (!dining) {
-    return false;
+    throw new NotFoundError("Dining experience not found")
   }
   const post = await postModel.findById(dining.post_id);
   return await diningModel.delete(diningId);

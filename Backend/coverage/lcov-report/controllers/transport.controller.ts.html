@@ -319,12 +319,6 @@ const updateTransport = catchAsync(async (req: Request, res: Response) =&gt; {
   const updateData: UpdateTransportRequest = req.body;
   const userId = req.body.user_id;
 &nbsp;
-  // if (!userId) {
-  //   return res.status(401).json({
-  //     success: false,
-  //     message: 'User not authenticated',
-  //   });
-  // }
 &nbsp;
   const transport = await TransportService.updateTransport(id, updateData);
 &nbsp;
@@ -346,12 +340,6 @@ const deleteTransport = catchAsync(async (req: Request, res: Response) =&gt; {
   const { id } = req.params;
   const userId = req.body.user_id;
 &nbsp;
-  // if (!userId) {
-  //   return res.status(401).json({
-  //     success: false,
-  //     message: 'User not authenticated',
-  //   });
-  // }
 &nbsp;
   const success = await TransportService.deleteTransport(id);
 &nbsp;

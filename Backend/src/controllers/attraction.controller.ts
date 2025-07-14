@@ -16,13 +16,6 @@ const getAttractionById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const attraction = await AttractionService.getAttractionById(id);
 
-  if (!attraction) {
-    return res.status(404).json({
-      success: false,
-      message: 'Attraction not found',
-    });
-  }
-
   res.json({
     success: true,
     data: attraction,
@@ -44,15 +37,7 @@ const createAttraction = catchAsync(async (req: Request, res: Response) => {
 const updateAttraction = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const updateData: UpdateAttractionRequest = req.body;
-  const userId = req.user?.id;
   const attraction = await AttractionService.updateAttraction(id, updateData);
-
-  if (!attraction) {
-    return res.status(404).json({
-      success: false,
-      message: 'Attraction not found or unauthorized',
-    });
-  }
 
   res.json({
     success: true,
@@ -63,15 +48,7 @@ const updateAttraction = catchAsync(async (req: Request, res: Response) => {
 
 const deleteAttraction = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const userId = req.user?.id;
   const success = await AttractionService.deleteAttraction(id);
-
-  if (!success) {
-    return res.status(404).json({
-      success: false,
-      message: 'Attraction not found or unauthorized',
-    });
-  }
 
   res.json({
     success: true,

@@ -9,13 +9,6 @@ import { catchAsync } from "../utils/catchAsync.util";
 
 const getProximitySettings = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: 'User not authenticated'
-    });
-  }
-  
   const settings = await ProximityService.getProximitySettings(userId);
   
   res.json({
@@ -27,14 +20,6 @@ const getProximitySettings = catchAsync(async (req: Request, res: Response) => {
 const createProximitySettings = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
   const settingsData: CreateProximitySettingsRequest = req.body;
-
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: 'User not authenticated'
-    });
-  }
-  
   const settings = await ProximityService.createProximitySettings(userId, settingsData);
 
   res.status(201).json({
@@ -47,22 +32,7 @@ const createProximitySettings = catchAsync(async (req: Request, res: Response) =
 const updateProximitySettings = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
   const updateData: CreateProximitySettingsRequest = req.body;
-
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: 'User not authenticated'
-    });
-  }
-  
   const settings = await ProximityService.updateProximitySettings(userId, updateData);
-
-  if (!settings) {
-    return res.status(404).json({
-      success: false,
-      message: 'Proximity settings not found'
-    });
-  }
 
   res.json({
     success: true,
@@ -73,15 +43,7 @@ const updateProximitySettings = catchAsync(async (req: Request, res: Response) =
 
 const updateUserLocation = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
-  const locationData: UpdateLocationRequest = req.body;
-
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: 'User not authenticated'
-    });
-  }
-  
+  const locationData: UpdateLocationRequest = req.body; 
   const location = await ProximityService.updateUserLocation(userId, locationData);
 
   ProximityService.processProximityAlerts(userId).catch(console.error);
@@ -95,21 +57,7 @@ const updateUserLocation = catchAsync(async (req: Request, res: Response) => {
 
 const getUserLocation = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: 'User not authenticated'
-    });
-  }
-  
   const location = await ProximityService.getUserLocation(userId);
-
-  if (!location) {
-    return res.status(404).json({
-      success: false,
-      message: 'User location not found'
-    });
-  }
 
   res.json({
     success: true,
@@ -119,12 +67,6 @@ const getUserLocation = catchAsync(async (req: Request, res: Response) => {
 
 const getProximityAlerts = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: 'User not authenticated'
-    });
-  }
   const queryParams: GetProximityAlertsRequest = req.query;
   
   const alerts = await ProximityService.getProximityAlerts(userId, queryParams);
@@ -138,14 +80,6 @@ const getProximityAlerts = catchAsync(async (req: Request, res: Response) => {
 const getProximityHistory = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
   const { limit = 50, offset = 0 } = req.query;
-
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: 'User not authenticated'
-    });
-  }
-  
   const history = await ProximityService.getProximityHistory(userId, Number(limit), Number(offset));
 
   res.json({
@@ -157,22 +91,7 @@ const getProximityHistory = catchAsync(async (req: Request, res: Response) => {
 const deleteProximityAlert = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const userId = req.user?.id;
-
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: 'User not authenticated'
-    });
-  }
-  
   const success = await ProximityService.deleteProximityAlert(id, userId);
-
-  if (!success) {
-    return res.status(404).json({
-      success: false,
-      message: 'Proximity alert not found or unauthorized'
-    });
-  }
 
   res.json({
     success: true,
@@ -181,14 +100,7 @@ const deleteProximityAlert = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getNearbyWishlistLocations = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: 'User not authenticated'
-    });
-  }
-  
+  const userId = req.user?.id; 
   const nearbyItems = await ProximityService.getNearbyWishlistLocations(userId);
 
   res.json({
@@ -199,13 +111,6 @@ const getNearbyWishlistLocations = catchAsync(async (req: Request, res: Response
 
 const getNearbyTripParticipants = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: 'User not authenticated'
-    });
-  }
-  
   const nearbyParticipants = await ProximityService.getNearbyTripParticipants(userId);
 
   res.json({
@@ -216,13 +121,6 @@ const getNearbyTripParticipants = catchAsync(async (req: Request, res: Response)
 
 const getNearbyFeaturedPosts = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: 'User not authenticated'
-    });
-  }
-  
   const nearbyPosts = await ProximityService.getNearbyFeaturedPosts(userId);
 
   res.json({
@@ -233,13 +131,6 @@ const getNearbyFeaturedPosts = catchAsync(async (req: Request, res: Response) =>
 
 const getNearbyAttractions = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: 'User not authenticated'
-    });
-  }
-  
   const nearbyAttractions = await ProximityService.getNearbyAttractions(userId);
 
   res.json({
@@ -249,14 +140,7 @@ const getNearbyAttractions = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getNearbyAccommodations = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user?.id;
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: 'User not authenticated'
-    });
-  }
-  
+  const userId = req.user?.id; 
   const nearbyAccommodations = await ProximityService.getNearbyAccommodations(userId);
 
   res.json({
@@ -267,13 +151,6 @@ const getNearbyAccommodations = catchAsync(async (req: Request, res: Response) =
 
 const getNearbyDining = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: 'User not authenticated'
-    });
-  }
-  
   const nearbyDining = await ProximityService.getNearbyDining(userId);
 
   res.json({
@@ -284,14 +161,6 @@ const getNearbyDining = catchAsync(async (req: Request, res: Response) => {
 
 const processProximityAlerts = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
-
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: 'User not authenticated'
-    });
-  }
-  
   await ProximityService.processProximityAlerts(userId);
 
   res.json({

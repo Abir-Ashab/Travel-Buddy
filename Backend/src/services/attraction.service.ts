@@ -5,13 +5,18 @@ import {
   CreateAttractionRequest,
   UpdateAttractionRequest
 } from '../interfaces/attraction.interface';
+import { NotFoundError } from '../errors/NotFoundError';
 
 const getAttractionsByPost = async (postId: string): Promise<Attraction[]> => {
   return await attractionModel.findByPostId(postId);
 };
 
 const getAttractionById = async (attractionId: string): Promise<Attraction | null> => {
-  return await attractionModel.findById(attractionId);
+    const attraction = await attractionModel.findById(attractionId);
+    if (!attraction) {
+      throw new NotFoundError("Attraction not found")
+    }
+    return attraction;
 };
 
 const createAttraction = async (
@@ -46,7 +51,7 @@ const updateAttraction = async (
 ): Promise<Attraction | null> => {
   const attraction = await attractionModel.findById(attractionId);
   if (!attraction) {
-    return null;
+    throw new NotFoundError("Attraction not found")
   }
 
   const post = await postModel.findById(attraction.post_id);
@@ -65,7 +70,7 @@ const updateAttraction = async (
 const deleteAttraction = async (attractionId: string): Promise<boolean> => {
   const attraction = await attractionModel.findById(attractionId);
   if (!attraction) {
-    return false;
+    throw new NotFoundError("Attraction not found")
   }
   const post = await postModel.findById(attraction.post_id);
   return await attractionModel.delete(attractionId);

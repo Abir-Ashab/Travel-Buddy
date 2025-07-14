@@ -29,13 +29,6 @@ const getNotificationById = catchAsync(async (req: Request, res: Response) => {
   
   const notification = await NotificationService.getNotificationById(id);
 
-  if (!notification) {
-    return res.status(404).json({
-      success: false,
-      message: 'Notification not found'
-    });
-  }
-
   res.json({
     success: true,
     data: notification
@@ -79,15 +72,7 @@ const updateNotification = catchAsync(async (req: Request, res: Response) => {
 const deleteNotification = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const userId = req.user?.id;
-
   const success = await NotificationService.deleteNotification(id, userId);
-
-  if (!success) {
-    return res.status(404).json({
-      success: false,
-      message: 'Notification not found or unauthorized'
-    });
-  }
 
   res.json({
     success: true,
@@ -98,15 +83,7 @@ const deleteNotification = catchAsync(async (req: Request, res: Response) => {
 const markAsRead = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const userId = req.user?.id;
-
   const success = await NotificationService.markAsRead(id, userId);
-
-  if (!success) {
-    return res.status(404).json({
-      success: false,
-      message: 'Notification not found or unauthorized'
-    });
-  }
 
   res.json({
     success: true,
@@ -168,14 +145,6 @@ const getRecentByType = catchAsync(async (req: Request, res: Response) => {
 const deleteMultiple = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
   const { ids } = req.body;
-
-  if (!Array.isArray(ids) || ids.length === 0) {
-    return res.status(400).json({
-      success: false,
-      message: 'Please provide an array of notification IDs'
-    });
-  }
-
   const deletedCount = await NotificationService.deleteMultiple(ids, userId);
 
   res.json({

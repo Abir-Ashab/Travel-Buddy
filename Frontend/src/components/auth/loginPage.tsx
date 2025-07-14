@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import {useState } from 'react';
 import api from '../../services/api';
+import axios from 'axios';
 
 interface LoginData {
   email: string
@@ -22,7 +23,6 @@ export default function LoginPage() {
   async function fetchUser() {
     try {
       const res = await api.get("/users/profile");
-      console.log("response: ", res);
       setUser(res.data.data);
       return res.data.data; 
     } catch (err) {
@@ -38,7 +38,6 @@ export default function LoginPage() {
 
   try {
     const res = await login(form);
-    console.log("res: ", res);
     localStorage.setItem('token', res.data.accessToken);
 
     toast.success('Login successful!');
@@ -55,9 +54,16 @@ export default function LoginPage() {
       }
     }
 
-  } catch (err) {
-    toast.error('Invalid email or password');
-    console.error(err);
+  } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        const { status, data } = error.response;
+        const { message, errorSources } = data;
+
+        console.error("Status:", status);
+        console.error("Message:", message);
+        console.error("Sources:", errorSources);
+        alert(message)
+      }
   } finally {
     setLoading(false);
   }

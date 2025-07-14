@@ -38,7 +38,7 @@ const createWishlistItemValidation = z.object({
 
   }).refine((data) => data.location_id || data.location, {
     message: "Either location_id or location must be provided",
-    path: ["location"], // Adjust path as needed
+    path: ["location"], 
   })
 });
 

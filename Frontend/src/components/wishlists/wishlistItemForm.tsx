@@ -75,8 +75,6 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
     }
   });
 
-  // Remove the separate location state - we'll use formData.location instead
-
   useEffect(() => {
     if (isEditing && editingItem) {
       setFormData({
@@ -139,7 +137,6 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
     }
   };
 
-  // Add a specific handler for location fields
   const handleLocationFieldChange = (field: string, value: string | number) => {
     setFormData(prev => ({
       ...prev,
@@ -317,8 +314,8 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
                 </label>
                 <input
                   type="text"
-                  value={formData.location.region} // Fixed: use formData.location
-                  onChange={(e) => handleLocationFieldChange('region', e.target.value)} // Fixed: use new handler
+                  value={formData.location.region} 
+                  onChange={(e) => handleLocationFieldChange('region', e.target.value)} 
                   className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
                   placeholder="e.g., South Asia"
                 />
@@ -331,8 +328,8 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
                 </label>
                 <input
                   type="text"
-                  value={formData.location.timezone} // Fixed: use formData.location
-                  onChange={(e) => handleLocationFieldChange('timezone', e.target.value)} // Fixed: use new handler
+                  value={formData.location.timezone} 
+                  onChange={(e) => handleLocationFieldChange('timezone', e.target.value)} 
                   className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
                   placeholder="e.g., Asia/Kathmandu"
                 />
@@ -348,7 +345,7 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
                 <input
                   type="number"
                   step="0.0001"
-                  value={formData.location.latitude} // Fixed: use formData.location
+                  value={formData.location.latitude} 
                   onChange={(e) => handleLocationFieldChange('latitude', e.target.value === '' ? '' : parseFloat(e.target.value))} // Fixed: use new handler
                   className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
                   placeholder="e.g., 27.9881"
@@ -363,7 +360,7 @@ const WishlistItemForm: React.FC<WishlistItemFormProps> = ({
                 <input
                   type="number"
                   step="0.0001"
-                  value={formData.location.longitude} // Fixed: use formData.location
+                  value={formData.location.longitude}
                   onChange={(e) => handleLocationFieldChange('longitude', e.target.value === '' ? '' : parseFloat(e.target.value))} // Fixed: use new handler
                   className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 focus:bg-white"
                   placeholder="e.g., 86.9250"
