@@ -159,7 +159,6 @@ const deleteWishlistItem = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getWishlistItem = catchAsync(async (req: Request, res: Response) => {
-  // const { itemId } = req.params;
   const userId = req.user?.id;
   if (!userId) {
     return res.status(401).json({ success: false, message: 'Authentication required' });

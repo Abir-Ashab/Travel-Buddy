@@ -74,7 +74,6 @@ class AccommodationModel {
       .insert({
         ...accomFields,
         location_id: locationId,
-        // created_at: this.knex.fn.now(),
       })
       .returning('id');
       

@@ -1,5 +1,4 @@
 export async function up(knex) {
-  // 1. Change the columns to string
   await knex.schema.alterTable('accommodation', (table) => {
     table.string('accommodation_type').alter();
   });
@@ -13,13 +12,11 @@ export async function up(knex) {
     table.string('best_time_to_visit').alter();
   });
 
-  // 2. Drop leftover CHECK constraints
   await knex.raw(`ALTER TABLE "accommodation" DROP CONSTRAINT IF EXISTS "accommodation_accommodation_type_check"`);
   await knex.raw(`ALTER TABLE "dining" DROP CONSTRAINT IF EXISTS "dining_meal_type_check"`);
   await knex.raw(`ALTER TABLE "attractions" DROP CONSTRAINT IF EXISTS "attractions_attraction_type_check"`);
   await knex.raw(`ALTER TABLE "attractions" DROP CONSTRAINT IF EXISTS "attractions_best_time_to_visit_check"`);
 
-  // 3. Drop the ENUM types too
   await knex.raw(`DROP TYPE IF EXISTS "accommodation_accommodation_type_enum"`);
   await knex.raw(`DROP TYPE IF EXISTS "dining_meal_type_enum"`);
   await knex.raw(`DROP TYPE IF EXISTS "attractions_attraction_type_enum"`);
@@ -27,7 +24,6 @@ export async function up(knex) {
 }
 
 export async function down(knex) {
-  // Revert back if needed
   await knex.schema.alterTable('accommodation', (table) => {
     table.enum('accommodation_type', ['hotel', 'hostel', 'airbnb', 'guesthouse']).notNullable().alter();
   });

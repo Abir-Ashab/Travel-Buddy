@@ -1,9 +1,6 @@
 import dbConfig from '../../config/database';
 import KnexConnection from '../implementations/knex/KnexConnection';
 import { Knex } from 'knex';
-// const PrismaConnection = require('../implementations/prisma/PrismaConnection');
-// const TypeORMConnection = require('../implementations/typeorm/TypeORMConnection');
-// const MongooseConnection = require('../implementations/mongoose/MongooseConnection');
 
 class DatabaseFactory {
   static instance: DatabaseFactory | null = null;
@@ -31,12 +28,6 @@ class DatabaseFactory {
     switch (dbConfig.orm.toLowerCase()) {
       case 'knex':
         return new KnexConnection();
-      // case 'prisma':
-      //   return new PrismaConnection();
-      // case 'typeorm':
-      //   return new TypeORMConnection();
-      // case 'mongoose':
-      //   return new MongooseConnection();
       default:
         throw new Error(`Unsupported ORM: ${dbConfig.orm}`);
     }

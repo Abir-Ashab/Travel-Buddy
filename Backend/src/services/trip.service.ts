@@ -192,7 +192,6 @@ const inviteParticipants = async (
 
   await tripModel.addParticipants(tripId, newUserIds);
 
-  // Create notifications for new participants
   for (const invitedUserId of newUserIds) {
     if (invitedUserId.toString() === userId.toString()) {
       continue; // Don't notify the creator if they somehow invited themselves

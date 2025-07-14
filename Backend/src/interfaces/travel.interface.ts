@@ -121,7 +121,6 @@ export interface SendMessageRequest {
   attachments?: Record<string, any>;
 }
 
-// interfaces/user.interface.ts
 export interface UserProfile {
   id: number;
   name: string;

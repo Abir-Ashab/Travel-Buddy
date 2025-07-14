@@ -37,7 +37,6 @@ router.put(
   "/profile",
   authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
   uploadMiddleware.single('image'), 
-  // validateRequest(UserValidations.updateUserProfileValidation),
   userControllers.updateUser
 );
 
@@ -50,7 +49,6 @@ router.get(
 
 router.get(
   "/travelers",
-  // authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
   userControllers.getTravelers
 );
 

@@ -67,13 +67,6 @@ const deleteAccommodation = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const userId = req.user?.id;
 
-  // if (!userId) {
-  //   return res.status(401).json({
-  //     success: false,
-  //     message: 'User not authenticated'
-  //   });
-  // }
-
   const success = await AccommodationService.deleteAccommodation(id);
 
   if (!success) {

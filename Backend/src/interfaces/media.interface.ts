@@ -1,4 +1,3 @@
-// media.interface.ts
 export interface Media {
   id: string;
   post_id: string;

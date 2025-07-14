@@ -12,7 +12,6 @@ const locationSchema = z.object({
 
 const createPostValidation = z.object({
   body: z.object({
-    // user_id: z.string().uuid("Invalid user ID"),
     title: z.string().min(1, "Title is required"),
     description: z.string().min(1, "Description is required"),
     total_cost: z.number().min(0, "Total cost must be non-negative"),
@@ -27,7 +26,6 @@ const createPostValidation = z.object({
 
 const updatePostValidation = z.object({
   body: z.object({
-    // user_id: z.string().uuid("Invalid user ID").optional(),
     title: z.string().min(1, "Title is required").optional(),
     description: z.string().min(1, "Description is required").optional(),
     location_id: z.number().int().positive("Location ID must be a positive integer").optional(),
@@ -57,7 +55,6 @@ const postFiltersValidation = z.object({
 
 const reportPostValidation = z.object({
   body: z.object({
-    // user_id: z.string().uuid("Invalid user ID"),
     reason: z.nativeEnum(ReportReason),
     description: z.string().optional(),
   }),

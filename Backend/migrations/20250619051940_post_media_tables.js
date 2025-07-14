@@ -44,7 +44,7 @@ export async function up(knex) {
     table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
     table.uuid('post_id').references('id').inTable('posts').onDelete('CASCADE');
     table.uuid('user_id').references('id').inTable('users').onDelete('CASCADE');
-    table.string('platform').nullable(); // 'facebook', 'twitter', 'whatsapp', 'copy_link'
+    table.string('platform').nullable();
     table.timestamp('created_at').defaultTo(knex.fn.now());
   });
 

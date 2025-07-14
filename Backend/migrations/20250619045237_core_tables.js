@@ -1,5 +1,5 @@
 export async function up(knex) {
-  await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');  // UUID extension
+  await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'); 
   await knex.schema.createTable('users', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
     table.string('name').notNullable();
