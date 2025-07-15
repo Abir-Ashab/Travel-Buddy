@@ -151,7 +151,6 @@ class ProximityModel {
     }
 
     const alerts = await query;
-    console.log(alerts);
     
     return alerts.map(alert => ({
       id: alert.id,
@@ -351,8 +350,6 @@ class ProximityModel {
     const normalizedRadius = this.normalizeRadius(radiusKm);
     const radiusMeters = this.radiusToMeters(normalizedRadius);
     
-    console.log(`Finding attractions within ${normalizedRadius}km (${radiusMeters}m) for user ${userId}`);
-    
     const query = `
       SELECT DISTINCT
         a.id,
@@ -505,7 +502,6 @@ class ProximityModel {
   }
 
   async logProximityEvent(logData: any): Promise<string> {
-    console.log(logData);
     if (logData.distance_km) {
       logData.distance_km = this.normalizeRadius(logData.distance_km);
     }

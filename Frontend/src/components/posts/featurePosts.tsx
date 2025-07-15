@@ -46,7 +46,6 @@ export default function FeaturedPosts() {
       try {
         setLoading(true)
         const res = await api.get('/posts/featured')
-        console.log("featured: ", res)
         const postsWithImages = res.data.data.map((post: FeaturedPost) => ({
           ...post,
           featured_image: post.featured_image || generateTravelImage(post.id),

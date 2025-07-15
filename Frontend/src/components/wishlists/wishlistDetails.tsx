@@ -127,11 +127,8 @@ const WishlistDetails: React.FC<WishlistDetailsProps> = ({
       };
 
       const newItem = await wishlistApi.addWishlistItem(wishlist.id, apiPayload);
-      
-      // Update items state optimistically
       setItems(prev => {
         const updatedItems = [...prev, newItem];
-        console.log('Items updated:', updatedItems);
         return updatedItems;
       });
 

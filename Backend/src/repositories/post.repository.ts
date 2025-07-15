@@ -204,7 +204,6 @@ class PostModel {
     return await this.knex.transaction(async (trx) => {
       let locationId = postData.location_id;
       if (postData.location && typeof postData.location === 'object') {
-        console.log("data: ", postData.location)
         const locationData = postData.location;
         delete postData.location; 
 
@@ -216,8 +215,6 @@ class PostModel {
         
         const latitude : string = locationData.latitude;
         const longitude: string = locationData.longitude;
-        console.log("lat: ", latitude);
-        console.log("long: ", longitude);
         
         await trx.raw(
           `UPDATE locations 

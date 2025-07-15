@@ -347,7 +347,6 @@ export default function TravelDashboard() {
   }
 
   const handleAddToWishlist = async (wishlistId: string, formData: WishlistItemFormData) => {
-    console.log("Adding to wishlist:", wishlistId, formData)
     await wishlistApi.addWishlistItem(wishlistId, formData)
   }
 

@@ -257,7 +257,6 @@ export default function AttractionDetails({ postId, onClose }: AttractionDetails
                   </div>
 
                   <div className="space-y-6">
-                    {/* Basic Info */}
                     <div className="grid md:grid-cols-3 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -308,7 +307,6 @@ export default function AttractionDetails({ postId, onClose }: AttractionDetails
                       </div>
                     </div>
 
-                    {/* Rating and Time */}
                     <div className="grid md:grid-cols-4 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -369,12 +367,13 @@ export default function AttractionDetails({ postId, onClose }: AttractionDetails
                           type="date"
                           value={attraction.visit_date}
                           onChange={(e) => updateAttraction(index, 'visit_date', e.target.value)}
+                          max={new Date().toISOString().split("T")[0]}
                           className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-white"
                         />
                       </div>
                     </div>
 
-                    {/* Recommended */}
+
                     <div>
                       <label className="flex items-center gap-3">
                         <input

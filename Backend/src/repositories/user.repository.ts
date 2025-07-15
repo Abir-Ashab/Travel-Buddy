@@ -128,7 +128,6 @@ class User {
   }
 
   async deleteById(id : string) {
-    console.log("Deleting user with ID:", id);
     return this.knex(this.tableName)
       .where({ id })
       .del();

@@ -55,9 +55,7 @@ class TripModel {
 
   async create(tripData: any): Promise<string> {
     let locationId = null;
-    console.log("tripData: ", tripData)
     if (tripData.location) {
-      console.log("tripData: ", tripData)
       locationId = await this.findOrCreateLocation(tripData.location);
     }
     const { location, ...fields } = tripData;

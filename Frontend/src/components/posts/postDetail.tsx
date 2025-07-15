@@ -106,7 +106,6 @@ export default function PostDetails() {
     setError(null);
     try {
       const res = await api.get(`/posts/${id}/details`);
-      console.log("detail post: ", res.data.data);
       setPost(res.data.data);
     } catch (err) {
       console.error("Failed to fetch post details", err);

@@ -228,7 +228,6 @@ const handleAddToWishlist = async (wishlistId: string, item: any) => {
       return dateString.split('T')[0]; 
     }
   };
-  console.log("item is: ", item);
   
   const wishlistItemData: any = {
     priority_level: item.priority_level,
@@ -245,7 +244,6 @@ const handleAddToWishlist = async (wishlistId: string, item: any) => {
       timezone: item.location.timezone
     }
   };
-  console.log("final item: ", wishlistItemData);
   await wishlistApi.addWishlistItem(wishlistId, wishlistItemData);
 };
 

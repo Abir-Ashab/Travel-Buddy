@@ -152,9 +152,7 @@ export default function AccommodationDetails({ postId, onClose }: AccommodationD
     setLoading(true);
     setError(null);
 
-    try {      
-      console.log(accommodations);
-      
+    try {        
       const validAccommodations = accommodations.filter(a => 
         a.accommodation_type && a.location.name && a.cost_per_night > 0 && a.location.country
       );
@@ -320,6 +318,7 @@ export default function AccommodationDetails({ postId, onClose }: AccommodationD
                           required
                           value={accommodation.check_in_date}
                           onChange={(e) => updateAccommodation(index, 'check_in_date', e.target.value)}
+                          max={new Date().toISOString().split("T")[0]}
                           className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
                         />
                       </div>
@@ -333,6 +332,7 @@ export default function AccommodationDetails({ postId, onClose }: AccommodationD
                           required
                           value={accommodation.check_out_date}
                           onChange={(e) => updateAccommodation(index, 'check_out_date', e.target.value)}
+                          max={new Date().toISOString().split("T")[0]}
                           className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
                         />
                       </div>

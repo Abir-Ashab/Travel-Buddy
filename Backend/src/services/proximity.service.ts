@@ -228,7 +228,6 @@ const processProximityAlerts = async (userId: string): Promise<void> => {
     return;
   }
 
-  console.log("settings: ", settings);
   
   if (settings.enable_wishlist_alerts) {
     try {

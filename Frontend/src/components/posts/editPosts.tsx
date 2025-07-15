@@ -81,11 +81,8 @@ export default function EditPost() {
     
     setLoading(true);
     try {
-      console.log("id: ", id);
-      
       const response = await api.get(`/posts/${id}`);
       const postData = response.data.data;
-      console.log(postData)
       setPost({
         id: postData.id,
         title: postData.title || "",
@@ -108,9 +105,7 @@ export default function EditPost() {
     if (!validateForm()) return;
 
     setSaving(true);
-    try {
-      console.log("post is: ", post);
-      
+    try {      
       await api.put(`/posts/${id}`, {
         title: post.title.trim(),
         description: post.description.trim(),

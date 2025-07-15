@@ -89,8 +89,6 @@ export default function ProximitySettings() {
         enable_dining_alerts: settings.enable_dining_alerts
       };
 
-      console.log("Submitting payload:", payload);
-
       let response;
       if (isNewSettings) {
         response = await api.post("/proximity/settings", payload);

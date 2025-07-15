@@ -198,7 +198,6 @@ export default function DiningDetails({ postId, onClose }: DiningDetailsProps) {
     setError(null);
 
     try {
-      // Filter out empty dinings
       const validDinings = dinings.filter(d => 
         d.restaurant_name && d.cuisine_type && d.meal_type && d.cost > 0 && d.location.country
       );
@@ -208,8 +207,6 @@ export default function DiningDetails({ postId, onClose }: DiningDetailsProps) {
         setLoading(false);
         return;
       }
-
-      // Submit each dining
       for (const dining of validDinings) {
         await api.post(`/dinings/post/${postId}`, {
           post_id: postId,
@@ -286,7 +283,6 @@ export default function DiningDetails({ postId, onClose }: DiningDetailsProps) {
                   </div>
 
                   <div className="space-y-6">
-                    {/* Basic Info */}
                     <div className="grid md:grid-cols-3 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -341,7 +337,6 @@ export default function DiningDetails({ postId, onClose }: DiningDetailsProps) {
                       </div>
                     </div>
 
-                    {/* Cost, Rating, Date */}
                     <div className="grid md:grid-cols-3 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -384,6 +379,7 @@ export default function DiningDetails({ postId, onClose }: DiningDetailsProps) {
                           type="date"
                           value={dining.visit_date}
                           onChange={(e) => updateDining(index, 'visit_date', e.target.value)}
+                          max={new Date().toISOString().split("T")[0]}
                           className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
                         />
                       </div>

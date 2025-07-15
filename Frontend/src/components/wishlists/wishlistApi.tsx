@@ -53,8 +53,6 @@ export const wishlistApi = {
     grouping_type: 'region' | 'theme' | 'budget' | 'season';
     is_public?: boolean;
   }) => {
-    console.log("data in api: ", data);
-    
     const response = await api.post('/wishlists', data);
     return response.data.data;
   },
@@ -95,7 +93,6 @@ export const wishlistApi = {
   },
 
   addWishlistItem: async (wishlistId: string, data: WishlistItemFormData) => {
-    console.log("wishlist data: ", data)
     const response = await api.post(`/wishlists/${wishlistId}/items`, data);
     return response.data.data;
   },

@@ -241,8 +241,6 @@ class WishlistModel {
   }
 
 async getUserWishlistItemsWithLocations(userId: string): Promise<any[]> {
-  console.log("items are: ");
-  
   const items = await this.knex('wishlist_items')
     .join('wishlists', 'wishlist_items.wishlist_id', 'wishlists.id')
     .join('locations', 'wishlist_items.location_id', 'locations.id')
@@ -266,8 +264,6 @@ async getUserWishlistItemsWithLocations(userId: string): Promise<any[]> {
       'locations.timezone as location_timezone'
     )
     .orderBy('wishlist_items.priority_level', 'asc');
-
-  console.log(items);
   
   return items.map(item => ({
     id: item.id,

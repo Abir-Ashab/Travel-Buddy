@@ -38,7 +38,6 @@ const handleSubmit = async (data: any) => {
         coordinates: [data.current_latitude, data.current_longitude]
       } : null
     };
-    console.log("data: ", submitData);
     await api.put("/users/profile", submitData);
     navigate("/login", { state: { success: "Successfully upgraded to Traveler!" } });
   } catch (err: any) {

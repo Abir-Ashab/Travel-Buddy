@@ -56,8 +56,6 @@ export default function EditProfile() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        console.log("hello..");
-        
         const response = await api.get("/users/profile");
         setUser(response.data.data);
       } catch (err) {
@@ -74,11 +72,8 @@ export default function EditProfile() {
     setError(null);
     setSuccess(false);
 
-    try {
-      console.log("Submitting form data:", formData);
-      
-      const data = new FormData();
-      
+    try {   
+      const data = new FormData();  
       data.append("name", formData.name);
       if (formData.number) data.append("number", formData.number);
       data.append("bio", formData.bio);

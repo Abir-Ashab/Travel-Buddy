@@ -56,8 +56,6 @@ export default function RegisterPage() {
         email: form.email,
         password: form.password
       })
-      
-      console.log("Login response: ", loginRes);
       localStorage.setItem('token', loginRes.data.accessToken);
       const fetchedUser = await fetchUser();
       

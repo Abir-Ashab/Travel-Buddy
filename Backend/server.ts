@@ -17,12 +17,15 @@ import {notificationRoutes} from "./src/routes/notification.route"
 import {tripRoutes} from "./src/routes/trip.route"
 import {mediaRoutes} from "./src/routes/media.route"
 import cors from 'cors';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 config(); 
 const app = express();
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:4000', 
+  origin: process.env.ORIGIN || 'http://localhost:4001', 
   credentials: true,              
 }));
 
