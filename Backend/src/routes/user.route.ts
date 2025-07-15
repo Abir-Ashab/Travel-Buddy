@@ -1,0 +1,67 @@
+import express from "express";
+import { authMiddleware } from "../middlewares/auth.middleware";
+import validateRequest from "../middlewares/validateRequest";
+import { USER_Role } from "../interfaces/user.interface";
+import { userControllers } from "../controllers/user.controller";
+import { UserValidations } from "../validations/user.validation";
+import { PostController } from '../controllers/post.controller';
+import { uploadMiddleware } from "../middlewares/upload.middleware";
+
+const router = express.Router();
+
+router.post(
+  "/create-admin",
+  validateRequest(UserValidations.createAdminValidations),
+  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN),
+  userControllers.createAdmin
+);
+
+
+router.delete(
+  "/account",
+  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN),
+  userControllers.deleteUser
+);
+
+router.get('/reports', authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN), PostController.getReports);
+router.put('/reports/:reportId', PostController.resolveReport);
+router.delete('/reports/:reportId', PostController.deleteReportedPost);
+
+router.put(
+  "/status",
+  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN),
+  userControllers.updateUserStatus
+);
+
+router.put(
+  "/profile",
+  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+  uploadMiddleware.single('image'), 
+  userControllers.updateUser
+);
+
+
+router.get(
+  "/profile",
+  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN, USER_Role.EXPLORER, USER_Role.TRAVELER),
+  userControllers.getUserProfile
+);
+
+router.get(
+  "/travelers",
+  userControllers.getTravelers
+);
+
+router.get(
+  "/all",
+  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN),
+  userControllers.getAllUser
+);
+
+router.delete(
+  "/:id",
+  authMiddleware(USER_Role.ADMIN, USER_Role.SUPER_ADMIN),
+  userControllers.deleteUser
+)
+
+export const UserRoutes = router;

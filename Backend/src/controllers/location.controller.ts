@@ -1,0 +1,83 @@
+import { Request, Response } from 'express';
+import { LocationService } from "../services/location.service";
+import { CreateLocationRequest, UpdateLocationRequest } from "../interfaces/location.interface";
+import { catchAsync } from '../utils/catchAsync.util';
+
+const getAllLocations = catchAsync(async (req: Request, res: Response) => {
+  const { page, limit, country, region } = req.query;
+  
+  const locations = await LocationService.getAllLocations({
+    page: Number(page),
+    limit: Number(limit),
+    country: country as string,
+    region: region as string
+  });
+  
+  res.json({
+    success: true,
+    data: locations
+  });
+});
+
+const searchLocations = catchAsync(async (req: Request, res: Response) => {
+  const { q } = req.query; 
+  const locations = await LocationService.searchLocations(q as string);
+  
+  res.json({
+    success: true,
+    data: locations
+  });
+});
+
+const getLocationById = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const location = await LocationService.getLocationById(id);
+
+  res.json({
+    success: true,
+    data: location
+  });
+});
+
+const createLocation = catchAsync(async (req: Request, res: Response) => {
+  const locationData: CreateLocationRequest = req.body;
+
+  const location = await LocationService.createLocation(locationData);
+
+  res.status(201).json({
+    success: true,
+    data: location,
+    message: 'Location created successfully'
+  });
+});
+
+const updateLocation = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const updateData: UpdateLocationRequest = req.body;
+  const location = await LocationService.updateLocation(id, updateData);
+
+  res.json({
+    success: true,
+    data: location,
+    message: 'Location updated successfully'
+  });
+});
+
+const deleteLocation = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const success = await LocationService.deleteLocation(id);
+
+  res.json({
+    success: true,
+    message: 'Location deleted successfully'
+  });
+});
+
+export const LocationController = {
+  getAllLocations,
+  searchLocations,
+  getLocationById,
+  createLocation,
+  updateLocation,
+  deleteLocation,
+};
